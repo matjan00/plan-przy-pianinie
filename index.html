@@ -171,7 +171,9 @@ input[type=email],input[type=password]{font:inherit;color:inherit;background:var
 </nav>
 
 <script src="config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 "use strict";
 /* ============================== DANE ============================== */
@@ -490,7 +492,7 @@ function defaultState(){
   };
 }
 let S = defaultState();
-const SYNC = {configured:false, client:null, session:null, busy:false, dirty:false, last:null};
+const SYNC = {configured:false, auth:null, db:null, user:null, ref:null, unsub:null, busy:false, dirty:false, last:null};
 let saveTimer=null;
 
 function lsGet(){try{const r=localStorage.getItem("ppp-state");return r?JSON.parse(r):null}catch(e){return null}}
@@ -503,7 +505,7 @@ function saveLocal(){ pruneOld(); lsSet(S); }
 function save(){
   S.updated=Date.now();
   saveLocal();
-  if(SYNC.session){ clearTimeout(saveTimer); saveTimer=setTimeout(push,1200); }
+  if(SYNC.ref){ clearTimeout(saveTimer); saveTimer=setTimeout(push,1200); }
 }
 function setSync(t){const el=document.getElementById("sync"); if(el) el.textContent=t;}
 function pruneOld(){
@@ -513,51 +515,66 @@ function pruneOld(){
   if(S.ear.log.length>400) S.ear.log=S.ear.log.slice(-400);
 }
 
+/* Synchronizacja: Firebase wspólny z Arabeską; ta aplikacja pisze do piano/{uid}, Arabeska do users/{uid}. */
 async function push(){
-  if(!SYNC.client || !SYNC.session) return;
-  if(!navigator.onLine){ setSync("Offline – zsynchronizuję, gdy wróci internet."); return; }
+  if(!SYNC.ref) return;
   if(SYNC.busy){ SYNC.dirty=true; return; }
   SYNC.busy=true;
-  const {error}=await SYNC.client.from("practice_state").upsert({user_id:SYNC.session.user.id, state:S, updated_at:new Date().toISOString()});
+  if(!navigator.onLine) setSync("Offline – zsynchronizuję, gdy wróci internet.");
+  try{
+    await SYNC.ref.set({updatedAt:S.updated||Date.now(), data:JSON.parse(JSON.stringify(S))});
+    SYNC.last=new Date(); setSync("Zsynchronizowano o "+fmtTime(SYNC.last));
+  }catch(e){ setSync("Nie udało się zsynchronizować ("+(e.code||"błąd")+")."); }
   SYNC.busy=false;
-  if(error) setSync("Nie udało się zsynchronizować: "+error.message);
-  else { SYNC.last=new Date(); setSync("Zsynchronizowano o "+fmtTime(SYNC.last)); }
   if(SYNC.dirty){ SYNC.dirty=false; push(); }
 }
-async function pull(){
-  if(!SYNC.client || !SYNC.session || !navigator.onLine) return;
-  const {data,error}=await SYNC.client.from("practice_state").select("state").eq("user_id",SYNC.session.user.id).maybeSingle();
-  if(error){ setSync("Nie udało się pobrać postępu: "+error.message); return; }
-  const remote=data && data.state, ru=(remote && remote.updated)||0, lu=S.updated||0;
-  if(remote && ru>lu){
-    S=merge(defaultState(), remote); saveLocal();
+function applyRemote(d){
+  if(d && d.data && (d.updatedAt||0)>(S.updated||0)){
+    S=merge(defaultState(), JSON.parse(JSON.stringify(d.data))); saveLocal();
     SYNC.last=new Date(); setSync("Pobrano postęp z konta o "+fmtTime(SYNC.last));
-    render();
-  } else if(lu>ru){ await push(); }
-  else { SYNC.last=new Date(); setSync("Zsynchronizowano o "+fmtTime(SYNC.last)); }
+    render(); return true;
+  }
+  return false;
+}
+async function syncNow(){
+  if(!SYNC.ref) return;
+  const snap=await SYNC.ref.get();
+  const d=snap.exists? snap.data() : null;
+  if(!applyRemote(d)){
+    if(!d || (S.updated||0)>(d.updatedAt||0)) await push();
+    else { SYNC.last=new Date(); setSync("Zsynchronizowano o "+fmtTime(SYNC.last)); }
+  }
+}
+async function attach(user){
+  const ref=SYNC.db.collection("piano").doc(user.uid);
+  SYNC.ref=ref;
+  setSync("Łączę z kontem…");
+  try{
+    await syncNow();
+    if(SYNC.ref!==ref) return;
+    SYNC.unsub=ref.onSnapshot(sn=>{ if(sn.exists && !sn.metadata.hasPendingWrites) applyRemote(sn.data()); },()=>{});
+  }catch(e){ if(SYNC.ref===ref) setSync("Nie udało się połączyć z kontem ("+(e.code||"błąd")+")."); }
+  if(TAB==="progress") render();
 }
 
 async function initStore(){
   const local=lsGet(); if(local) S=merge(defaultState(),local);
   render();
-  const cfg=window.PPP_CONFIG||{};
-  if(!cfg.supabaseUrl || !cfg.supabaseKey){ setSync("Postęp zapisuje się na tym urządzeniu."); return; }
-  if(!window.supabase){ setSync("Offline – postęp zapisuje się na tym urządzeniu."); return; }
+  const cfg=window.FIREBASE_CONFIG;
+  if(!cfg){ setSync("Postęp zapisuje się na tym urządzeniu."); return; }
+  if(!window.firebase){ setSync("Offline – postęp zapisuje się na tym urządzeniu."); return; }
   SYNC.configured=true;
-  SYNC.client=window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey, {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}});
-  try{
-    const {data}=await SYNC.client.auth.getSession(); SYNC.session=data.session;
-  }catch(e){}
-  SYNC.client.auth.onAuthStateChange((ev,s)=>{
-    const was=!!SYNC.session; SYNC.session=s;
-    if(s && !was) pull();
+  firebase.initializeApp(cfg);
+  SYNC.auth=firebase.auth(); SYNC.db=firebase.firestore();
+  SYNC.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+  SYNC.auth.getRedirectResult().catch(()=>{});
+  SYNC.auth.onAuthStateChanged(u=>{
+    if(SYNC.unsub){ SYNC.unsub(); SYNC.unsub=null; }
+    SYNC.ref=null; SYNC.user=u;
+    if(u) attach(u);
+    else setSync("Zaloguj się kontem Google w zakładce Postęp, żeby mieć ten sam postęp na komputerze.");
     if(TAB==="progress") render();
   });
-  if(SYNC.session) await pull();
-  else setSync("Zaloguj się w zakładce Postęp, żeby mieć ten sam postęp na komputerze.");
-  render();
-  window.addEventListener("online",()=>{ if(SYNC.session) pull(); });
-  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible" && SYNC.session) pull(); });
 }
 
 /* ============================== POSTĘP ============================== */
@@ -1094,40 +1111,31 @@ function accountCard(){
   let inner;
   if(!SYNC.configured){
     inner=`<p class="small muted">Synchronizacja nie jest jeszcze włączona. Postęp zapisuje się na tym urządzeniu.</p>`;
-  } else if(!SYNC.session){
-    inner=`<p class="small">Zaloguj się, żeby mieć ten sam postęp na telefonie i komputerze.</p>
-    <form id="loginform" class="stack" style="gap:8px">
-      <input type="email" id="lg-email" autocomplete="email" placeholder="twoj@email.pl" required>
-      <input type="password" id="lg-pass" autocomplete="current-password" placeholder="Hasło (min. 6 znaków)" minlength="6" required>
-      <div class="row"><button class="btn primary sm" type="submit">Zaloguj</button><button class="btn sm" type="button" data-act="signup">Załóż konto</button></div>
-      <p class="small" id="lg-msg" style="margin:0"></p>
-    </form>`;
+  } else if(!SYNC.user){
+    inner=`<p class="small">Zaloguj się kontem Google – tym samym co w Arabesce. Postęp będzie wspólny na telefonie i komputerze.</p>
+    <div class="row"><button class="btn primary sm" data-act="glogin">Zaloguj przez Google</button></div>`;
   } else {
-    inner=`<p class="small">Zalogowana jako <b>${esc(SYNC.session.user.email||"")}</b>.${SYNC.last?" Ostatnia synchronizacja: "+fmtTime(SYNC.last)+".":""}</p>
+    inner=`<p class="small">Zalogowana jako <b>${esc(SYNC.user.email||"")}</b>.${SYNC.last?" Ostatnia synchronizacja: "+fmtTime(SYNC.last)+".":""}</p>
     <div class="row"><button class="btn sm" data-act="syncnow">Synchronizuj teraz</button><button class="btn sm ghost" data-act="logout">Wyloguj</button></div>`;
   }
   return `<div class="card stack"><h3>Konto i synchronizacja</h3>${inner}
     <div class="row"><button class="btn sm" data-act="export">Pobierz kopię zapasową</button>
     <label class="btn sm" style="cursor:pointer">Wczytaj kopię<input type="file" id="importfile" accept="application/json,.json" hidden></label></div></div>`;
 }
-function plErr(m){
-  if(/Invalid login credentials/i.test(m)) return "Nieprawidłowy e-mail lub hasło.";
-  if(/Email not confirmed/i.test(m)) return "Potwierdź najpierw e-mail (link w skrzynce).";
-  if(/already registered/i.test(m)) return "To konto już istnieje – zaloguj się.";
-  if(/Password should be/i.test(m)) return "Hasło musi mieć co najmniej 6 znaków.";
-  return m;
+function authErr(e){
+  const c=(e&&e.code)||"";
+  if(c==="auth/popup-closed-by-user"||c==="auth/cancelled-popup-request") return null;
+  if(c==="auth/unauthorized-domain") return "Ta domena nie jest dodana w Firebase (Authentication → Settings → Authorized domains).";
+  if(c==="auth/network-request-failed") return "Brak internetu – spróbuj, gdy będziesz online.";
+  return "Nie udało się zalogować ("+(c||"błąd")+").";
 }
-function lgMsg(t, ok){ const el=document.getElementById("lg-msg"); if(el){ el.textContent=t; el.style.color=ok?"var(--ok)":"var(--danger)"; } }
-async function doAuth(signup){
-  const email=document.getElementById("lg-email").value.trim(), pass=document.getElementById("lg-pass").value;
-  if(!email || pass.length<6){ lgMsg("Wpisz e-mail i hasło (co najmniej 6 znaków)."); return; }
-  if(!navigator.onLine){ lgMsg("Brak internetu – spróbuj, gdy będziesz online."); return; }
-  lgMsg(signup?"Zakładam konto…":"Loguję…", true);
-  const res = signup ? await SYNC.client.auth.signUp({email, password:pass, options:{emailRedirectTo: location.origin+location.pathname}})
-                     : await SYNC.client.auth.signInWithPassword({email, password:pass});
-  if(res.error){ lgMsg(plErr(res.error.message)); return; }
-  if(signup && !res.data.session){ lgMsg("Sprawdź skrzynkę i kliknij link potwierdzający, potem zaloguj się tutaj.", true); return; }
-  toast("Zalogowano");
+async function googleLogin(){
+  const p=new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({prompt:"select_account"});
+  try{ await SYNC.auth.signInWithPopup(p); toast("Zalogowano"); }
+  catch(e){
+    if(e && (e.code==="auth/popup-blocked"||e.code==="auth/operation-not-supported-in-this-environment")){ SYNC.auth.signInWithRedirect(p); return; }
+    const m=authErr(e); if(m) toast(m);
+  }
 }
 function exportState(){
   const blob=new Blob([JSON.stringify(S,null,1)],{type:"application/json"});
@@ -1137,12 +1145,11 @@ function exportState(){
 document.addEventListener("click", async (e)=>{
   const t=e.target.closest("[data-act]"); if(!t) return;
   const act=t.dataset.act;
-  if(act==="signup") doAuth(true);
-  if(act==="logout"){ await SYNC.client.auth.signOut(); SYNC.session=null; setSync("Wylogowano. Postęp zostaje na tym urządzeniu."); render(); }
-  if(act==="syncnow"){ await pull(); render(); }
+  if(act==="glogin") googleLogin();
+  if(act==="logout"){ await SYNC.auth.signOut(); toast("Wylogowano – postęp zostaje na tym urządzeniu"); }
+  if(act==="syncnow"){ try{ await syncNow(); }catch(err){ setSync("Nie udało się zsynchronizować ("+(err.code||"błąd")+")."); } render(); }
   if(act==="export") exportState();
 });
-document.addEventListener("submit",(e)=>{ if(e.target.id!=="loginform") return; e.preventDefault(); doAuth(false); });
 document.addEventListener("change",(e)=>{
   if(e.target.id!=="importfile") return;
   const f=e.target.files[0]; if(!f) return;

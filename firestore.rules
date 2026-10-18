@@ -1,0 +1,15 @@
+rules_version = '2';
+// Shared Firebase project: each app keeps one document per account in its own collection,
+// and only the signed-in owner can read or write it.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Arabeska (balet)
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    // Plan przy pianinie
+    match /piano/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}

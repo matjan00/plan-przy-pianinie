@@ -1,12 +1,14 @@
 // Offline cache: app files are served from cache at once and refreshed in the background,
 // so a new version shows up on the next launch.
-const CACHE = "ppp-v1";
+const CACHE = "ppp-v2";
 const SHELL = [
   "./", "index.html", "manifest.webmanifest", "config.js",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
-  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js",
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js",
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"
 ];
-const CACHED_HOSTS = ["cdn.jsdelivr.net", "fonts.googleapis.com", "fonts.gstatic.com"];
+const CACHED_HOSTS = ["www.gstatic.com", "fonts.googleapis.com", "fonts.gstatic.com"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => Promise.all(SHELL.map((u) => c.add(u).catch(() => {})))));
@@ -25,7 +27,7 @@ self.addEventListener("fetch", (e) => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
   const sameOrigin = url.origin === self.location.origin;
-  if (!sameOrigin && !CACHED_HOSTS.includes(url.hostname)) return; // Supabase API goes straight to the network
+  if (!sameOrigin && !CACHED_HOSTS.includes(url.hostname)) return; // Firebase API calls go straight to the network
 
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
