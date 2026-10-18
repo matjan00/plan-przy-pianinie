@@ -784,6 +784,7 @@ function viewToday(){
   const p=progress();
   const keys=plan.blocks.map(b=>`<div class="key t-${BLOCKS[b.type].grp} ${b.done?"done":""}" style="flex-grow:${b.min}" title="${BLOCKS[b.type].name}">${b.min}</div>`).join("");
   return `<section class="stack">
+  ${installCard()}
   <div class="card stack">
     <div class="spread"><div><span class="eyebrow">Sesja ${S.sessions + (plan.counted?0:1)}</span><h2>${mins} z ${plan.minutes} min</h2></div>
     <div class="seg" role="group" aria-label="Długość sesji">${[30,45,60,90].map(m=>`<button data-act="minutes" data-m="${m}" aria-pressed="${plan.minutes===m}">${m}</button>`).join("")}</div></div>
@@ -1162,6 +1163,38 @@ document.addEventListener("change",(e)=>{
     }catch(err){ toast("To nie jest plik kopii z tej aplikacji"); }
   };
   r.readAsText(f);
+});
+
+/* ============================== INSTALACJA ============================== */
+let installEvt=null;
+const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true;
+function installHidden(){ try{ return localStorage.getItem("ppp-install-hide")==="1"; }catch(e){ return false; } }
+window.addEventListener("beforeinstallprompt",(e)=>{ e.preventDefault(); installEvt=e; if(TAB==="today") render(); });
+window.addEventListener("appinstalled",()=>{ installEvt=null; toast("Zainstalowano – aplikacja jest na ekranie głównym"); render(); });
+function installCard(){
+  if(isStandalone()) return "";
+  if(installEvt) return `<div class="card spread"><div style="min-width:0;flex:1"><h3>Zainstaluj aplikację</h3><p class="small muted" style="margin:0">Ikona na ekranie, pełny ekran i działanie offline.</p></div><button class="btn primary" data-act="install">Zainstaluj</button></div>`;
+  if(installHidden()) return "";
+  return `<details class="card"><summary>Jak zainstalować aplikację?</summary><div class="stack small" style="margin-top:8px;gap:8px">
+    <p style="margin:0">Chrome nie pokazuje teraz przycisku instalacji. Spróbuj z menu Chrome: <b>⋮ → Zainstaluj aplikację</b> albo <b>⋮ → Dodaj do ekranu głównego</b>.</p>
+    <p style="margin:0">Jeśli Chrome pisze, że aplikacja jest już zainstalowana, a nie da się jej otworzyć:</p>
+    <ol class="tips" style="margin:0">
+      <li>Ustawienia telefonu → Aplikacje → wyszukaj „Pianino” i „Plan przy pianinie” → Odinstaluj.</li>
+      <li>Chrome → ⋮ → Ustawienia → Ustawienia witryn → Wszystkie witryny → matjan00.github.io → Wyczyść i zresetuj.</li>
+      <li>Uruchom telefon ponownie i otwórz tę stronę jeszcze raz – pojawi się tu przycisk „Zainstaluj”.</li>
+    </ol>
+    <div><button class="btn sm ghost" data-act="install-hide">Nie pokazuj więcej</button></div>
+  </div></details>`;
+}
+document.addEventListener("click", async (e)=>{
+  const t=e.target.closest("[data-act]"); if(!t) return;
+  if(t.dataset.act==="install" && installEvt){
+    const ev=installEvt; installEvt=null;
+    ev.prompt();
+    try{ const c=await ev.userChoice; if(c.outcome!=="accepted") installEvt=null; }catch(err){}
+    render();
+  }
+  if(t.dataset.act==="install-hide"){ try{ localStorage.setItem("ppp-install-hide","1"); }catch(err){} render(); }
 });
 
 initStore();
