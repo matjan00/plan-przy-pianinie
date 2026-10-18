@@ -1,6 +1,6 @@
-// Offline cache: app files are served from cache at once and refreshed in the background,
-// so a new version shows up on the next launch.
-const CACHE = "ppp-v2";
+// Offline cache. The page and config.js come from the network first (so updates apply at once)
+// and fall back to the cache offline; other files are served from cache and refreshed in the background.
+const CACHE = "ppp-v3";
 const SHELL = [
   "./", "index.html", "manifest.webmanifest", "config.js",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
@@ -28,6 +28,21 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(req.url);
   const sameOrigin = url.origin === self.location.origin;
   if (!sameOrigin && !CACHED_HOSTS.includes(url.hostname)) return; // Firebase API calls go straight to the network
+
+  const networkFirst = sameOrigin && (req.mode === "navigate" || url.pathname.endsWith("/config.js") || url.pathname.endsWith("/index.html"));
+  if (networkFirst) {
+    e.respondWith((async () => {
+      const cache = await caches.open(CACHE);
+      try {
+        const res = await fetch(req, { cache: "no-store" });
+        if (res && res.ok) cache.put(req.mode === "navigate" ? "index.html" : req, res.clone());
+        return res;
+      } catch (err) {
+        return (await cache.match(req, { ignoreSearch: true })) || (await cache.match("index.html"));
+      }
+    })());
+    return;
+  }
 
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
