@@ -1,0 +1,1164 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1E6B57">
+<meta name="description" content="Codzienny plan ćwiczeń na pianinie według RCM.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>Plan przy pianinie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one narrow practice column (phone at the piano); today's plan drawn as a row of piano keys, blocks stacked under it. */
+:root{
+  --bg:#F3F4F1; --surface:#FFFFFF; --sunk:#E9EBE6; --ink:#16181D; --muted:#5B6169; --line:#D8DBD4;
+  --accent:#1E6B57; --accent-ink:#FFFFFF; --accent-soft:#E0EEE8;
+  --c-tech:#A9741C; --c-tech-soft:#F5EAD3;
+  --c-mind:#3E5C8A; --c-mind-soft:#E3E9F3;
+  --c-music:#1E6B57; --c-music-soft:#E0EEE8;
+  --danger:#A63A2B; --ok:#2F7A3E;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#111316; --surface:#1A1D21; --sunk:#23272C; --ink:#ECEDEA; --muted:#A0A6AD; --line:#2E3338;
+  --accent:#62C3A2; --accent-ink:#0B1A14; --accent-soft:#1B2F28;
+  --c-tech:#E2B060; --c-tech-soft:#352A16; --c-mind:#8FAEE0; --c-mind-soft:#1F2838;
+  --c-music:#62C3A2; --c-music-soft:#1B2F28; --danger:#EE8B7B; --ok:#7CCB8B; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#111316; --surface:#1A1D21; --sunk:#23272C; --ink:#ECEDEA; --muted:#A0A6AD; --line:#2E3338;
+  --accent:#62C3A2; --accent-ink:#0B1A14; --accent-soft:#1B2F28;
+  --c-tech:#E2B060; --c-tech-soft:#352A16; --c-mind:#8FAEE0; --c-mind-soft:#1F2838;
+  --c-music:#62C3A2; --c-music-soft:#1B2F28; --danger:#EE8B7B; --ok:#7CCB8B; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--f-body);margin:0}
+.wrap{max-width:720px;margin:0 auto;padding-block:12px 96px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:1.6rem} h2{font-size:1.25rem} h3{font-size:1.05rem;font-weight:500}
+a{color:var(--accent)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:.875rem}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.levelchip{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 4px;font-size:.875rem}
+.levelchip b{background:var(--ink);color:var(--bg);border-radius:999px;padding:2px 10px;font-family:var(--f-display)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabs button{flex:1;max-width:180px;background:none;border:0;padding:10px 4px 12px;font-size:.8rem;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button[aria-current="true"]{color:var(--accent);font-weight:600}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spread{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;font-size:.9rem}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn.ghost{background:transparent}
+.btn.sm{padding:5px 10px;font-size:.82rem;border-radius:8px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 12px;font-size:.88rem}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:600}
+/* piano-key timeline */
+.keys{display:flex;gap:3px;height:74px;margin:6px 0 4px}
+.key{position:relative;flex-basis:0;min-width:18px;background:var(--surface);border:1px solid var(--line);border-top:0;border-radius:0 0 7px 7px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-size:.72rem;color:var(--muted);overflow:hidden}
+.key::before{content:"";position:absolute;left:0;right:0;top:0;height:10px;background:var(--kc)}
+.key.done{background:var(--kcs)}
+.key.done::after{content:"✓";position:absolute;top:16px;font-weight:700;color:var(--kc)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--kc);margin-right:5px;vertical-align:-1px}
+.t-tech{--kc:var(--c-tech);--kcs:var(--c-tech-soft)}
+.t-mind{--kc:var(--c-mind);--kcs:var(--c-mind-soft)}
+.t-music{--kc:var(--c-music);--kcs:var(--c-music-soft)}
+/* plan blocks */
+.block{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.block > .bh{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.block .tag{width:6px;align-self:stretch;border-radius:3px;background:var(--kc);flex:none}
+.block .bh .ttl{flex:1;min-width:0}
+.block .bh .ttl h3{line-height:1.25}
+.block .min{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);white-space:nowrap}
+.block .bb{padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.block .bb p,.block .bb ol,.block .bb ul,.card.stack > p{margin:0}
+.block .bb > .btn{align-self:flex-start}
+.block.isdone{opacity:.72}
+.block.isdone .bh{background:var(--kcs)}
+.check{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px 6px 8px;font-size:.88rem}
+.check .box{width:20px;height:20px;border-radius:6px;border:2px solid var(--muted);display:grid;place-items:center;font-size:.8rem;color:transparent}
+.check[aria-pressed="true"]{border-color:var(--kc);background:var(--kcs)}
+.check[aria-pressed="true"] .box{background:var(--kc);border-color:var(--kc);color:var(--surface)}
+ul.tips{margin:0;padding-left:1.1rem} ul.tips li{margin:2px 0}
+.tipgrp{font-size:.92rem} .tipgrp b{font-weight:600}
+details{border-top:1px dashed var(--line);padding-top:8px}
+details summary{cursor:pointer;font-weight:600;font-size:.9rem;color:var(--accent)}
+.pill{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:999px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.pill.own{background:var(--accent-soft);color:var(--accent)}
+.timer{font-family:var(--f-mono);font-size:1.05rem;min-width:64px;text-align:right}
+.status{display:flex;gap:4px;flex-wrap:wrap}
+.status button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:4px 8px;font-size:.78rem}
+.status button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.rate{display:flex;gap:6px}
+.rate button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-family:var(--f-mono)}
+.rate button[aria-pressed="true"]{background:var(--c-mind);color:var(--surface);border-color:var(--c-mind)}
+/* progress */
+.bar{height:10px;background:var(--sunk);border-radius:99px;overflow:hidden}
+.bar > span{display:block;height:100%;background:var(--kc,var(--accent));border-radius:99px}
+.big{font-family:var(--f-display);font-size:2.6rem;font-weight:700;line-height:1}
+.ladder{display:flex;gap:4px;margin-top:6px}
+.ladder span{flex:1;height:22px;border-radius:5px;background:var(--sunk);font-size:.7rem;display:grid;place-items:center;color:var(--muted);font-family:var(--f-mono)}
+.ladder span.on{background:var(--kc);color:var(--surface)}
+.ladder span.cur{outline:2px solid var(--kc);outline-offset:-2px;color:var(--ink)}
+.chart{display:flex;align-items:flex-end;gap:4px;height:90px;border-bottom:1px solid var(--line);padding-top:6px}
+.chart div{flex:1;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px;position:relative}
+.chart div.zero{background:var(--line)}
+.chartx{display:flex;gap:4px;font-size:.66rem;color:var(--muted);font-family:var(--f-mono)}
+.chartx span{flex:1;text-align:center}
+.piece{border-top:1px solid var(--line);padding:12px 0;display:flex;flex-direction:column;gap:8px}
+.piece:first-child{border-top:0}
+.listhead{display:flex;align-items:baseline;gap:8px;margin-top:6px}
+.listhead .lt{font-family:var(--f-display);font-weight:700;font-size:1.4rem;color:var(--accent)}
+/* quiz */
+.staff{width:100%;max-width:320px;height:auto;display:block;margin:0 auto}
+.staff line,.staff .ink{stroke:var(--ink)}
+.staff text,.staff ellipse{fill:var(--ink)}
+.answers{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px}
+.answers.wide{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.answers button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 4px;font-weight:600}
+.answers button.right{background:var(--c-music-soft);border-color:var(--ok);color:var(--ok)}
+.answers button.wrong{background:transparent;border-color:var(--danger);color:var(--danger)}
+.metro{display:flex;flex-direction:column;gap:10px;align-items:center}
+.metro .bpm{font-family:var(--f-display);font-size:3rem;font-weight:700;line-height:1}
+.dots{display:flex;gap:8px} .dots i{width:14px;height:14px;border-radius:50%;background:var(--sunk)} .dots i.on{background:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=text],select{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:.88rem;z-index:9}
+.minis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.mini{background:var(--sunk);border-radius:12px;padding:10px 12px}
+.mini .v{font-family:var(--f-display);font-size:1.4rem;font-weight:700}
+.note{background:var(--c-tech-soft);border-radius:10px;padding:10px 12px;font-size:.9rem}
+.sync{font-size:.75rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+[hidden]{display:none!important}
+:root{padding-top:env(safe-area-inset-top,0px)}
+input[type=email],input[type=password]{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;width:100%}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow" id="today-label">Dzisiaj</div>
+      <h1>Plan przy pianinie</h1>
+    </div>
+    <div class="row">
+      <span class="levelchip"><b id="chip-grade">Grade 5</b><span id="chip-pct">0% do kolejnego</span></span>
+    </div>
+  </header>
+  <main id="view"><div class="card muted">Ładuję Twój plan…</div></main>
+  <p class="sync" id="sync"></p>
+</div>
+<nav class="tabs" aria-label="Sekcje">
+  <button data-tab="today" aria-current="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Dziś</button>
+  <button data-tab="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Postęp</button>
+  <button data-tab="rep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Utwory</button>
+  <button data-tab="tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 21h8l-2-17h-4z"/><path d="M12 14l5-8"/></svg>Narzędzia</button>
+</nav>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+"use strict";
+/* ============================== DANE ============================== */
+const KEYS = [
+  ["C-dur","a-moll",0],["G-dur","e-moll",1],["D-dur","h-moll",2],["A-dur","fis-moll",3],["E-dur","cis-moll",4],["H-dur","gis-moll",5],
+  ["Fis-dur","dis-moll",6],["Des-dur","b-moll",-5],["As-dur","f-moll",-4],["Es-dur","c-moll",-3],["B-dur","g-moll",-2],["F-dur","d-moll",-1]
+];
+const SRC = {
+  imslp:"Za darmo: IMSLP",
+  chopin:"Sprawdź w „Najpiękniejszy Chopin” (PWM), inaczej IMSLP",
+  burg:"Masz: Burgmüller op. 100",
+  wtk:"Masz: Bach WTK I",
+  czerny:"Masz: Czerny op. 299",
+  ms:"MuseScore (masz subskrypcję)"
+};
+const LISTS = {A:"Barok", B:"Klasycyzm", C:"Romantyzm i XX w.", E:"Etiudy"};
+
+function P(id,g,list,name,src,tempo,t,i,c,q){return {id,g,list,name,src,tempo,tips:{t,i,c},q:q||name};}
+const PIECES = [
+/* ---------- GRADE 5 ---------- */
+P("bwv939",5,"A","Bach – Małe preludium C-dur BWV 939","imslp","♩ = 72–84",
+ ["Lewa ręka prowadzi akordy łamane – trzymaj nadgarstek luźny, palce blisko klawiszy.","Prawa ręka: ósemki równe jak sznur pereł, bez akcentów na kciuku."],
+ ["Utwór to ciąg harmonii – posłuchaj, gdzie napięcie rośnie (dominanta) i gdzie wraca spokój.","Bez pedału albo z bardzo krótkim; artykulacja ma być klarowna jak na klawesynie."],
+ ["Najpierw zagraj same akordy blokowo, żeby usłyszeć harmonię.","Potem osobno ręce w ♩ = 60, dopiero potem razem."]),
+P("bwv927",5,"A","Bach – Małe preludium F-dur BWV 927","imslp","♩ = 69–80",
+ ["Szesnastki w prawej ręce: palcowanie wpisz ołówkiem i trzymaj się go za każdym razem.","Lewa ręka – ósemki non legato, lekko oderwane."],
+ ["Kontrast faktury: figuracje kontra spokojny bas – bas jest fundamentem, nie tłem.","Kadencja na końcu: lekko zwolnij ostatni takt, bez przesady."],
+ ["Ćwicz rytmami (długa–krótka, krótka–długa) trudne szesnastki.","Metronom: start ♩ = 52, co dzień +4."]),
+P("bwv941",5,"A","Bach – Małe preludium e-moll BWV 941","imslp","♩ = 60–72",
+ ["Trioli muszą być równe – licz „raz-i-a” na głos.","Kciuk podkładaj bez ruchu łokcia."],
+ ["Tonacja molowa, ale ruch płynny – nie graj ciężko.","Zaznacz momenty modulacji i pokaż je lekką zmianą barwy."],
+ ["Rozbij na frazy po 2 takty, każdą ucz z pamięci.","Graj razem bardzo wolno, zanim przyspieszysz."]),
+P("clem36-3",5,"B","Clementi – Sonatina C-dur op. 36 nr 3, cz. 1","imslp","♩ = 120–144 (alla breve)",
+ ["Gamy w prawej ręce: zagraj je najpierw jako zwykłe gamy C-dur w tym samym palcowaniu.","Basso Albertiego w lewej – cicho, nadgarstek miękki, kciuk lekki."],
+ ["Pierwszy temat energiczny, drugi (w G-dur) śpiewniejszy – pokaż kontrast.","Dynamika klasyczna: wyraźne f i p, crescenda krótkie i celowe."],
+ ["Ucz ekspozycji, potem przetworzenia, potem reprizy – repriza pójdzie najszybciej.","Lewą rękę ćwicz blokowo (akordy), żeby palce znały układ."]),
+P("kuhlau55-1",5,"B","Kuhlau – Sonatina C-dur op. 55 nr 1, cz. 1","imslp","♩ = 108–126",
+ ["Staccato wykonuj z nadgarstka, nie z ramienia.","Przebiegi szesnastkowe: palce blisko klawiatury, bez podnoszenia."],
+ ["Charakter pogodny, taneczny – lekkość ważniejsza niż szybkość.","Akcenty na ćwierćnutach podkreślają puls marszowy."],
+ ["Najtrudniejsze takty ćwicz osobno codziennie przez tydzień.","Graj z metronomem, potem bez – sprawdź, czy nie przyspieszasz."]),
+P("beet-anh5",5,"B","Beethoven – Sonatina G-dur Anh. 5 nr 1, cz. 1","imslp","♩ = 100–116",
+ ["Ozdobniki graj na miarę – lepiej prostszy, ale równy.","Lewa ręka: ósemki legato, cichsze niż melodia."],
+ ["Melodia śpiewna, frazy 4-taktowe – oddychaj na ich końcach.","Delikatne zakończenia fraz (ciszej na ostatniej nucie)."],
+ ["Zaśpiewaj melodię, zanim ją zagrasz – usłyszysz frazowanie.","Ucz w kolejności: melodia, bas, razem."]),
+P("chopin-walc-a",5,"C","Chopin – Walc a-moll op. posth. (B. 150)","chopin","♩ = 120–138",
+ ["Lewa ręka „um-pa-pa”: bas na raz pełniej, akordy na dwa i trzy lekko.","Pedał zmieniaj na każdy bas (raz), czysto – słuchaj, czy harmonie się nie mieszają."],
+ ["Melancholijny, ale wciąż walc – zachowaj taneczny puls.","Delikatne rubato: możesz lekko się zatrzymać na szczycie frazy, potem odrobić czas."],
+ ["Grasz go już – skup się na jakości: nagraj się telefonem i posłuchaj balansu rąk.","Część środkowa (A-dur) jaśniejszą barwą."]),
+P("chopin-cantabile",5,"C","Chopin – Cantabile B-dur (1834)","imslp","♪ = 72–84",
+ ["Melodia ciężarem ręki, nie uderzeniem palca.","Akompaniament bardzo cichy, pedał na harmonię."],
+ ["To miniatura „śpiewająca” – pomyśl o głosie operowym.","Ozdobnik w stylu belcanto: swobodnie, bez pośpiechu."],
+ ["Zagraj samą melodię, śpiewając ją w głowie.","Potem akompaniament osobno, pianissimo."]),
+P("schumann-verlust",5,"C","Schumann – Pierwsza strata op. 68 nr 16","imslp","♩ = 72–88",
+ ["Melodia przechodzi między głosami – zaznacz ją kolorem w nutach.","Krótkie łuki i sforzata – precyzyjnie."],
+ ["Smutek dziecka: prosto, bez patosu.","Kontrast p i f nagły, jak emocja."],
+ ["Ćwicz głosy osobno, potem dwa naraz.","Ostatnie takty bardzo cicho i spokojnie."]),
+P("grieg-arietta",5,"C","Grieg – Arietta op. 12 nr 1","imslp","♩ = 60–72",
+ ["Melodia w górnym głosie prawej ręki, reszta szesnastek cicho – ćwicz „palce zewnętrzne” mocniej.","Pedał zmieniany na każdą ćwierćnutę basu."],
+ ["Ciepło i prostota, jak ludowa piosenka.","Pierwsza fraza i jej powtórzenie – zagraj powtórzenie inną barwą."],
+ ["Najpierw zagraj tylko górną melodię palcami, które będą ją grać w utworze.","Potem dodaj szesnastki pianissimo."]),
+/* Etiudy G5 */
+P("burg15",5,"E","Burgmüller – Ballada op. 100 nr 15","burg","♩ = 104–126",
+ ["Prawa ręka: krótkie akordy staccato z nadgarstka, lekko.","Melodia w lewej ręce – ona prowadzi, prawa akompaniuje."],
+ ["Opowieść grozy: tajemniczo w c-moll, jaśniej w C-dur.","Crescenda budują napięcie – nie zaczynaj ich za głośno."],
+ ["Ćwicz lewą rękę solo aż zaśpiewa.","Prawą rękę: same akordy, potem staccato."]),
+P("burg18",5,"E","Burgmüller – Niepokój op. 100 nr 18","burg","♩ = 100–120",
+ ["Szesnastkowe figury dzielone między ręce – przejęcie ma być niesłyszalne.","Lekka, bliska klawiatury ręka."],
+ ["Charakter niespokojny, ale nie głośny – szept, nie krzyk.","Kontrasty dynamiczne zgodne z tekstem."],
+ ["Ćwicz bardzo wolno, licząc szesnastki.","Rytmy kropkowane na trudnych fragmentach."]),
+P("burg20",5,"E","Burgmüller – Tarantela op. 100 nr 20","burg","♩. = 100–120",
+ ["Szybkie ósemki w 6/8 – równość i lekkość, staccato z palców i nadgarstka.","Przeskoki ręki przygotowuj wzrokiem wcześniej."],
+ ["Taniec włoski – energia, akcent na raz i cztery.","Nie przyspieszaj w kulminacjach."],
+ ["Licz na dwa (dwie ćwierćnuty z kropką), nie na sześć.","Metronom ♩. = 72 na start."]),
+P("burg24",5,"E","Burgmüller – Jaskółka op. 100 nr 24","burg","♩ = 88–108",
+ ["Lewa ręka krzyżuje się nad prawą i gra melodię – ruch płynny, łukiem.","Prawa ręka szesnastki pianissimo, równo."],
+ ["Lot jaskółki: lekko, z powietrzem.","Melodia legato mimo przeskoków."],
+ ["Ćwicz sam ruch krzyżowania bez dźwięku, potem z dźwiękiem.","Prawa ręka solo, pp, z metronomem."]),
+P("burg25",5,"E","Burgmüller – Rycerska op. 100 nr 25","burg","♩ = 108–126",
+ ["Rytmy punktowane ostre i równe – krótka nuta naprawdę krótka.","Staccato akordowe z nadgarstka."],
+ ["Rycerski, dumny charakter – postawa, nie hałas.","Część środkowa bardziej śpiewna."],
+ ["Ćwicz rytm punktowany na jednym dźwięku z metronomem.","Każdą frazę zakończ czysto, bez rozmazania pedałem."]),
+/* ---------- GRADE 6 ---------- */
+P("bwv999",6,"A","Bach – Małe preludium c-moll BWV 999","imslp","♩ = 80–96",
+ ["Figura prawej ręki powtarza się w każdym takcie – ręka ma zastygnąć w kształcie akordu.","Bas lewej ręki: każdą nutę trzymaj pełną wartość."],
+ ["Pomyśl o lutni (utwór był pisany na lutnię) – miękki, okrągły dźwięk.","Słuchaj basu – to on prowadzi harmonię."],
+ ["Graj harmonie jako akordy blokowe, takt po takcie.","Potem figurację bardzo wolno, z zamkniętymi oczami."]),
+P("bwv926",6,"A","Bach – Małe preludium d-moll BWV 926","imslp","♩. = 54–66",
+ ["Figuracje trójkowe w prawej – równo, bez przyspieszania na kciuku.","Środkowa część w ruchu ósemkowym – czytelna artykulacja."],
+ ["Rytm taneczny 3/4, poczuj „raz” na początku taktu.","Kadencje zaznacz lekkim oddechem."],
+ ["Ucz po 4 takty, każdą partię z pamięci.","Graj z metronomem na raz w takcie."]),
+P("clem36-4",6,"B","Clementi – Sonatina F-dur op. 36 nr 4, cz. 1","imslp","♩ = 108–126",
+ ["Przebiegi gamowe: palcowanie jak w gamie F-dur (4 palec na B).","Tercje w prawej ręce – równo obie nuty."],
+ ["Pogodny, dworski charakter.","Kontrast tematów i jasna dynamika."],
+ ["Przebiegi ćwicz w rytmach i grupach.","Repriza: porównaj z ekspozycją i zaznacz różnice."]),
+P("kuhlau20-1",6,"B","Kuhlau – Sonatina C-dur op. 20 nr 1, cz. 1","imslp","♩ = 120–144",
+ ["Szybkie gamy w obie strony – kciuk podkładaj wcześnie.","Akordy łamane w lewej równo i cicho."],
+ ["Błyskotliwość, ale czysto – nie poświęcaj klarowności dla tempa.","Wyraźne fp i sforzata."],
+ ["Metronom od ♩ = 88, dzień po dniu wyżej.","Fragmenty z przebiegami graj „zatrzymując się” na pierwszej nucie każdej grupy."]),
+P("chopin-prel7",6,"C","Chopin – Preludium A-dur op. 28 nr 7","chopin","♩ = 60–72",
+ ["Akordy wszystkie nuty naraz – ćwicz, by górny dźwięk (melodia) brzmiał najmocniej.","Pedał na każdy takt, czysta zmiana."],
+ ["Mazurkowy rytm, spokojnie, jak wspomnienie.","Szczyt na wielkim akordzie fis-moll/A – pełnym, ale miękkim dźwiękiem."],
+ ["Zagraj samą melodię górnego głosu.","Potem akordy z przewagą górnego dźwięku."]),
+P("chopin-prel4",6,"C","Chopin – Preludium e-moll op. 28 nr 4","chopin","♩ = 50–60",
+ ["Akordy lewej ręki pianissimo, równo, zmieniaj tylko jedną nutę – czuj to palcami.","Melodia prawej: długie nuty śpiewane ciężarem ręki."],
+ ["Smutek, rezygnacja – bardzo wolno, bez sentymentalizmu.","Kulminacja (stretto) i nagła cisza przed końcem – zachowaj pauzę."],
+ ["Lewą rękę graj sama, słuchając, która nuta zmienia się w akordzie.","Pedał: zmiana na każdy akord, bardzo czysto."]),
+P("grieg-walc",6,"C","Grieg – Walc a-moll op. 12 nr 2","imslp","♩ = 108–126",
+ ["Staccato w melodii – lekko i krótko, akompaniament miękki.","Część środkowa A-dur legato i śpiewnie."],
+ ["Melancholijny walc norweski – nieco ludowy, nie salonowy.","Kontrast części: chłodna a-moll, ciepła A-dur."],
+ ["Ćwicz lewą rękę z pedałem osobno.","Graj część środkową dłużej codziennie."]),
+P("tchaik-dream",6,"C","Czajkowski – Słodkie marzenie op. 39 nr 21","imslp","♩ = 60–72",
+ ["Melodia w prawej, akompaniament akordowy w lewej – bardzo cicho.","Pedał na każdą zmianę harmonii."],
+ ["Rozmarzenie, szerokie frazy po 8 taktów.","Kulminacja pełnym dźwiękiem, bez forsowania."],
+ ["Zaśpiewaj frazy, zaznacz oddechy.","Ćwicz balans: melodia f, akompaniament pp."]),
+P("burg109-2",6,"E","Burgmüller – Perły op. 109 nr 2","imslp","♩ = 96–112",
+ ["Perlista technika palcowa – każda nuta wyraźna, blisko klawisza.","Ręka spokojna, pracują tylko palce."],
+ ["Lekkość i blask, bez pedału w przebiegach.","Dynamika falująca z kształtem przebiegów."],
+ ["Rytmy i akcenty co 3 / co 4 nuty.","Codziennie tempo +4."], "Burgmuller op. 109"),
+P("heller47-1",6,"E","Heller – Etiuda op. 47 nr 1","imslp","♩ = 100–116",
+ ["Melodia w figuracjach – wydobywaj najważniejsze dźwięki.","Rozluźniony nadgarstek przy akordach łamanych."],
+ ["Etiudy Hellera to małe utwory charakterystyczne – szukaj nastroju.","Frazuj jak w romantycznej miniaturze."],
+ ["Najpierw harmonia blokowo, potem figuracja.","Ucz z pamięci po 4 takty."], "Heller op. 47"),
+P("heller47-3",6,"E","Heller – Etiuda op. 47 nr 3","imslp","♩ = 96–112",
+ ["Akordy łamane dzielone między ręce – płynne przejęcie.","Kciuki lekkie."],
+ ["Śpiewność w ruchu.","Pedał krótki, na harmonię."],
+ ["Ćwicz przejęcia rąk na powtarzanych dwóch taktach.","Metronom od ♩ = 72."], "Heller op. 47"),
+/* ---------- GRADE 7 ---------- */
+P("inv4",7,"A","Bach – Inwencja d-moll nr 4 BWV 775","imslp","♩. = 56–66",
+ ["Dwa równe głosy – każdy ma być melodią, nie akompaniamentem.","Szesnastki non legato lub lekkie legato, ale konsekwentnie."],
+ ["Temat pojawia się w obu rękach – zaznacz go w nutach i pokaż za każdym razem.","Długie nuty (tryl, nuty trzymane) – utrzymaj napięcie."],
+ ["Graj każdy głos osobno, śpiewając drugi.","Zaznacz wszystkie wejścia tematu kolorem."]),
+P("inv8",7,"A","Bach – Inwencja F-dur nr 8 BWV 779","imslp","♩ = 88–108",
+ ["Kanon: ręce grają to samo z przesunięciem – precyzja rytmu.","Skoki w temacie lekko, staccato z nadgarstka."],
+ ["Radosna, sprężysta – jak dialog dwóch postaci.","Artykulacja identyczna w obu rękach."],
+ ["Ćwicz po 2 takty z metronomem.","Graj jedną ręką, drugą stukaj rytm."]),
+P("inv1",7,"A","Bach – Inwencja C-dur nr 1 BWV 772","imslp","♩ = 69–80",
+ ["Motyw (szesnastki + ósemki) zawsze tak samo artykułowany.","Mordenty krótko, na miarę."],
+ ["Temat w odwróceniu – rozpoznawaj go uchem.","Kulminacja w a-moll, potem powrót do C."],
+ ["Analiza: znajdź wszystkie wystąpienia motywu (jest ich bardzo dużo).","Głosy osobno, potem razem w ♩ = 50."]),
+P("kv545-1",7,"B","Mozart – Sonata C-dur KV 545, cz. 1","imslp","♩ = 112–132",
+ ["Gamy w przetworzeniu: równość i palcowanie jak w gamach.","Basso Albertiego zawsze ciszej niż melodia."],
+ ["Mozart = przejrzystość: każda fraza z początkiem i końcem.","Repriza w F-dur (!), nie w C – zaznacz to brzmieniem."],
+ ["Grasz ją już – teraz wyrównaj gamy z metronomem i nagraj całość.","Ćwicz przejścia między sekcjami."]),
+P("clem36-6",7,"B","Clementi – Sonatina D-dur op. 36 nr 6, cz. 1","imslp","♩ = 120–138",
+ ["Tercje i przebiegi – lekka ręka, klarowne palcowanie.","Oktawy w lewej ręce z nadgarstka."],
+ ["Najbardziej „koncertowa” z sonatin – blask.","Kontrasty f/p wyraźne."],
+ ["Rozbij na sekcje i ucz codziennie jedną nową.","Przebiegi w rytmach."]),
+P("beet49-2",7,"B","Beethoven – Sonata G-dur op. 49 nr 2, cz. 1","imslp","♩ = 120–138 (alla breve)",
+ ["Triole w lewej ręce równe, cicho.","Gamy i przebiegi ósemkowe płynnie."],
+ ["Pogodna, młodzieńcza muzyka.","Drugi temat śpiewniej."],
+ ["Ćwicz ręce osobno, triole liczone.","Nagraj ekspozycję i posłuchaj równości."]),
+P("chopin-prel6",7,"C","Chopin – Preludium h-moll op. 28 nr 6","chopin","♩ = 60–66",
+ ["Melodia w lewej ręce (wiolonczela!) – pełna, śpiewna.","Prawa ręka – powtarzane akordy pianissimo, równe."],
+ ["Smutna kantylena, długi oddech.","Pedał zmieniaj z harmonią, czysto."],
+ ["Graj lewą rękę solo z pedałem.","Prawą rękę ćwicz bardzo cicho na powtórzeniach akordów."]),
+P("chopin-prel20",7,"C","Chopin – Preludium c-moll op. 28 nr 20","chopin","♩ = 50–60",
+ ["Pełne akordy – górna nuta najgłośniej, ręka ciężka, ale rozluźniona.","Legato akordowe przez pedał."],
+ ["Chorał żałobny: ff, potem p, potem pp – trzy plany.","Bez pośpiechu, monumentalnie."],
+ ["Każdy akord osobno, słuchając górnego głosu.","Ćwicz zmiany pedału na wolnych akordach."]),
+P("chopin-maz-g",7,"C","Chopin – Mazurek g-moll op. 67 nr 2","chopin","♩ = 120–138",
+ ["Akcent na 2. lub 3. miarę taktu – charakter mazurka.","Ozdobniki krótko, przed miarą."],
+ ["Melancholia tańca ludowego – rubato zgodne z rytmem mazurka.","Część środkowa jaśniej."],
+ ["Posłuchaj nagrań mazurków (np. kilku pianistów) i porównaj rubato.","Ćwicz lewą rękę – puls mazurka."]),
+P("grieg-elfin",7,"C","Grieg – Taniec elfów op. 12 nr 4","imslp","♩ = 132–160",
+ ["Bardzo lekkie staccato, ręka blisko klawiatury.","Pianissimo przez większość utworu."],
+ ["Psotne, szybkie elfy – iskrząco, nie ciężko.","Nagłe forte – zaskakujące."],
+ ["Ćwicz wolno i bardzo cicho.","Przyspieszaj stopniowo, zachowując pp."]),
+P("heller47-15",7,"E","Heller – Etiuda op. 47 nr 15","imslp","♩ = 88–100",
+ ["Melodia z akompaniamentem w jednej ręce – rozdzielanie planów dźwiękowych.","Pedał legato."],
+ ["Śpiewna, romantyczna etiuda.","Frazy długie."],
+ ["Ćwicz melodię oddzielnie palcami z utworu.","Potem akompaniament pp."], "Heller op. 47"),
+P("czerny636-1",7,"E","Czerny – Etiuda op. 636 nr 1","imslp","♩ = 96–116",
+ ["Biegłość palcowa – równość szesnastek.","Ręka spokojna, łokieć luźny."],
+ ["Klarowność, jasny dźwięk.","Dynamika w kształcie przebiegów."],
+ ["Rytmy, grupowanie, metronom.","Codziennie +4 w tempie."], "Czerny op. 636"),
+/* ---------- GRADE 8 ---------- */
+P("inv13",8,"A","Bach – Inwencja a-moll nr 13 BWV 784","imslp","♩ = 72–88",
+ ["Akordy łamane w obu rękach – płynne przejścia głosów.","Legato palcowe, minimalny pedał lub bez."],
+ ["Nostalgiczna, dramatyczna – pokaż kierunek harmonii.","Kadencje z lekkim oddechem."],
+ ["Harmonia blokowo, potem figuracje.","Głosy osobno i razem w ♩ = 52."]),
+P("wtk846",8,"A","Bach – Preludium C-dur BWV 846 (WTK I)","wtk","♩ = 60–72",
+ ["Ten sam kształt figury w każdym takcie – ręka zastyga w akordzie.","Równość szesnastek, bez akcentów."],
+ ["Ewolucja harmonii – kulminacja na punkcie organowym przed końcem.","Pedał bardzo oszczędnie lub wcale."],
+ ["Zagraj cały utwór jako akordy blokowe – zobaczysz harmonię.","Potem z figuracją, słuchając basu."]),
+P("inv14",8,"A","Bach – Inwencja B-dur nr 14 BWV 785","imslp","♩ = 60–72",
+ ["Trzydziestodwójki płynnie, z lekką ręką.","Ozdobniki elegancko."],
+ ["Ozdobny, wytworny charakter.","Dialog głosów."],
+ ["Rytmy w szybkich figurach.","Ręce osobno do pamięci."]),
+P("beet49-1",8,"B","Beethoven – Sonata g-moll op. 49 nr 1, cz. 1","imslp","♩ = 60–72",
+ ["Melodia z akompaniamentem w szesnastkach – balans.","Przebiegi w drugim temacie lekko."],
+ ["Smutek i liryzm, ale klasyczna forma.","Kontrast g-moll / B-dur."],
+ ["Melodia solo, potem z akompaniamentem pp.","Analiza formy sonatowej: zaznacz tematy."]),
+P("kv545-3",8,"B","Mozart – Sonata C-dur KV 545, cz. 3 (Rondo)","imslp","♩ = 100–120 (alla breve)",
+ ["Szybkie repetycje i przebiegi – lekko i równo.","Staccato w lewej ręce sprężyste."],
+ ["Żartobliwy charakter, jak opera buffa.","Każdy powrót tematu rondowego świeży."],
+ ["Ćwicz przebiegi w rytmach.","Całość z metronomem, potem swobodnie."]),
+P("chopin-walc-h",8,"C","Chopin – Walc h-moll op. 69 nr 2","chopin","♩ = 132–152",
+ ["Lewa ręka: precyzyjne skoki basu, przygotowane wzrokiem.","Ozdobniki i przebiegi w prawej lekko, swobodnie."],
+ ["Melancholia, rubato w melodii, puls w lewej ręce.","Część środkowa H-dur jasna, śpiewna."],
+ ["Lewa ręka z pedałem osobno, aż skoki będą pewne.","Prawa ręka: śpiewaj frazy."]),
+P("chopin-maz-b",8,"C","Chopin – Mazurek B-dur op. 7 nr 1","chopin","♩ = 132–152",
+ ["Ozdobniki i skoki – lekkość, energia w akcentach.","Lewa ręka – charakter tańca."],
+ ["Radosny, ludowy, z akcentami mazurkowymi.","Część środkowa – „dudy” (bas burdonowy)."],
+ ["Posłuchaj kilku nagrań i wybierz swoje tempo.","Ćwicz skoki prawej ręki osobno."]),
+P("chopin-noct-cis",8,"C","Chopin – Nokturn cis-moll op. posth. (B. 49)","chopin","♩ = 52–60",
+ ["Akompaniament lewej ręki płynny, pianissimo.","Przebiegi w prawej ręce swobodne, rubato."],
+ ["Bardzo osobisty, cichy smutek.","Cytat z Koncertu f-moll w środku – inny nastrój."],
+ ["Melodia osobno, z pełną frazą.","Przebiegi ucz w grupach, potem z rubato."]),
+P("czerny299-1",8,"E","Czerny – Etiuda op. 299 nr 1","czerny","♩ = 108–138",
+ ["Biegłość w gamach – kciuk podkładaj bez ruchu łokcia.","Równość i jasny dźwięk."],
+ ["Blask, klarowność.","Nie przyspieszaj w kulminacjach."],
+ ["Metronom od ♩ = 80.","Grupuj szesnastki po 4, potem po 8."]),
+P("czerny299-2",8,"E","Czerny – Etiuda op. 299 nr 2","czerny","♩ = 100–126",
+ ["Przebiegi w prawej ręce – płynnie, palce blisko klawiszy.","Lewa ręka – lekkie akordy."],
+ ["Lekkość i równość.","Dynamika w kształcie przebiegów."],
+ ["Rytmy (długa–krótka, krótka–długa).","Codzienne +4 w tempie."]),
+P("czerny299-3",8,"E","Czerny – Etiuda op. 299 nr 3","czerny","♩ = 100–120",
+ ["Akordy łamane – płynne przejście kciuka.","Rozluźnienie po każdej grupie."],
+ ["Szeroki, pełny dźwięk.","Frazowanie w dłuższych łukach."],
+ ["Harmonia blokowo.","Ćwicz w krótkich odcinkach z metronomem."])
+];
+
+const TECH = {
+ 5:[["t5-dur","Gamy dur – wszystkie tonacje, razem, 2 oktawy","♩ = 80 (szesnastki)"],["t5-moll","Gamy moll harmoniczne i melodyczne, razem, 2 oktawy","♩ = 80"],["t5-chrom","Gama chromatyczna od dowolnego dźwięku, razem","♩ = 80"],["t5-contr","Gamy w ruchu przeciwnym (C-dur, a-moll harm.)","♩ = 80"],["t5-arp","Pasaże (trójdźwięki rozłożone) dur i moll, 2 oktawy","♩ = 72 (triole)"],["t5-chord","Trójdźwięki z przewrotami – blokowo i łamane","♩ = 80"],["t5-cad","Kadencja I–IV–V–I we wszystkich tonacjach","spokojnie"]],
+ 6:[["t6-dur","Gamy dur i moll – wszystkie, razem, 4 oktawy","♩ = 88"],["t6-formula","Gama „formuła” (C-dur i a-moll harm.)","♩ = 88"],["t6-arp","Pasaże z przewrotami, 4 oktawy","♩ = 80"],["t6-d7","Akord D7 – blokowo i rozłożony","♩ = 80"],["t6-cad","Kadencja z D7 w tonacjach dur i moll","spokojnie"]],
+ 7:[["t7-dur","Gamy dur i moll – wszystkie, 4 oktawy","♩ = 100"],["t7-thirds","Gamy tercjami w odstępie (C-dur), razem","♩ = 80"],["t7-arp","Pasaże z przewrotami, 4 oktawy","♩ = 88"],["t7-dim7","Septymowy zmniejszony – rozłożony","♩ = 88"],["t7-oct","Gamy oktawami staccato (wybrane tonacje)","♩ = 69"]],
+ 8:[["t8-dur","Gamy dur i moll – wszystkie, 4 oktawy","♩ = 112"],["t8-thirds","Gamy tercjami i sekstami (wybrane tonacje)","♩ = 88"],["t8-arp","Pasaże D7 i zmniejszone z przewrotami","♩ = 100"],["t8-oct","Gamy oktawami legato i staccato","♩ = 80"]]
+};
+
+const THEORY = {
+ 1:[["th1-staff","Pięciolinia, klucz wiolinowy i basowy, linie dodane","The Staff, Clefs, and Ledger Lines","notes"],["th1-dur","Wartości nut i pauz, kropka i łuk","Note Duration / Rest Duration / Dots and Ties"],["th1-metr","Metrum 2/4, 3/4, 4/4 i takt","Measures and Time Signature"],["th1-steps","Półtony, całe tony, znaki chromatyczne","Steps and Accidentals"],["th1-scales","Gamy C, G, F i D-dur – budowa","The Major Scale"],["th1-int","Interwały liczbowe (sekunda–oktawa)","Generic Intervals","intervals"]],
+ 2:[["th2-keys","Tonacje dur do 3 znaków","Key Signatures","keys"],["th2-minor","Gamy moll naturalne i harmoniczne: a, e, d","The Minor Scales"],["th2-triads","Trójdźwięki dur i moll","Introduction to Chords"],["th2-int","Interwały: wielkie, małe, czyste","Specific Intervals","intervals"],["th2-terms","Podstawowe oznaczenia włoskie (tempo, dynamika)",""]],
+ 3:[["th3-keys","Tonacje dur i moll do 4 znaków","Key Signature Calculation","keys"],["th3-melodic","Gama moll melodyczna","The Minor Scales"],["th3-degrees","Stopnie gamy i trójdźwięki na I, IV, V","Scale Degrees"],["th3-compound","Metrum złożone 6/8, 9/8, 12/8","Measures and Time Signature"],["th3-int","Budowanie interwałów od dowolnego dźwięku","Writing Intervals"]],
+ 4:[["th4-circle","Koło kwintowe, tonacje do 6 znaków","Key Signatures","keys"],["th4-aug","Interwały zwiększone i zmniejszone","Specific Intervals"],["th4-inv","Przewroty trójdźwięków","Triad Inversion"],["th4-cad","Kadencje: doskonała, plagalna","Cadences"],["th4-form","Fraza, okres, forma AB i ABA",""]],
+ 5:[["th5-all","Wszystkie tonacje (do 7 znaków), enharmonia","Key Signatures","keys"],["th5-intinv","Przewroty interwałów","Interval Inversion"],["th5-d7","Akord D7 i jego rozwiązanie","Seventh Chords"],["th5-half","Kadencja półzamknięta i zwodnicza","Cadences"],["th5-trans","Transpozycja melodii","" ],["th5-analysis","Analiza krótkiego utworu: tonacja, kadencje, forma",""]],
+ 6:[["th6-roman","Analiza harmoniczna (cyfry rzymskie)","Roman Numeral Analysis"],["th6-7th","Akordy septymowe i ich przewroty","Seventh Chord Inversion"],["th6-mod","Modulacja do tonacji pokrewnych",""],["th6-nonchord","Dźwięki obce akordowi",""],["th6-history","Epoki: barok, klasycyzm, romantyzm – cechy stylu",""]],
+ 7:[["th7-sec","Dominanty wtrącone","Secondary Dominants"],["th7-forms","Rondo, wariacje, forma sonatowa",""],["th7-voice","Prowadzenie głosów w czterogłosie",""],["th7-hist","Kompozytorzy z Twojego repertuaru – kontekst",""]],
+ 8:[["th8-chrom","Akordy alterowane (neapolitański, zwiększone sekstowe)",""],["th8-counter","Kontrapunkt dwugłosowy – podstawy",""],["th8-fugue","Budowa fugi (na przykładzie WTK)",""],["th8-hist","Impresjonizm i XX wiek – cechy stylu",""]]
+};
+
+const SR = {
+ 1:{books:["Famous classical and traditional folk songs (Štefánik)","Łatwa klasyka na fortepian (Biskupska, Bruce)"],how:"Proste melodie, ręce razem, w obrębie pięciu palców."},
+ 2:{books:["Famous classical and traditional folk songs (Štefánik)","Dla Celiny (Lic)","Dla Marceliny (Wiśniewski)","Łatwa klasyka na fortepian"],how:"Krótkie utwory w C, G, F-dur. Najpierw rytm, potem nuty."},
+ 3:{books:["John Kember – Piano Sight Reading 2","Łatwa klasyka na fortepian","Play it again: Piano, Book 1 (prostsze utwory)"],how:"Idź kolejno przez ćwiczenia Kembera; to, co wyszło, odłóż, a nie powtarzaj."},
+ 4:{books:["John Kember – Piano Sight Reading 2 (dalsza część)","Play it again: Piano, Book 1"],how:"Utwory do 2 znaków, różne metra, proste akordy."},
+ 5:{books:["John Kember – Piano Sight Reading 3","Play it again: Piano, Book 1","Bach – Notatnik Anny Magdaleny (IMSLP)"],how:"Dłuższe fragmenty, polifonia dwugłosowa, tonacje do 3 znaków."},
+ 6:{books:["John Kember – Piano Sight Reading 3 (dalsza część)","50 Greats for the Piano (Yamaha)","Burgmüller op. 100 (etiudy, których nie ćwiczysz)"],how:"Akompaniament + melodia, częstsze zmiany pozycji ręki."},
+ 7:{books:["50 Greats for the Piano","Sonatiny Clementiego/Kuhlaua (części, których nie znasz)","MuseScore – utwory z Grade 4–5"],how:"Czytaj utwory 2–3 poziomy niżej niż Twój repertuar."},
+ 8:{books:["Chorały Bacha (IMSLP)","Łatwiejsze utwory Chopina, których nie znasz","MuseScore – utwory z Grade 5–6"],how:"Czterogłos, akompaniamenty, czytanie z wyprzedzeniem."}
+};
+
+/* Ear training by level: intervals in semitones and chord types */
+const INT_NAMES = {1:"sekunda mała",2:"sekunda wielka",3:"tercja mała",4:"tercja wielka",5:"kwarta czysta",6:"tryton",7:"kwinta czysta",8:"seksta mała",9:"seksta wielka",10:"septyma mała",11:"septyma wielka",12:"oktawa"};
+const EAR = {
+ 2:{ints:[4,7,12],chords:["dur","moll"]},
+ 3:{ints:[3,4,5,7,12],chords:["dur","moll"]},
+ 4:{ints:[2,3,4,5,7,9,12],chords:["dur","moll"]},
+ 5:{ints:[1,2,3,4,5,7,8,9,12],chords:["dur","moll","zmniejszony"]},
+ 6:{ints:[1,2,3,4,5,6,7,8,9,10,12],chords:["dur","moll","zmniejszony","zwiększony"]},
+ 7:{ints:[1,2,3,4,5,6,7,8,9,10,11,12],chords:["dur","moll","zmniejszony","zwiększony","D7"]},
+ 8:{ints:[1,2,3,4,5,6,7,8,9,10,11,12],chords:["dur","moll","zmniejszony","zwiększony","D7"]}
+};
+const CHORD_SEMIS = {dur:[0,4,7],moll:[0,3,7],zmniejszony:[0,3,6],zwiększony:[0,4,8],D7:[0,4,7,10]};
+
+const HANON_TIPS = [
+ [1,20,"Część I – niezależność i siła palców. Palce lekko zaokrąglone, nadgarstek nieruchomy, każda nuta równo głośna. Graj legato, potem staccato."],
+ [21,31,"Część II – przygotowanie do biegłości. Słuchaj równości 4. i 5. palca. Po opanowaniu w C-dur transponuj do tonacji dnia."],
+ [32,38,"Podkładanie kciuka – bez ruchu łokcia, kciuk już w drodze pod dłoń."],
+ [39,43,"Gamy, gama chromatyczna i pasaże Hanona – zastępują część rozgrzewki; równość i lekkość."],
+ [44,60,"Część III – repetycje, tryle, oktawy, tremola. Krótko, z rozluźnieniem; przerwij, gdy czujesz napięcie."]
+];
+
+const BLOCKS = {
+ warm:{name:"Rozgrzewka: gamy i pasaże",grp:"tech"},
+ hanon:{name:"Hanon",grp:"tech"},
+ etude:{name:"Etiuda",grp:"tech"},
+ sr:{name:"Czytanie a vista",grp:"mind"},
+ theory:{name:"Teoria",grp:"mind"},
+ ear:{name:"Kształcenie słuchu",grp:"mind"},
+ piece:{name:"Nowy utwór",grp:"music"},
+ free:{name:"Wolny czas: Twoje utwory",grp:"music"}
+};
+const STATUS = ["nie zaczęty","rozczytywanie","razem wolno","w tempie","opanowany"];
+const STEP_HINT = [
+ "Wybierz ten utwór i zacznij: przejrzyj nuty, zaznacz frazy i trudne miejsca.",
+ "Rozczytuj osobno ręce, po 4–8 taktów. Wpisz palcowanie ołówkiem. Tempo wolne, bez pomyłek.",
+ "Łącz ręce bardzo wolno (połowa docelowego tempa). Trudne takty po 5 razy bez błędu.",
+ "Podnoś tempo z metronomem (+4 dziennie). Dodaj dynamikę, pedał i frazowanie.",
+ "Utwór opanowany. Graj go z pamięci, nagraj się i posłuchaj. Przechodzi do Twoich utworów."
+];
+
+/* ============================== STAN ============================== */
+const todayKey = (d=new Date()) => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+function defaultState(){
+  return {
+    v:1, created:todayKey(),
+    grade:5,
+    start:{sr:2, th:1, ear:3},
+    sr:{level:2, log:[]},
+    th:{level:1, done:{}},
+    ear:{level:3, log:[]},
+    tech:{done:{}},
+    pieces:{"chopin-walc-a":{s:3}},
+    active:{piece:null, etude:null},
+    hanon:{n:1, reps:0},
+    srCounter:{},
+    my:[
+      {id:"m1",name:"Chopin – Walc a-moll op. posth.",last:""},
+      {id:"m2",name:"Bach – Inwencje, które znasz",last:""},
+      {id:"m3",name:"Mozart – Sonata C-dur KV 545",last:""},
+      {id:"m4",name:"Einaudi – utwory, które grasz",last:""}
+    ],
+    sessions:0,
+    plans:{},
+    minutes:60
+  };
+}
+let S = defaultState();
+const SYNC = {configured:false, client:null, session:null, busy:false, dirty:false, last:null};
+let saveTimer=null;
+
+function lsGet(){try{const r=localStorage.getItem("ppp-state");return r?JSON.parse(r):null}catch(e){return null}}
+function lsSet(o){try{localStorage.setItem("ppp-state",JSON.stringify(o))}catch(e){}}
+function merge(base, saved){ return Object.assign(base, saved||{}); }
+const fmtTime=(d)=>d.toLocaleTimeString("pl-PL",{hour:"2-digit",minute:"2-digit"});
+
+// saveLocal: automatic changes (today's plan generated). save: user actions, which also sync.
+function saveLocal(){ pruneOld(); lsSet(S); }
+function save(){
+  S.updated=Date.now();
+  saveLocal();
+  if(SYNC.session){ clearTimeout(saveTimer); saveTimer=setTimeout(push,1200); }
+}
+function setSync(t){const el=document.getElementById("sync"); if(el) el.textContent=t;}
+function pruneOld(){
+  const keys=Object.keys(S.plans).sort();
+  while(keys.length>70){ delete S.plans[keys.shift()]; }
+  if(S.sr.log.length>300) S.sr.log=S.sr.log.slice(-300);
+  if(S.ear.log.length>400) S.ear.log=S.ear.log.slice(-400);
+}
+
+async function push(){
+  if(!SYNC.client || !SYNC.session) return;
+  if(!navigator.onLine){ setSync("Offline – zsynchronizuję, gdy wróci internet."); return; }
+  if(SYNC.busy){ SYNC.dirty=true; return; }
+  SYNC.busy=true;
+  const {error}=await SYNC.client.from("practice_state").upsert({user_id:SYNC.session.user.id, state:S, updated_at:new Date().toISOString()});
+  SYNC.busy=false;
+  if(error) setSync("Nie udało się zsynchronizować: "+error.message);
+  else { SYNC.last=new Date(); setSync("Zsynchronizowano o "+fmtTime(SYNC.last)); }
+  if(SYNC.dirty){ SYNC.dirty=false; push(); }
+}
+async function pull(){
+  if(!SYNC.client || !SYNC.session || !navigator.onLine) return;
+  const {data,error}=await SYNC.client.from("practice_state").select("state").eq("user_id",SYNC.session.user.id).maybeSingle();
+  if(error){ setSync("Nie udało się pobrać postępu: "+error.message); return; }
+  const remote=data && data.state, ru=(remote && remote.updated)||0, lu=S.updated||0;
+  if(remote && ru>lu){
+    S=merge(defaultState(), remote); saveLocal();
+    SYNC.last=new Date(); setSync("Pobrano postęp z konta o "+fmtTime(SYNC.last));
+    render();
+  } else if(lu>ru){ await push(); }
+  else { SYNC.last=new Date(); setSync("Zsynchronizowano o "+fmtTime(SYNC.last)); }
+}
+
+async function initStore(){
+  const local=lsGet(); if(local) S=merge(defaultState(),local);
+  render();
+  const cfg=window.PPP_CONFIG||{};
+  if(!cfg.supabaseUrl || !cfg.supabaseKey){ setSync("Postęp zapisuje się na tym urządzeniu."); return; }
+  if(!window.supabase){ setSync("Offline – postęp zapisuje się na tym urządzeniu."); return; }
+  SYNC.configured=true;
+  SYNC.client=window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey, {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}});
+  try{
+    const {data}=await SYNC.client.auth.getSession(); SYNC.session=data.session;
+  }catch(e){}
+  SYNC.client.auth.onAuthStateChange((ev,s)=>{
+    const was=!!SYNC.session; SYNC.session=s;
+    if(s && !was) pull();
+    if(TAB==="progress") render();
+  });
+  if(SYNC.session) await pull();
+  else setSync("Zaloguj się w zakładce Postęp, żeby mieć ten sam postęp na komputerze.");
+  render();
+  window.addEventListener("online",()=>{ if(SYNC.session) pull(); });
+  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible" && SYNC.session) pull(); });
+}
+
+/* ============================== POSTĘP ============================== */
+const clamp=(x)=>Math.max(0,Math.min(1,x));
+function piecesFor(g,list){ return PIECES.filter(p=>p.g===g && (!list || p.list===list)); }
+function st(id){ return (S.pieces[id]&&S.pieces[id].s)||0; }
+function repProg(g){ return ["A","B","C"].reduce((a,l)=>a+Math.max(0,...piecesFor(g,l).map(p=>st(p.id)))/4,0)/3; }
+function etProg(g){ const s=piecesFor(g,"E").map(p=>st(p.id)/4).sort((a,b)=>b-a); return ((s[0]||0)+(s[1]||0))/2; }
+function techProg(g){ const it=TECH[g]||[]; return it.length? it.filter(i=>S.tech.done[i[0]]).length/it.length : 1; }
+function srLevelLog(){ return S.sr.log.filter(x=>x.l===S.sr.level); }
+function srInLevel(){ const L=srLevelLog(); if(!L.length) return 0; const last=L.slice(-5); const avg=last.reduce((a,b)=>a+b.r,0)/last.length; return clamp(L.length/20)*clamp(avg/4); }
+function srCanLevelUp(){ const L=srLevelLog(); if(L.length<20) return false; const last=L.slice(-5); return last.reduce((a,b)=>a+b.r,0)/last.length>=4; }
+function thInLevel(){ const t=THEORY[S.th.level]||[]; return t.length? t.filter(x=>S.th.done[x[0]]).length/t.length : 1; }
+function earLevelLog(){ return S.ear.log.filter(x=>x.l===S.ear.level); }
+function earAcc(){ const L=earLevelLog().slice(-30); return L.length? L.filter(x=>x.ok).length/L.length : 0; }
+function earInLevel(){ const n=earLevelLog().length; return clamp(n/40)*clamp(earAcc()/0.8); }
+function earCanLevelUp(){ return earLevelLog().length>=40 && earAcc()>=0.8; }
+function trackOverall(level, start, inLevel, target){
+  if(level>target) return 1;
+  const total=target-start+1; return clamp((level-start+inLevel)/total);
+}
+function progress(){
+  const g=S.grade;
+  const parts = {
+    rep:{label:"Utwory (listy A, B, C)",w:30,v:repProg(g),grp:"music"},
+    et:{label:"Etiudy (2)",w:10,v:etProg(g),grp:"tech"},
+    tech:{label:"Technika",w:15,v:techProg(g),grp:"tech"},
+    sr:{label:"Czytanie a vista",w:15,v:trackOverall(S.sr.level,S.start.sr,srInLevel(),g),grp:"mind"},
+    th:{label:"Teoria",w:20,v:trackOverall(S.th.level,S.start.th,thInLevel(),g),grp:"mind"},
+    ear:{label:"Słuch",w:10,v:trackOverall(S.ear.level,S.start.ear,earInLevel(),g),grp:"mind"}
+  };
+  let tot=0,w=0; for(const k in parts){tot+=parts[k].v*parts[k].w; w+=parts[k].w;}
+  return {parts, total:tot/w};
+}
+
+/* ============================== PLAN DNIA ============================== */
+function hash(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function activePiece(kind){
+  const g=S.grade, lists = kind==="etude"?["E"]:["A","B","C"];
+  let id=S.active[kind==="etude"?"etude":"piece"];
+  if(id && st(id)<4 && PIECES.find(p=>p.id===id)) return PIECES.find(p=>p.id===id);
+  // pick: first list without a finished piece, prefer one already started
+  for(const l of lists){
+    const ps=piecesFor(g,l);
+    if(kind!=="etude" && ps.some(p=>st(p.id)>=4)) continue;
+    if(kind==="etude" && ps.filter(p=>st(p.id)>=4).length>=2) return null;
+    const started=ps.find(p=>st(p.id)>0 && st(p.id)<4);
+    return started || ps.find(p=>st(p.id)<4) || null;
+  }
+  return null;
+}
+function genPlan(key, minutes){
+  const idx=S.sessions;
+  let w={warm:9,hanon:5,etude:7,sr:7,theory:6,ear:3,piece:15,free:8};
+  if(idx%2===1){ w.theory=5; w.ear=5; w.free=7; }
+  if(idx%6===5){ w.piece=11; w.free=13; w.hanon=3; w.etude=6; w.warm=8; } // lżejszy dzień powtórek
+  if(S.grade-S.th.level>=2 && w.free>=6){ w.theory+=2; w.free-=2; }
+  if(S.grade-S.sr.level>=2 && w.hanon>=5){ w.sr+=2; w.hanon-=2; }
+  if(!activePiece("etude")){ w.free+=w.etude; delete w.etude; }
+  if(minutes<=30){ if(idx%2===0) delete w.ear; else delete w.hanon; }
+  const order=["warm","hanon","etude","sr","theory","ear","piece","free"].filter(k=>w[k]);
+  const sum=order.reduce((a,k)=>a+w[k],0);
+  let blocks=order.map(k=>({type:k, min:Math.max(3,Math.round(w[k]*minutes/sum)), done:false}));
+  let diff=minutes-blocks.reduce((a,b)=>a+b.min,0);
+  const big=blocks.reduce((a,b)=>b.min>a.min?b:a,blocks[0]); big.min+=diff;
+  const key5=KEYS[idx%12];
+  const rnd=hash(key);
+  const mySorted=[...S.my].sort((a,b)=>(a.last||"").localeCompare(b.last||""));
+  for(const b of blocks){
+    if(b.type==="warm") b.key=idx%12;
+    if(b.type==="hanon"){ b.n=S.hanon.n; }
+    if(b.type==="sr"){ b.level=S.sr.level; b.book=rnd % SR[S.sr.level].books.length; }
+    if(b.type==="free"){ b.items=mySorted.slice(0, b.min>=12?3:2).map(m=>m.id); }
+    if(b.type==="ear"){ b.mode = idx%2===0 ? "int":"chord"; }
+  }
+  return {minutes, blocks, counted:false};
+}
+function todayPlan(){
+  const k=todayKey();
+  if(!S.plans[k]){ S.plans[k]=genPlan(k,S.minutes); saveLocal(); }
+  return S.plans[k];
+}
+function markBlock(b, done){
+  const plan=todayPlan();
+  b.done=done;
+  if(done && !plan.counted){ plan.counted=true; S.sessions++; }
+  if(b.type==="hanon" && done && !b.adv){ b.adv=true; S.hanon.reps++; if(S.hanon.reps>=3){ S.hanon.reps=0; S.hanon.n = S.hanon.n>=58?1:S.hanon.n+2; } }
+  if(b.type==="free" && done){ for(const id of b.items||[]){ const m=S.my.find(x=>x.id===id); if(m) m.last=todayKey(); } }
+  save(); render();
+}
+
+/* ============================== WIDOKI ============================== */
+const esc=(s)=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct=(x)=>Math.round(x*100)+"%";
+let TAB="today";
+const $view=()=>document.getElementById("view");
+
+function header(){
+  const p=progress();
+  document.getElementById("chip-grade").textContent="Grade "+S.grade;
+  document.getElementById("chip-pct").textContent=pct(p.total)+" do Grade "+(S.grade+1);
+  const d=new Date(); document.getElementById("today-label").textContent=d.toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"});
+}
+function render(){
+  header();
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current",String(b.dataset.tab===TAB)));
+  const v=$view();
+  if(TAB==="today") v.innerHTML=viewToday();
+  if(TAB==="progress") v.innerHTML=viewProgress();
+  if(TAB==="rep") v.innerHTML=viewRep();
+  if(TAB==="tools") { v.innerHTML=viewTools(); afterTools(); }
+  if(TAB==="today") afterToday();
+}
+
+function tipsHtml(p){
+  return `<div class="tipgrp"><b>Technika</b><ul class="tips">${p.tips.t.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+  <div class="tipgrp"><b>Interpretacja</b><ul class="tips">${p.tips.i.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+  <div class="tipgrp"><b>Jak ćwiczyć</b><ul class="tips">${p.tips.c.map(x=>`<li>${x}</li>`).join("")}</ul></div>`;
+}
+function links(p){
+  const q=encodeURIComponent(p.q.replace(/–/g,"").replace(/\(.*?\)/g,""));
+  return `<span class="row small"><span class="pill ${["burg","wtk","czerny"].includes(p.src)?"own":""}">${SRC[p.src]}</span>
+  <a href="https://imslp.org/index.php?search=${q}" target="_blank" rel="noopener">IMSLP</a>
+  <a href="https://musescore.com/sheetmusic?text=${q}" target="_blank" rel="noopener">MuseScore</a></span>`;
+}
+function statusBtns(p){
+  return `<div class="status" role="group" aria-label="Etap nauki">${STATUS.map((s,i)=>`<button data-act="status" data-id="${p.id}" data-s="${i}" aria-pressed="${st(p.id)===i}">${s}</button>`).join("")}</div>`;
+}
+
+function blockBody(b){
+  const g=S.grade;
+  if(b.type==="warm"){
+    const k=KEYS[b.key], sig=k[2]>0? k[2]+" ♯": k[2]<0? (-k[2])+" ♭":"bez znaków";
+    const extra = g>=7? "Dodaj gamę tercjami albo oktawami w tej tonacji." : g>=6? "Dodaj akord D7 rozłożony i kadencję z D7." : "Na koniec kadencja I–IV–V–I.";
+    return `<div><span class="eyebrow">Tonacja dnia</span><h3 style="font-size:1.3rem">${k[0]} i ${k[1]} <span class="muted small">(${sig})</span></h3></div>
+    <ol class="tips">
+      <li>Gama ${k[0]} – razem, 4 oktawy: najpierw ♩ = 60 ósemkami, potem szesnastkami w tempie docelowym.</li>
+      <li>Gama ${k[1]} harmoniczna i melodyczna.</li>
+      <li>Pasaż ${k[0]} i ${k[1]}, 4 oktawy, a potem trójdźwięki z przewrotami: blokowo i łamane.</li>
+      <li>${extra}</li>
+    </ol>
+    <p class="note">Książka: „Gamy i pasaże na fortepian” (PWM) – tonacja ${k[0]}. Szukaj lekkości, a nie szybkości: kciuk podkładaj bez ruchu łokcia.</p>
+    ${metroInline(g>=8?112:g>=7?100:g>=6?88:80)}`;
+  }
+  if(b.type==="hanon"){
+    const n=b.n, tip=HANON_TIPS.find(t=>n>=t[0]&&n<=t[1]);
+    return `<p><b>Ćwiczenia nr ${n} i ${n+1}</b> <span class="muted small">(powtórka ${Math.min(S.hanon.reps+1,3)} z 3, potem kolejne)</span></p>
+    <p class="small">${tip?tip[2]:""}</p>
+    <p class="small muted">Tempo: zacznij od ♩ = 60 szesnastkami, cel ♩ = 96–108. Zagraj każde ćwiczenie 2 razy: legato, potem staccato lub w rytmie punktowanym.</p>
+    ${metroInline(72)}`;
+  }
+  if(b.type==="etude"||b.type==="piece"){
+    const p=activePiece(b.type==="etude"?"etude":"piece");
+    if(!p) return `<p>Wszystkie ${b.type==="etude"?"etiudy":"utwory"} z Grade ${g} są opanowane. Zajrzyj do zakładki Postęp.</p>`;
+    const s=st(p.id);
+    return `<div><span class="eyebrow">${LISTS[p.list]} · Grade ${p.g}</span><h3 style="font-size:1.15rem">${p.name}</h3>
+    <p class="small muted">Tempo docelowe: <span class="mono">${p.tempo}</span></p>${links(p)}</div>
+    <p class="note"><b>Dziś:</b> ${STEP_HINT[s]}</p>
+    ${statusBtns(p)}
+    <details><summary>Wskazówki techniczne i interpretacyjne</summary><div class="stack" style="margin-top:8px">${tipsHtml(p)}</div></details>
+    <button class="btn sm ghost" data-act="goto" data-tab="rep">Zmień ${b.type==="etude"?"etiudę":"utwór"}</button>`;
+  }
+  if(b.type==="sr"){
+    const L=SR[b.level]||SR[8], book=L.books[b.book%L.books.length];
+    const key="sr"+b.level+":"+book, cnt=(S.srCounter[key]||0)+1;
+    return `<p><b>Poziom ${b.level}</b> · ${book}</p>
+    <p class="small">Następny utwór lub ćwiczenie w kolejności (to będzie Twoje ${cnt}. z tej książki). ${L.how}</p>
+    <ol class="tips small">
+      <li>30 sekund bez grania: tonacja, metrum, najmniejsza wartość rytmiczna, powtórzenia, trudne miejsca.</li>
+      <li>Wystukaj rytm pierwszych taktów.</li>
+      <li>Zagraj raz z metronomem, wolno, <b>bez zatrzymywania się</b>, nawet przy pomyłkach.</li>
+      <li>Patrz takt do przodu, nie na ręce.</li>
+    </ol>
+    <div><span class="small">Jak poszło? (1 = wiele przerw, 5 = płynnie)</span>
+    <div class="rate" role="group" aria-label="Ocena">${[1,2,3,4,5].map(r=>`<button data-act="srrate" data-r="${r}" aria-pressed="${b.rating===r}">${r}</button>`).join("")}</div></div>
+    ${srCanLevelUp()?`<button class="btn primary" data-act="srup">Czytasz płynnie – przejdź na poziom ${S.sr.level+1}</button>`:`<p class="small muted">Na poziomie ${S.sr.level}: ${srLevelLog().length} z 20 sesji. Średnia z ostatnich 5 ocen musi wynosić co najmniej 4.</p>`}`;
+  }
+  if(b.type==="theory"){
+    const list=THEORY[S.th.level]||[], t=list.find(x=>!S.th.done[x[0]]);
+    if(!t) return `<p>Level ${S.th.level} ukończony.</p><button class="btn primary" data-act="thup">Przejdź na Level ${S.th.level+1}</button>`;
+    return `<div><span class="eyebrow">Level ${S.th.level} · temat ${list.indexOf(t)+1} z ${list.length}</span><h3 style="font-size:1.15rem">${t[1]}</h3></div>
+    <ol class="tips small">
+      <li>${t[2]?`Przeczytaj lekcję <b>„${t[2]}”</b> na <a href="https://www.musictheory.net/lessons" target="_blank" rel="noopener">musictheory.net</a> (po angielsku, z animacjami)`:"Przeczytaj o tym temacie w podręczniku (np. Celebrate Theory) lub poproś Claude'a o krótkie wyjaśnienie"}.</li>
+      <li>${t[3]?`Zrób quiz w aplikacji (poniżej), aż dojdziesz do 8 z 10.`:`Zapisz w zeszycie 3 przykłady z utworów, które grasz.`}</li>
+      <li>Znajdź ten element w utworze, którego się teraz uczysz.</li>
+    </ol>
+    ${t[3]?`<button class="btn sm" data-act="quiz" data-q="${t[3]}">Otwórz quiz</button>`:""}
+    <button class="btn sm" data-act="thdone" data-id="${t[0]}">Temat opanowany ✓</button>`;
+  }
+  if(b.type==="ear"){
+    return `<p class="small">${b.mode==="int"?"Interwały":"Akordy"} z poziomu ${S.ear.level}. Odsłuchaj i wybierz odpowiedź. Celność na tym poziomie: <b>${pct(earAcc())}</b> (${earLevelLog().length} odpowiedzi).</p>
+    <div id="ear-inline" data-mode="${b.mode}"></div>`;
+  }
+  if(b.type==="free"){
+    const items=(b.items||[]).map(id=>S.my.find(m=>m.id===id)).filter(Boolean);
+    return `<p class="small">Graj dla przyjemności, ale z jednym celem na każdy utwór: czysty pedał, śpiewna melodia albo zagranie z pamięci.</p>
+    <ul class="tips">${items.map(m=>`<li>${esc(m.name)} <span class="muted small">${m.last?"(ostatnio "+m.last+")":"(dawno nie grane)"}</span></li>`).join("") || "<li>Dodaj swoje utwory w zakładce Utwory.</li>"}</ul>`;
+  }
+  return "";
+}
+function metroInline(bpm){
+  return `<div class="row"><button class="btn sm" data-act="metro-inline" data-bpm="${bpm}">♩ Metronom ${bpm}</button><span class="small muted">Tempo zmienisz w zakładce Narzędzia.</span></div>`;
+}
+
+function viewToday(){
+  const plan=todayPlan(), done=plan.blocks.filter(b=>b.done), mins=done.reduce((a,b)=>a+b.min,0);
+  const p=progress();
+  const keys=plan.blocks.map(b=>`<div class="key t-${BLOCKS[b.type].grp} ${b.done?"done":""}" style="flex-grow:${b.min}" title="${BLOCKS[b.type].name}">${b.min}</div>`).join("");
+  return `<section class="stack">
+  <div class="card stack">
+    <div class="spread"><div><span class="eyebrow">Sesja ${S.sessions + (plan.counted?0:1)}</span><h2>${mins} z ${plan.minutes} min</h2></div>
+    <div class="seg" role="group" aria-label="Długość sesji">${[30,45,60,90].map(m=>`<button data-act="minutes" data-m="${m}" aria-pressed="${plan.minutes===m}">${m}</button>`).join("")}</div></div>
+    <div class="keys" aria-hidden="true">${keys}</div>
+    <div class="legend"><span class="t-tech"><i></i>technika</span><span class="t-mind"><i></i>czytanie, teoria, słuch</span><span class="t-music"><i></i>utwory</span></div>
+  </div>
+  ${plan.blocks.map((b,i)=>`<article class="block t-${BLOCKS[b.type].grp} ${b.done?"isdone":""}">
+    <div class="bh"><span class="tag"></span><div class="ttl"><h3>${BLOCKS[b.type].name}</h3><span class="min">${b.min} min</span></div>
+      <span class="timer" id="tm-${i}"></span>
+      <button class="btn sm" data-act="timer" data-i="${i}" aria-label="Minutnik">${timerState.i===i?"Stop":"Start"}</button>
+    </div>
+    <div class="bb">${blockBody(b)}
+      <div><button class="check" data-act="done" data-i="${i}" aria-pressed="${b.done}"><span class="box">✓</span>${b.done?"Zrobione":"Oznacz jako zrobione"}</button></div>
+    </div></article>`).join("")}
+  ${done.length===plan.blocks.length?`<div class="card"><h2>Sesja skończona</h2><p class="muted">Postęp do Grade ${S.grade+1}: <b>${pct(p.total)}</b>. Jutro aplikacja ułoży nowy plan z kolejną tonacją.</p></div>`:""}
+  </section>`;
+}
+
+function ladder(start, cur, target, inLevel, grp){
+  let h=""; for(let l=start;l<=target;l++){ const cls = l<cur?"on": l===cur?"cur":""; h+=`<span class="${cls}">${l}</span>`; }
+  return `<div class="ladder t-${grp}">${h}</div>`;
+}
+function viewProgress(){
+  const p=progress(), g=S.grade, P=p.parts;
+  const days=[]; for(let i=13;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const k=todayKey(d); const pl=S.plans[k]; const m=pl? pl.blocks.filter(b=>b.done).reduce((a,b)=>a+b.min,0):0; days.push({k,m,d}); }
+  const max=Math.max(60,...days.map(x=>x.m));
+  const week=days.slice(7).reduce((a,b)=>a+b.m,0);
+  let streak=0; for(let i=days.length-1;i>=0;i--){ if(days[i].m>0) streak++; else if(i===days.length-1) continue; else break; }
+  const all=Object.values(P).every(x=>x.v>=0.999);
+  const row=(k,extra)=>`<div class="stack t-${P[k].grp}" style="gap:4px"><div class="spread"><span>${P[k].label}</span><span class="mono">${pct(P[k].v)}</span></div><div class="bar"><span style="width:${pct(P[k].v)}"></span></div>${extra||""}</div>`;
+  return `<section class="stack">
+  <div class="card stack">
+    <span class="eyebrow">Droga do Grade ${g+1}</span>
+    <div class="row" style="align-items:flex-end;gap:14px"><span class="big">${pct(p.total)}</span><span class="muted">gotowości do Grade ${g+1}</span></div>
+    <div class="bar"><span style="width:${pct(p.total)}"></span></div>
+    ${all?`<button class="btn primary" data-act="gradeup">Zalicz Grade ${g} i przejdź na Grade ${g+1}</button>`:`<p class="small muted">Grade ${g} jest zaliczony, gdy wszystkie paski poniżej dojdą do 100%: po jednym opanowanym utworze z list A, B i C, 2 etiudy, technika, a czytanie a vista, teoria i słuch na poziomie ${g}.</p>`}
+  </div>
+  <div class="minis">
+    <div class="mini"><div class="small muted">Ten tydzień</div><div class="v">${week} min</div></div>
+    <div class="mini"><div class="small muted">Dni z rzędu</div><div class="v">${streak}</div></div>
+    <div class="mini"><div class="small muted">Wszystkie sesje</div><div class="v">${S.sessions}</div></div>
+  </div>
+  <div class="card stack">
+    <h3>Ostatnie 14 dni</h3>
+    <div class="chart">${days.map(x=>`<div class="${x.m?"":"zero"}" style="height:${Math.max(2,x.m/max*100)}%" title="${x.k}: ${x.m} min"></div>`).join("")}</div>
+    <div class="chartx">${days.map(x=>`<span>${x.d.getDate()}</span>`).join("")}</div>
+  </div>
+  <div class="card stack">
+    <h3>Ścieżki</h3>
+    ${row("rep")}
+    ${row("et")}
+    ${row("tech")}
+    ${row("sr", ladder(S.start.sr,S.sr.level,g,srInLevel(),"mind")+`<span class="small muted">Poziom ${S.sr.level}: ${srLevelLog().length} z 20 sesji</span>`)}
+    ${row("th", ladder(S.start.th,S.th.level,g,thInLevel(),"mind")+`<span class="small muted">Level ${S.th.level}: ${pct(thInLevel())} tematów</span>`)}
+    ${row("ear", ladder(S.start.ear,S.ear.level,g,earInLevel(),"mind")+`<span class="small muted">Poziom ${S.ear.level}: celność ${pct(earAcc())} z ${earLevelLog().length} odpowiedzi (cel: 80% i 40 odpowiedzi)</span>`)}
+    ${earCanLevelUp()?`<button class="btn primary" data-act="earup">Słuch: przejdź na poziom ${S.ear.level+1}</button>`:""}
+  </div>
+  <div class="card stack">
+    <h3>Technika – Grade ${g}</h3>
+    <p class="small muted">Odhacz, gdy zagrasz pewnie w podanym tempie. Tempa są orientacyjne.</p>
+    ${(TECH[g]||[]).map(t=>`<button class="check t-tech" data-act="tech" data-id="${t[0]}" aria-pressed="${!!S.tech.done[t[0]]}" style="justify-content:flex-start;border-radius:12px;text-align:left"><span class="box">✓</span><span>${t[1]} <span class="mono small muted">${t[2]}</span></span></button>`).join("")}
+  </div>
+  <div class="card stack">
+    <h3>Teoria – Level ${S.th.level}</h3>
+    ${(THEORY[S.th.level]||[]).map(t=>`<button class="check t-mind" data-act="thtoggle" data-id="${t[0]}" aria-pressed="${!!S.th.done[t[0]]}" style="justify-content:flex-start;border-radius:12px;text-align:left"><span class="box">✓</span>${t[1]}</button>`).join("")}
+    ${thInLevel()>=1?`<button class="btn primary" data-act="thup">Przejdź na Level ${S.th.level+1}</button>`:""}
+  </div>
+  ${accountCard()}
+  <details class="card"><summary>Ustawienia poziomów</summary>
+    <div class="stack" style="margin-top:10px">
+      <p class="small muted">Jeśli coś jest za łatwe albo za trudne, przestaw poziom ręcznie.</p>
+      ${[["grade","Grade (utwory, technika)",S.grade,5,8],["sr","Czytanie a vista",S.sr.level,1,8],["th","Teoria (Level)",S.th.level,1,8],["ear","Słuch",S.ear.level,2,8]].map(x=>`<label class="spread"><span>${x[1]}</span><select data-act="setlevel" data-k="${x[0]}">${Array.from({length:x[4]-x[3]+1},(_,i)=>x[3]+i).map(v=>`<option ${v===x[2]?"selected":""}>${v}</option>`).join("")}</select></label>`).join("")}
+      <button class="btn sm ghost" data-act="reset-ask">Zacznij od nowa…</button>
+      <div id="reset-confirm"></div>
+    </div>
+  </details>
+  </section>`;
+}
+
+let repGrade=null;
+function viewRep(){
+  const g=repGrade||S.grade;
+  const grades=[5,6,7,8];
+  const sec=(l)=>`<div class="listhead"><span class="lt">${l==="E"?"E":l}</span><h3>${LISTS[l]}</h3><span class="small muted">${l==="E"?"opanuj 2":"opanuj 1"}</span></div>
+  <div class="card">${piecesFor(g,l).map(p=>{
+    const isAct = S.active.piece===p.id || S.active.etude===p.id;
+    return `<div class="piece"><div class="spread"><b>${p.name}</b>${isAct?`<span class="pill own">aktywny</span>`:""}</div>
+      <span class="small muted">Tempo: <span class="mono">${p.tempo}</span></span>${links(p)}
+      ${statusBtns(p)}
+      <div class="row">${g===S.grade && st(p.id)<4 && !isAct?`<button class="btn sm" data-act="activate" data-id="${p.id}">Ucz się teraz</button>`:""}</div>
+      <details><summary>Wskazówki</summary><div class="stack" style="margin-top:8px">${tipsHtml(p)}</div></details></div>`;}).join("")}</div>`;
+  return `<section class="stack">
+    <div class="spread"><h2>Repertuar</h2><div class="seg" role="group" aria-label="Poziom">${grades.map(x=>`<button data-act="repgrade" data-g="${x}" aria-pressed="${x===g}">G${x}</button>`).join("")}</div></div>
+    <p class="small muted">Listy są wzorowane na sylabusie RCM i dopasowane do Twoich nut. Poziomy są orientacyjne, bo różne edycje RCM przypisują niektóre utwory do sąsiednich poziomów. „Ucz się teraz” ustawia utwór w dzisiejszym planie.</p>
+    ${["A","B","C","E"].map(sec).join("")}
+    <div class="listhead"><span class="lt">♪</span><h3>Twoje utwory</h3><span class="small muted">do wolnego czasu</span></div>
+    <div class="card stack">
+      ${S.my.map(m=>`<div class="spread"><span>${esc(m.name)}</span><button class="btn sm ghost" data-act="mydel" data-id="${m.id}" aria-label="Usuń">Usuń</button></div>`).join("")}
+      <form class="row" id="myform"><input type="text" id="myname" placeholder="Einaudi – Nuvole bianche" style="flex:1"><button class="btn primary sm" type="submit">Dodaj</button></form>
+      <p class="small muted">Utwory, które opanujesz z list RCM, trafiają tu same.</p>
+    </div>
+  </section>`;
+}
+
+function viewTools(){
+  return `<section class="stack">
+  <div class="card metro" id="metro">
+    <span class="eyebrow">Metronom</span>
+    <div class="bpm mono" id="bpm-out">${metro.bpm}</div>
+    <div class="dots" id="dots">${Array.from({length:metro.beats},()=>"<i></i>").join("")}</div>
+    <input type="range" id="bpm" min="30" max="220" step="1" value="${metro.bpm}" aria-label="Tempo">
+    <div class="row"><button class="btn sm" data-act="bpm" data-d="-4">−4</button><button class="btn primary" data-act="metro">${metro.on?"Stop":"Start"}</button><button class="btn sm" data-act="bpm" data-d="4">+4</button>
+    <select id="beats" aria-label="Metrum">${[2,3,4,6].map(n=>`<option value="${n}" ${n===metro.beats?"selected":""}>${n}/4</option>`).join("")}</select></div>
+  </div>
+  <div class="card stack" id="quizcard">
+    <div class="spread"><h3>Ćwiczenia</h3>
+    <select id="quizsel" aria-label="Wybierz ćwiczenie">
+      <option value="ear-int">Słuch: interwały</option><option value="ear-chord">Słuch: akordy</option>
+      <option value="notes">Teoria: czytanie nut</option><option value="keys">Teoria: znaki przykluczowe</option><option value="intervals">Teoria: interwały w nutach</option>
+    </select></div>
+    <div id="quiz"></div>
+  </div>
+  <div class="card stack">
+    <h3>Twoje nuty i co dokupić</h3>
+    <p class="small"><b>Masz i używasz w planie:</b> Gamy i pasaże (PWM) w rozgrzewce, Hanon, Burgmüller op. 100 (etiudy Grade 5), Czerny op. 299 (etiudy Grade 8), Bach WTK I (Grade 8+), Najpiękniejszy Chopin (utwory listy C), Kember 2 i 3 oraz książki z łatwymi utworami do czytania a vista, a 50 Greats i Play it again do czytania a vista i wolnego czasu.</p>
+    <p class="small"><b>Pobierz za darmo z IMSLP (do druku):</b> Bach: Małe preludia BWV 924–943 i 999 oraz Inwencje BWV 772–786. Clementi: Sonatiny op. 36. Kuhlau: Sonatiny op. 55 i op. 20. Schumann: Album dla młodzieży op. 68. Grieg: Utwory liryczne op. 12. Czajkowski: Album dla dzieci op. 39. Heller: Etiudy op. 47. Czerny: op. 636. Burgmüller: op. 109. Między op. 100 a op. 299 jest duża luka i te zbiory ją wypełniają.</p>
+    <p class="small"><b>Warto kupić:</b> Celebrate Theory (Prep, 1, 2 i dalej) jako główny podręcznik teorii. Four Star Sight Reading and Ear Tests (Level 2–5) jako uzupełnienie czytania a vista i słuchu. Celebration Series Repertoire 5–6, jeśli chcesz mieć oficjalne listy RCM.</p>
+    <p class="small"><b>MuseScore:</b> szukaj oficjalnych wydań (filtr „Official scores”) utworów z list. Do czytania a vista wybieraj łatwe aranżacje z oceną „Beginner” lub „Intermediate”.</p>
+  </div>
+  </section>`;
+}
+
+/* ============================== AUDIO ============================== */
+let AC=null;
+function ac(){ if(!AC){ AC=new (window.AudioContext||window.webkitAudioContext)(); } if(AC.state==="suspended") AC.resume(); return AC; }
+const freq=(m)=>440*Math.pow(2,(m-69)/12);
+function tone(m, t, dur=1.4, vol=0.22){
+  const c=ac(), g=c.createGain(), o1=c.createOscillator(), o2=c.createOscillator(), g2=c.createGain();
+  o1.type="triangle"; o2.type="sine"; o1.frequency.value=freq(m); o2.frequency.value=freq(m)*2; g2.gain.value=0.25;
+  o1.connect(g); o2.connect(g2); g2.connect(g); g.connect(c.destination);
+  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o1.start(t); o2.start(t); o1.stop(t+dur+0.05); o2.stop(t+dur+0.05);
+}
+function click(t, accent){
+  const c=ac(), o=c.createOscillator(), g=c.createGain();
+  o.frequency.value=accent?1600:1000; o.connect(g); g.connect(c.destination);
+  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(accent?0.5:0.3,t+0.002); g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);
+  o.start(t); o.stop(t+0.06);
+}
+function chime(){ const c=ac(), t=c.currentTime+0.02; tone(72,t,1.2,0.25); tone(76,t+0.18,1.2,0.25); tone(79,t+0.36,1.6,0.25); }
+
+/* metronome */
+const metro={bpm:80,beats:4,on:false,next:0,beat:0,timer:null};
+function metroStart(){
+  const c=ac(); metro.on=true; metro.next=c.currentTime+0.06; metro.beat=0;
+  metro.timer=setInterval(()=>{ while(metro.next<c.currentTime+0.12){ click(metro.next, metro.beat%metro.beats===0); const b=metro.beat%metro.beats, delay=(metro.next-c.currentTime)*1000; setTimeout(()=>lightDot(b),Math.max(0,delay)); metro.next+=60/metro.bpm; metro.beat++; } },25);
+}
+function metroStop(){ metro.on=false; clearInterval(metro.timer); lightDot(-1); }
+function lightDot(b){ const d=document.querySelectorAll("#dots i"); d.forEach((x,i)=>x.classList.toggle("on",i===b)); }
+
+/* block timer */
+const timerState={i:null,end:0,iv:null};
+let wake=null;
+async function keepAwake(){ try{ if(navigator.wakeLock) wake=await navigator.wakeLock.request("screen"); }catch(e){} }
+function startTimer(i){
+  stopTimer(); const b=todayPlan().blocks[i]; ac();
+  timerState.i=i; timerState.end=Date.now()+b.min*60000; keepAwake();
+  timerState.iv=setInterval(tickTimer,500); tickTimer(); render();
+}
+function stopTimer(){ clearInterval(timerState.iv); timerState.i=null; try{wake&&wake.release()}catch(e){} wake=null; }
+function tickTimer(){
+  if(timerState.i===null) return;
+  const left=Math.max(0,timerState.end-Date.now()), el=document.getElementById("tm-"+timerState.i);
+  if(el) el.textContent=Math.floor(left/60000)+":"+String(Math.floor(left/1000)%60).padStart(2,"0");
+  if(left<=0){ chime(); toast("Czas minął: "+BLOCKS[todayPlan().blocks[timerState.i].type].name); stopTimer(); render(); }
+}
+
+/* ============================== QUIZY ============================== */
+const LET=["C","D","E","F","G","A","H"];
+function staffSvg(notes, clef, sig){
+  // notes: [{s:step, x}] step 0 = bottom line
+  const W=320,H=150, top=45, gap=10, y=(s)=>top+40-s*5;
+  let h=`<svg class="staff" viewBox="0 0 ${W} ${H}" role="img" aria-label="Pięciolinia">`;
+  for(let i=0;i<5;i++) h+=`<line x1="10" x2="${W-10}" y1="${top+i*gap}" y2="${top+i*gap}" stroke-width="1.2"/>`;
+  h+= clef==="bass" ? `<text x="16" y="${top+28}" font-size="40" font-family="serif">𝄢</text>` : `<text x="14" y="${top+38}" font-size="58" font-family="serif">𝄞</text>`;
+  h+=`<text x="${W-14}" y="${H-8}" font-size="11" text-anchor="end">${clef==="bass"?"klucz basowy":"klucz wiolinowy"}</text>`;
+  if(sig){
+    const sharpS=[8,5,9,6,3,7,4], flatS=[4,7,3,6,2,5,1];
+    const arr=sig>0?sharpS:flatS, ch=sig>0?"♯":"♭";
+    for(let i=0;i<Math.abs(sig);i++) h+=`<text x="${62+i*13}" y="${y(arr[i])+(sig>0?6:4)}" font-size="22" font-family="serif">${ch}</text>`;
+  }
+  for(const n of notes){
+    for(let s=-2;s>=n.s;s-=2) h+=`<line class="ink" x1="${n.x-14}" x2="${n.x+14}" y1="${y(s)}" y2="${y(s)}" stroke-width="1.2"/>`;
+    for(let s=10;s<=n.s;s+=2) h+=`<line class="ink" x1="${n.x-14}" x2="${n.x+14}" y1="${y(s)}" y2="${y(s)}" stroke-width="1.2"/>`;
+    h+=`<ellipse cx="${n.x}" cy="${y(n.s)}" rx="7.5" ry="5.5" transform="rotate(-20 ${n.x} ${y(n.s)})"/>`;
+  }
+  return h+"</svg>";
+}
+const Q={type:null,cur:null,score:0,count:0,locked:false,host:null,inline:false};
+function quizStart(type, hostId, inline){
+  Q.type=type; Q.score=0; Q.count=0; Q.host=hostId; Q.inline=!!inline; quizNext();
+}
+function quizNext(){
+  const host=document.getElementById(Q.host); if(!host) return;
+  Q.locked=false;
+  if(Q.inline && Q.count>=10){
+    host.innerHTML=`<p><b>Wynik: ${Q.score} z 10.</b> ${Q.score>=8?"Świetnie!":"Spróbuj jeszcze raz jutro."}</p><button class="btn sm" data-act="quiz-again">Jeszcze 10</button>`;
+    return;
+  }
+  const t=Q.type; let q;
+  if(t==="ear-int"||t==="ear-chord"){
+    const E=EAR[Math.min(8,Math.max(2,S.ear.level))];
+    if(t==="ear-int"){ const semi=E.ints[Math.floor(Math.random()*E.ints.length)], root=55+Math.floor(Math.random()*12); q={answer:INT_NAMES[semi],opts:E.ints.map(s=>INT_NAMES[s]),play:()=>{const c=ac(),n=c.currentTime+0.05; tone(root,n); tone(root+semi,n+0.7); tone(root,n+1.5,1.6); tone(root+semi,n+1.5,1.6);}}; }
+    else { const k=E.chords[Math.floor(Math.random()*E.chords.length)], root=52+Math.floor(Math.random()*10); q={answer:k,opts:E.chords,play:()=>{const c=ac(),n=c.currentTime+0.05; CHORD_SEMIS[k].forEach((s,i)=>tone(root+s,n+i*0.35)); CHORD_SEMIS[k].forEach(s=>tone(root+s,n+CHORD_SEMIS[k].length*0.35+0.3,1.8,0.16));}}; }
+    host.innerHTML=`<div class="stack"><div class="row"><button class="btn primary" data-act="q-play">▶ Odtwórz</button><span class="small muted">Pytanie ${Q.count+1}${Q.inline?" z 10":""} · wynik ${Q.score}</span></div><div class="answers wide">${q.opts.map(o=>`<button data-act="q-ans" data-a="${esc(o)}">${o}</button>`).join("")}</div></div>`;
+    Q.cur=q; setTimeout(()=>q.play(),50); return;
+  }
+  if(t==="notes"){
+    const clef=Math.random()<0.5?"treble":"bass", s=-3+Math.floor(Math.random()*15), base=clef==="treble"?2:4;
+    q={answer:LET[((base+s)%7+7)%7],opts:LET,svg:staffSvg([{s,x:200}],clef)};
+  }
+  if(t==="keys"){
+    const max=Math.min(7,Math.max(2,S.th.level+1)), k=Math.floor(Math.random()*(2*max+1))-max;
+    const MAJ={0:"C-dur",1:"G-dur",2:"D-dur",3:"A-dur",4:"E-dur",5:"H-dur",6:"Fis-dur",7:"Cis-dur","-1":"F-dur","-2":"B-dur","-3":"Es-dur","-4":"As-dur","-5":"Des-dur","-6":"Ges-dur","-7":"Ces-dur"};
+    const MIN={0:"a-moll",1:"e-moll",2:"h-moll",3:"fis-moll",4:"cis-moll",5:"gis-moll",6:"dis-moll",7:"ais-moll","-1":"d-moll","-2":"g-moll","-3":"c-moll","-4":"f-moll","-5":"b-moll","-6":"es-moll","-7":"as-moll"};
+    const minor=Math.random()<0.4, dict=minor?MIN:MAJ, ans=dict[k];
+    const pool=Object.keys(dict).filter(x=>Math.abs(+x)<=max && +x!==k).sort(()=>Math.random()-0.5).slice(0,3).map(x=>dict[x]);
+    q={answer:ans,opts:[ans,...pool].sort(()=>Math.random()-0.5),svg:staffSvg([],"treble",k),prompt:minor?"Jaka to tonacja molowa?":"Jaka to tonacja durowa?"};
+  }
+  if(t==="intervals"){
+    const NAMES=["prima","sekunda","tercja","kwarta","kwinta","seksta","septyma","oktawa"];
+    const a=-1+Math.floor(Math.random()*6), d=1+Math.floor(Math.random()*7);
+    q={answer:NAMES[d],opts:NAMES.slice(1),svg:staffSvg([{s:a,x:150},{s:a+d,x:220}],"treble")};
+  }
+  host.innerHTML=`<div class="stack">${q.svg}<p class="small" style="text-align:center">${q.prompt||(t==="notes"?"Jaka to nuta?":"Jaki to interwał?")} <span class="muted">· pytanie ${Q.count+1}${Q.inline?" z 10":""} · wynik ${Q.score}</span></p><div class="answers ${t==="notes"?"":"wide"}">${q.opts.map(o=>`<button data-act="q-ans" data-a="${esc(o)}">${o}</button>`).join("")}</div></div>`;
+  Q.cur=q;
+}
+function quizAnswer(btn){
+  if(Q.locked) return; Q.locked=true;
+  const ok=btn.dataset.a===Q.cur.answer; Q.count++; if(ok) Q.score++;
+  btn.classList.add(ok?"right":"wrong");
+  if(!ok) document.querySelectorAll(`#${Q.host} [data-act="q-ans"]`).forEach(b=>{ if(b.dataset.a===Q.cur.answer) b.classList.add("right"); });
+  if(Q.type.startsWith("ear")){ S.ear.log.push({l:S.ear.level,ok}); save(); }
+  if(Q.inline && Q.count>=10 && Q.type.startsWith("ear")){
+    const plan=todayPlan(), b=plan.blocks.find(x=>x.type==="ear"); if(b && !b.done){ setTimeout(()=>markBlock(b,true),900); return; }
+  }
+  setTimeout(quizNext, ok?600:1400);
+}
+
+/* ============================== ZDARZENIA ============================== */
+let toastT=null;
+function toast(t){ let el=document.querySelector(".toast"); if(!el){el=document.createElement("div");el.className="toast";el.setAttribute("role","status");document.body.appendChild(el);} el.textContent=t; clearTimeout(toastT); toastT=setTimeout(()=>el.remove(),2600); }
+
+function afterToday(){
+  const ear=document.getElementById("ear-inline");
+  if(ear){ const plan=todayPlan(), b=plan.blocks.find(x=>x.type==="ear"); if(b&&b.done){ ear.innerHTML=`<p class="small muted">Zrobione na dziś.</p>`; } else { ear.innerHTML=`<button class="btn sm primary" data-act="ear-go" data-mode="${ear.dataset.mode}">Zacznij (10 pytań)</button>`; } }
+  if(timerState.i!==null) tickTimer();
+}
+function afterTools(){
+  const r=document.getElementById("bpm"); r.oninput=()=>{metro.bpm=+r.value;document.getElementById("bpm-out").textContent=metro.bpm;};
+  document.getElementById("beats").onchange=(e)=>{metro.beats=+e.target.value; document.getElementById("dots").innerHTML=Array.from({length:metro.beats},()=>"<i></i>").join("");};
+  const sel=document.getElementById("quizsel"); if(pendingQuiz){ sel.value=pendingQuiz; pendingQuiz=null; }
+  sel.onchange=()=>quizIdle(sel.value); quizIdle(sel.value);
+}
+function quizIdle(type){ const host=document.getElementById("quiz"); host.innerHTML=`<button class="btn primary" data-act="quiz-begin" data-q="${type}">Zacznij</button>`; }
+let pendingQuiz=null;
+
+document.addEventListener("click",(e)=>{
+  const t=e.target.closest("[data-act],[data-tab]"); if(!t) return;
+  const act=t.dataset.act;
+  if(!act && t.dataset.tab){ TAB=t.dataset.tab; repGrade=null; render(); window.scrollTo(0,0); return; }
+  const plan=todayPlan();
+  switch(act){
+    case "goto": TAB=t.dataset.tab; render(); window.scrollTo(0,0); break;
+    case "done": { const b=plan.blocks[+t.dataset.i]; if(b.type==="sr" && !b.done && !b.rating){ toast("Najpierw oceń, jak poszło (1–5)"); break; } markBlock(b,!b.done); if(!b.done) break; if(timerState.i===+t.dataset.i) stopTimer(); break; }
+    case "minutes": { const m=+t.dataset.m; S.minutes=m; if(plan.blocks.some(b=>b.done)){ const np=genPlan(todayKey(),m); np.counted=plan.counted; np.blocks.forEach(nb=>{ const ob=plan.blocks.find(x=>x.type===nb.type); if(ob&&ob.done){nb.done=true;nb.rating=ob.rating;nb.adv=ob.adv;} }); S.plans[todayKey()]=np; } else S.plans[todayKey()]=genPlan(todayKey(),m); save(); render(); break; }
+    case "timer": { const i=+t.dataset.i; if(timerState.i===i){stopTimer();render();} else startTimer(i); break; }
+    case "status": { const id=t.dataset.id, s=+t.dataset.s; S.pieces[id]={s}; const p=PIECES.find(x=>x.id===id);
+      if(s>0 && s<4){ if(p.list==="E") S.active.etude=id; else S.active.piece=id; }
+      if(s===4){ if(!S.my.some(m=>m.name===p.name)) S.my.push({id:"r-"+id,name:p.name,last:todayKey()}); if(S.active.piece===id) S.active.piece=null; if(S.active.etude===id) S.active.etude=null; toast("Opanowany! Trafia do Twoich utworów."); }
+      save(); render(); break; }
+    case "activate": { const p=PIECES.find(x=>x.id===t.dataset.id); if(p.list==="E") S.active.etude=p.id; else S.active.piece=p.id; if(!st(p.id)) S.pieces[p.id]={s:1}; save(); toast("Ustawiono w planie: "+p.name); render(); break; }
+    case "repgrade": repGrade=+t.dataset.g; render(); break;
+    case "mydel": S.my=S.my.filter(m=>m.id!==t.dataset.id); save(); render(); break;
+    case "srrate": { const b=plan.blocks.find(x=>x.type==="sr"); const r=+t.dataset.r; const first=!b.rating; b.rating=r;
+      if(first){ S.sr.log.push({l:S.sr.level,r,d:todayKey()}); const L=SR[b.level]||SR[8], key="sr"+b.level+":"+L.books[b.book%L.books.length]; S.srCounter[key]=(S.srCounter[key]||0)+1; } else { const last=S.sr.log[S.sr.log.length-1]; if(last) last.r=r; }
+      if(!b.done) markBlock(b,true); else { save(); render(); } break; }
+    case "srup": S.sr.level=Math.min(8,S.sr.level+1); save(); toast("Czytanie a vista: poziom "+S.sr.level); render(); break;
+    case "thdone": S.th.done[t.dataset.id]=true; save(); toast("Temat zaliczony"); render(); break;
+    case "thtoggle": S.th.done[t.dataset.id]=!S.th.done[t.dataset.id]; save(); render(); break;
+    case "thup": S.th.level=Math.min(8,S.th.level+1); save(); toast("Teoria: Level "+S.th.level); render(); break;
+    case "earup": S.ear.level=Math.min(8,S.ear.level+1); save(); render(); break;
+    case "tech": S.tech.done[t.dataset.id]=!S.tech.done[t.dataset.id]; save(); render(); break;
+    case "gradeup": S.grade=Math.min(8,S.grade+1); S.active={piece:null,etude:null}; save(); toast("Gratulacje! Grade "+S.grade); render(); break;
+    case "reset-ask": document.getElementById("reset-confirm").innerHTML=`<p class="small">Usunie to cały postęp i historię. Na pewno?</p><button class="btn sm" data-act="reset-yes">Tak, zacznij od nowa</button>`; break;
+    case "reset-yes": S=defaultState(); save(); render(); toast("Zaczynasz od nowa"); break;
+    case "quiz": pendingQuiz=t.dataset.q; TAB="tools"; render(); window.scrollTo(0,0); setTimeout(()=>{const c=document.getElementById("quizcard"); c&&c.scrollIntoView({block:"start"});},50); break;
+    case "quiz-begin": ac(); quizStart(t.dataset.q,"quiz",false); break;
+    case "ear-go": ac(); quizStart(t.dataset.mode==="int"?"ear-int":"ear-chord","ear-inline",true); break;
+    case "quiz-again": quizStart(Q.type,Q.host,Q.inline); break;
+    case "q-play": Q.cur&&Q.cur.play&&Q.cur.play(); break;
+    case "q-ans": quizAnswer(t); break;
+    case "metro": if(metro.on) metroStop(); else metroStart(); t.textContent=metro.on?"Stop":"Start"; break;
+    case "bpm": metro.bpm=Math.max(30,Math.min(220,metro.bpm+(+t.dataset.d))); document.getElementById("bpm").value=metro.bpm; document.getElementById("bpm-out").textContent=metro.bpm; break;
+    case "metro-inline": { const bpm=+t.dataset.bpm; if(metro.on && metro.bpm===bpm){ metroStop(); t.textContent="♩ Metronom "+bpm; } else { metro.bpm=bpm; if(metro.on) metroStop(); metroStart(); t.textContent="■ Stop ("+bpm+")"; } break; }
+  }
+});
+document.addEventListener("change",(e)=>{
+  const t=e.target; if(t.dataset.act!=="setlevel") return;
+  const v=+t.value, k=t.dataset.k;
+  if(k==="grade"){ S.grade=v; S.active={piece:null,etude:null}; }
+  if(k==="sr"){ S.sr.level=v; S.start.sr=Math.min(S.start.sr,v); }
+  if(k==="th"){ S.th.level=v; S.start.th=Math.min(S.start.th,v); }
+  if(k==="ear"){ S.ear.level=v; S.start.ear=Math.min(S.start.ear,v); }
+  save(); render();
+});
+document.addEventListener("submit",(e)=>{
+  if(e.target.id!=="myform") return; e.preventDefault();
+  const inp=document.getElementById("myname"), n=inp.value.trim(); if(!n){ inp.focus(); return; }
+  S.my.push({id:"m"+Date.now(),name:n,last:""}); save(); render();
+});
+
+/* ============================== KONTO ============================== */
+function accountCard(){
+  let inner;
+  if(!SYNC.configured){
+    inner=`<p class="small muted">Synchronizacja nie jest jeszcze włączona. Postęp zapisuje się na tym urządzeniu.</p>`;
+  } else if(!SYNC.session){
+    inner=`<p class="small">Zaloguj się, żeby mieć ten sam postęp na telefonie i komputerze.</p>
+    <form id="loginform" class="stack" style="gap:8px">
+      <input type="email" id="lg-email" autocomplete="email" placeholder="twoj@email.pl" required>
+      <input type="password" id="lg-pass" autocomplete="current-password" placeholder="Hasło (min. 6 znaków)" minlength="6" required>
+      <div class="row"><button class="btn primary sm" type="submit">Zaloguj</button><button class="btn sm" type="button" data-act="signup">Załóż konto</button></div>
+      <p class="small" id="lg-msg" style="margin:0"></p>
+    </form>`;
+  } else {
+    inner=`<p class="small">Zalogowana jako <b>${esc(SYNC.session.user.email||"")}</b>.${SYNC.last?" Ostatnia synchronizacja: "+fmtTime(SYNC.last)+".":""}</p>
+    <div class="row"><button class="btn sm" data-act="syncnow">Synchronizuj teraz</button><button class="btn sm ghost" data-act="logout">Wyloguj</button></div>`;
+  }
+  return `<div class="card stack"><h3>Konto i synchronizacja</h3>${inner}
+    <div class="row"><button class="btn sm" data-act="export">Pobierz kopię zapasową</button>
+    <label class="btn sm" style="cursor:pointer">Wczytaj kopię<input type="file" id="importfile" accept="application/json,.json" hidden></label></div></div>`;
+}
+function plErr(m){
+  if(/Invalid login credentials/i.test(m)) return "Nieprawidłowy e-mail lub hasło.";
+  if(/Email not confirmed/i.test(m)) return "Potwierdź najpierw e-mail (link w skrzynce).";
+  if(/already registered/i.test(m)) return "To konto już istnieje – zaloguj się.";
+  if(/Password should be/i.test(m)) return "Hasło musi mieć co najmniej 6 znaków.";
+  return m;
+}
+function lgMsg(t, ok){ const el=document.getElementById("lg-msg"); if(el){ el.textContent=t; el.style.color=ok?"var(--ok)":"var(--danger)"; } }
+async function doAuth(signup){
+  const email=document.getElementById("lg-email").value.trim(), pass=document.getElementById("lg-pass").value;
+  if(!email || pass.length<6){ lgMsg("Wpisz e-mail i hasło (co najmniej 6 znaków)."); return; }
+  if(!navigator.onLine){ lgMsg("Brak internetu – spróbuj, gdy będziesz online."); return; }
+  lgMsg(signup?"Zakładam konto…":"Loguję…", true);
+  const res = signup ? await SYNC.client.auth.signUp({email, password:pass, options:{emailRedirectTo: location.origin+location.pathname}})
+                     : await SYNC.client.auth.signInWithPassword({email, password:pass});
+  if(res.error){ lgMsg(plErr(res.error.message)); return; }
+  if(signup && !res.data.session){ lgMsg("Sprawdź skrzynkę i kliknij link potwierdzający, potem zaloguj się tutaj.", true); return; }
+  toast("Zalogowano");
+}
+function exportState(){
+  const blob=new Blob([JSON.stringify(S,null,1)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="plan-przy-pianinie-"+todayKey()+".json";
+  document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},1000);
+}
+document.addEventListener("click", async (e)=>{
+  const t=e.target.closest("[data-act]"); if(!t) return;
+  const act=t.dataset.act;
+  if(act==="signup") doAuth(true);
+  if(act==="logout"){ await SYNC.client.auth.signOut(); SYNC.session=null; setSync("Wylogowano. Postęp zostaje na tym urządzeniu."); render(); }
+  if(act==="syncnow"){ await pull(); render(); }
+  if(act==="export") exportState();
+});
+document.addEventListener("submit",(e)=>{ if(e.target.id!=="loginform") return; e.preventDefault(); doAuth(false); });
+document.addEventListener("change",(e)=>{
+  if(e.target.id!=="importfile") return;
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const o=JSON.parse(r.result);
+      if(!o || typeof o.grade!=="number" || !o.plans) throw new Error("bad");
+      S=merge(defaultState(), o); save(); render(); toast("Wczytano kopię zapasową");
+    }catch(err){ toast("To nie jest plik kopii z tej aplikacji"); }
+  };
+  r.readAsText(f);
+});
+
+initStore();
+if("serviceWorker" in navigator){ window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{})); }
+</script>
+</body>
+</html>
