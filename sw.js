@@ -1,6 +1,6 @@
 // Offline cache. The page and the app's own scripts come from the network first (so updates apply at once)
 // and fall back to the cache offline; other files are served from cache and refreshed in the background.
-const CACHE = "ppp-v6";
+const CACHE = "ppp-v7";
 const SHELL = [
   "./", "index.html", "manifest.webmanifest", "config.js", "content.js", "listening.js", "extra.js",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
