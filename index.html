@@ -60,6 +60,7 @@ nav.tabs button[aria-current="true"]{color:var(--accent);font-weight:600}
 .spread{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;font-size:.9rem}
 .btn:hover{border-color:var(--muted)}
+a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
 .btn.ghost{background:transparent}
 .btn.sm{padding:5px 10px;font-size:.82rem;border-radius:8px}
@@ -216,6 +217,7 @@ input[type=email],input[type=password]{font:inherit;color:inherit;background:var
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/abcjs/6.4.4/abcjs-basic-min.js" defer></script>
 <script src="content.js"></script>
+<script src="listening.js"></script>
 <script src="extra.js"></script>
 <script>
 "use strict";
@@ -562,7 +564,8 @@ function defaultState(){
     minutes:60,
     tempo:{},
     pedal:{done:{}},
-    exams:[]
+    exams:[],
+    listen:{}
   };
 }
 let S = defaultState();

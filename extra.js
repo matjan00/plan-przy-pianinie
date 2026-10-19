@@ -516,7 +516,58 @@ function viewLearn() {
   if (LEARN.view === "lesson") return lessonView(LEARN.id);
   if (LEARN.view === "pedal") return pedalView(LEARN.id);
   if (LEARN.view === "exam") return examView();
+  if (LEARN.view === "listen") return listenView(LEARN.id);
   return learnHome();
+}
+
+/* kurs słuchania */
+const spUrl = (p) => "https://open.spotify.com/" + p;
+const spSearch = (q) => "https://open.spotify.com/search/" + encodeURIComponent(q);
+function listenDone(id) { return !!(S.listen && S.listen[id] && S.listen[id].done); }
+function listenNext() { return LISTEN.find(x => !listenDone(x.id)) || null; }
+function listenCard() {
+  const done = LISTEN.filter(x => listenDone(x.id)).length, next = listenNext();
+  return `<div class="card stack">
+    <div class="spread"><h3>Poznaj muzykę klasyczną</h3><span class="mono small">${done}/${LISTEN.length}</span></div>
+    <div class="bar t-music"><span style="width:${Math.round(done / LISTEN.length * 100)}%"></span></div>
+    <p class="small muted">${LISTEN.length} utworów od baroku do XX wieku, do słuchania na Spotify. Przy każdym: na co zwrócić uwagę i ciekawostka. Najlepiej po kolei, jeden lub dwa dziennie.</p>
+    ${next ? `<div><button class="btn primary sm" data-act="listen-open" data-id="${next.id}">Następny: ${esc(next.composer.split(" ").slice(-1)[0])} – ${esc(next.title)}</button></div>` : `<p class="small"><b>Wysłuchane wszystkie – brawo!</b></p>`}
+    ${LISTEN_ERAS.map(e => {
+      const items = LISTEN.filter(x => x.era === e.id);
+      return `<details><summary>${e.name} <span class="muted small">(${items.filter(x => listenDone(x.id)).length}/${items.length}) · ${e.years}</span></summary>
+        <p class="small muted" style="margin:6px 0">${e.intro}</p>
+        <div class="lessonlist">${items.map(x => `<button data-act="listen-open" data-id="${x.id}"><span>${esc(x.composer)} – ${esc(x.title)} <span class="muted small">· ${x.min} min</span></span>${listenDone(x.id) ? `<span class="ok">✓</span>` : `<span class="muted">›</span>`}</button>`).join("")}</div></details>`;
+    }).join("")}
+  </div>`;
+}
+function listenView(id) {
+  const i = LISTEN.findIndex(x => x.id === id), x = LISTEN[i];
+  if (!x) return learnHome();
+  const era = LISTEN_ERAS.find(e => e.id === x.era), st_ = (S.listen && S.listen[id]) || {};
+  const prev = LISTEN[i - 1], next = LISTEN[i + 1];
+  return `<section class="stack">
+    <div><button class="btn sm ghost" data-act="learn-home">‹ Nauka</button></div>
+    <article class="card stack lesson">
+      <span class="eyebrow">Poznaj muzykę klasyczną · ${era.name} · ${i + 1} z ${LISTEN.length}</span>
+      <h2>${esc(x.title)}</h2>
+      <p class="muted" style="margin:0">${esc(x.composer)} · ${x.year} · ok. ${x.min} min</p>
+      <div class="row">
+        <a class="btn primary" href="${spUrl(x.sp)}" target="_blank" rel="noopener">▶ Słuchaj na Spotify</a>
+        <a class="btn sm ghost" href="${spSearch(x.composer + " " + x.title)}" target="_blank" rel="noopener">inne wykonania</a>
+      </div>
+      <p class="small muted" style="margin:0">Nagranie: ${esc(x.perf)}</p>
+      <h4>Na co zwrócić uwagę</h4>
+      <ul>${x.listen.map(l => `<li>${l}</li>`).join("")}</ul>
+      <div class="box tip"><b>Ciekawostka:</b> ${x.fact}</div>
+      ${x.you ? `<p class="small" style="margin:0">${x.you}</p>` : ""}
+      <div class="stack" style="gap:6px"><span class="small">Jak Ci się podobało?</span>
+        <div class="rate" role="group" aria-label="Ocena utworu">${[1, 2, 3, 4, 5].map(r => `<button data-act="listen-rate" data-id="${id}" data-r="${r}" aria-pressed="${st_.r === r}" aria-label="${r} na 5">${r}</button>`).join("")}</div></div>
+      <div class="row">
+        ${listenDone(id) ? `<button class="btn sm" data-act="listen-done" data-id="${id}">Wysłuchane ✓ (cofnij)</button>` : `<button class="btn sm primary" data-act="listen-done" data-id="${id}">Wysłuchane ✓</button>`}
+        ${prev ? `<button class="btn sm ghost" data-act="listen-open" data-id="${prev.id}">‹ Poprzedni</button>` : ""}
+        ${next ? `<button class="btn sm ghost" data-act="listen-open" data-id="${next.id}">Następny ›</button>` : ""}
+      </div>
+    </article></section>`;
 }
 function learnHome() {
   const pd = PEDAL.filter(l => S.pedal.done[l.id]).length;
@@ -529,6 +580,7 @@ function learnHome() {
       ${Object.keys(THEORY).map(lv => `<details ${+lv === S.th.level ? "open" : ""}><summary>Level ${lv} <span class="muted small">(${THEORY[lv].filter(t => S.th.done[t[0]]).length}/${THEORY[lv].length})</span></summary>
         <div class="lessonlist">${THEORY[lv].map(t => `<button data-act="lesson" data-id="${t[0]}"><span>${t[1]}</span>${S.th.done[t[0]] ? `<span class="ok">✓</span>` : `<span class="muted">›</span>`}</button>`).join("")}</div></details>`).join("")}
     </div>
+    ${listenCard()}
     <div class="card stack">
       <div class="spread"><h3>Kurs pedału</h3><span class="mono small">${pd}/${PEDAL.length}</span></div>
       <div class="bar t-tech"><span style="width:${Math.round(pd / PEDAL.length * 100)}%"></span></div>
@@ -808,6 +860,17 @@ document.addEventListener("click", (e) => {
     case "chk": checkAnswer(t); break;
     case "pedal-open": LEARN.view = "pedal"; LEARN.id = t.dataset.id; TAB = "learn"; render(); window.scrollTo(0, 0); break;
     case "pedal-done": S.pedal.done[t.dataset.id] = true; save(); toast(pedalCourseDone() ? "Kurs pedału ukończony!" : "Lekcja zaliczona"); render(); break;
+    case "listen-open": LEARN.view = "listen"; LEARN.id = t.dataset.id; TAB = "learn"; render(); window.scrollTo(0, 0); break;
+    case "listen-done": {
+      S.listen = S.listen || {}; const cur = S.listen[t.dataset.id] || {};
+      cur.done = !cur.done; if (cur.done) cur.d = todayKey(); S.listen[t.dataset.id] = cur;
+      save(); render(); if (cur.done) toast("Zapisano jako wysłuchane"); break;
+    }
+    case "listen-rate": {
+      S.listen = S.listen || {}; const cur = S.listen[t.dataset.id] || {};
+      cur.r = +t.dataset.r; S.listen[t.dataset.id] = cur;
+      t.parentElement.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === t))); save(); break;
+    }
     case "exam-start": examStart(); render(); window.scrollTo(0, 0); break;
     case "exam-quit": EXAM = null; delete SRGEN["exam-sr"]; stopQueue(); LEARN.view = "home"; render(); window.scrollTo(0, 0); break;
     case "exam-next": examCollect(); EXAM.step++; render(); window.scrollTo(0, 0); break;
