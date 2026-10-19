@@ -158,6 +158,7 @@ input[type=email],input[type=password]{font:inherit;color:inherit;background:var
     </div>
     <div class="row">
       <span class="levelchip"><b id="chip-grade">Grade 5</b><span id="chip-pct">0% do kolejnego</span></span>
+      <button class="btn sm" id="acct-btn" data-act="acct" hidden>Zaloguj</button>
     </div>
   </header>
   <main id="view"><div class="card muted">Ładuję Twój plan…</div></main>
@@ -599,8 +600,8 @@ async function initStore(){
     if(SYNC.unsub){ SYNC.unsub(); SYNC.unsub=null; }
     SYNC.ref=null; SYNC.user=u;
     if(u) attach(u);
-    else setSync("Zaloguj się kontem Google w zakładce Postęp, żeby mieć ten sam postęp na komputerze.");
-    if(TAB==="progress") render();
+    else setSync("Zaloguj się przyciskiem „Zaloguj” u góry, żeby postęp zapisywał się na koncie.");
+    render();
   });
 }
 
@@ -704,6 +705,11 @@ function header(){
   document.getElementById("chip-grade").textContent="Grade "+S.grade;
   document.getElementById("chip-pct").textContent=pct(p.total)+" do Grade "+(S.grade+1);
   const d=new Date(); document.getElementById("today-label").textContent=d.toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"});
+  const ab=document.getElementById("acct-btn");
+  ab.hidden=!SYNC.configured;
+  ab.textContent=SYNC.user? "Konto ✓" : "Zaloguj";
+  ab.classList.toggle("primary", !SYNC.user);
+  ab.setAttribute("aria-label", SYNC.user? "Konto: zalogowana jako "+(SYNC.user.email||"") : "Zaloguj się kontem Google");
 }
 function render(){
   header();
@@ -816,6 +822,7 @@ function viewToday(){
   const keys=plan.blocks.map(b=>`<div class="key t-${BLOCKS[b.type].grp} ${b.done?"done":""}" style="flex-grow:${b.min}" title="${BLOCKS[b.type].name}">${b.min}</div>`).join("");
   return `<section class="stack">
   ${installCard()}
+  ${SYNC.configured && !SYNC.user ? `<div class="card spread"><div style="min-width:0;flex:1"><h3>Zapisuj postęp na koncie</h3><p class="small muted" style="margin:0">Zaloguj się kontem Google (tym samym co w Arabesce), a postęp będzie ten sam na telefonie i komputerze.</p></div><button class="btn primary" data-act="glogin">Zaloguj przez Google</button></div>` : ""}
   <div class="card stack">
     <div class="spread"><div><span class="eyebrow">Sesja ${S.sessions + (plan.counted?0:1)}</span><h2>${mins} z ${plan.minutes} min</h2></div>
     <div class="seg" role="group" aria-label="Długość sesji">${[30,45,60,90].map(m=>`<button data-act="minutes" data-m="${m}" aria-pressed="${plan.minutes===m}">${m}</button>`).join("")}</div></div>
@@ -853,6 +860,7 @@ function viewProgress(){
     <div class="bar"><span style="width:${pct(p.total)}"></span></div>
     ${all?`<button class="btn primary" data-act="gradeup">Zalicz Grade ${g} i przejdź na Grade ${g+1}</button>`:`<p class="small muted">Grade ${g} jest zaliczony, gdy wszystkie paski poniżej dojdą do 100%: po jednym opanowanym utworze z list A, B i C, 2 etiudy, technika, a czytanie a vista, teoria i słuch na poziomie ${g}.</p>`}
   </div>
+  ${accountCard()}
   <div class="minis">
     <div class="mini"><div class="small muted">Ten tydzień</div><div class="v">${week} min</div></div>
     <div class="mini"><div class="small muted">Dni z rzędu</div><div class="v">${streak}</div></div>
@@ -883,7 +891,6 @@ function viewProgress(){
     ${(THEORY[S.th.level]||[]).map(t=>`<button class="check t-mind" data-act="thtoggle" data-id="${t[0]}" aria-pressed="${!!S.th.done[t[0]]}" style="justify-content:flex-start;border-radius:12px;text-align:left"><span class="box">✓</span>${t[1]}</button>`).join("")}
     ${thInLevel()>=1?`<button class="btn primary" data-act="thup">Przejdź na Level ${S.th.level+1}</button>`:""}
   </div>
-  ${accountCard()}
   <details class="card"><summary>Ustawienia poziomów</summary>
     <div class="stack" style="margin-top:10px">
       <p class="small muted">Jeśli coś jest za łatwe albo za trudne, przestaw poziom ręcznie.</p>
@@ -1178,6 +1185,10 @@ document.addEventListener("click", async (e)=>{
   const t=e.target.closest("[data-act]"); if(!t) return;
   const act=t.dataset.act;
   if(act==="glogin") googleLogin();
+  if(act==="acct"){
+    if(!SYNC.user){ googleLogin(); return; }
+    TAB="progress"; render(); window.scrollTo(0,0);
+  }
   if(act==="logout"){ await SYNC.auth.signOut(); toast("Wylogowano – postęp zostaje na tym urządzeniu"); }
   if(act==="syncnow"){ try{ await syncNow(); }catch(err){ setSync("Nie udało się zsynchronizować ("+(err.code||"błąd")+")."); } render(); }
   if(act==="export") exportState();
