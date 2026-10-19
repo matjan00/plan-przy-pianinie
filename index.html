@@ -189,6 +189,33 @@ const SRC = {
   czerny:"Masz: Czerny op. 299",
   ms:"MuseScore (masz subskrypcję)"
 };
+
+/* Wyszukiwanie nagrań na YouTube (angielskie tytuły dają więcej wykonań pianistów). */
+const YT = {
+ "bwv939":"Bach Little Prelude C major BWV 939 piano","bwv927":"Bach Little Prelude F major BWV 927 piano","bwv941":"Bach Little Prelude E minor BWV 941 piano",
+ "clem36-3":"Clementi Sonatina op 36 no 3 first movement","kuhlau55-1":"Kuhlau Sonatina op 55 no 1 first movement","beet-anh5":"Beethoven Sonatina G major Anh 5 no 1 Moderato",
+ "chopin-walc-a":"Chopin Waltz A minor B 150 op posth","chopin-cantabile":"Chopin Cantabile B flat major 1834","schumann-verlust":"Schumann First Loss op 68 no 16 piano",
+ "grieg-arietta":"Grieg Arietta op 12 no 1","burg15":"Burgmuller Ballade op 100 no 15","burg18":"Burgmuller Inquietude op 100 no 18","burg20":"Burgmuller Tarentelle op 100 no 20",
+ "burg24":"Burgmuller L'Hirondelle op 100 no 24","burg25":"Burgmuller La Chevaleresque op 100 no 25",
+ "bwv999":"Bach Prelude C minor BWV 999 piano","bwv926":"Bach Little Prelude D minor BWV 926 piano","clem36-4":"Clementi Sonatina op 36 no 4 first movement",
+ "kuhlau20-1":"Kuhlau Sonatina op 20 no 1 first movement","chopin-prel7":"Chopin Prelude op 28 no 7 A major","chopin-prel4":"Chopin Prelude op 28 no 4 E minor",
+ "grieg-walc":"Grieg Waltz op 12 no 2 piano","tchaik-dream":"Tchaikovsky Sweet Dream op 39 no 21 piano","burg109-2":"Burgmuller Les Perles op 109 no 2",
+ "heller47-1":"Heller Etude op 47 no 1","heller47-3":"Heller Etude op 47 no 3",
+ "inv4":"Bach Invention 4 D minor BWV 775 piano","inv8":"Bach Invention 8 F major BWV 779 piano","inv1":"Bach Invention 1 C major BWV 772 piano",
+ "kv545-1":"Mozart Sonata K 545 first movement","clem36-6":"Clementi Sonatina op 36 no 6 first movement","beet49-2":"Beethoven Sonata op 49 no 2 first movement",
+ "chopin-prel6":"Chopin Prelude op 28 no 6 B minor","chopin-prel20":"Chopin Prelude op 28 no 20 C minor","chopin-maz-g":"Chopin Mazurka G minor op 67 no 2",
+ "grieg-elfin":"Grieg Elfin Dance op 12 no 4","heller47-15":"Heller Etude op 47 no 15","czerny636-1":"Czerny op 636 no 1 piano",
+ "inv13":"Bach Invention 13 A minor BWV 784 piano","wtk846":"Bach Prelude C major BWV 846 Well-Tempered Clavier","inv14":"Bach Invention 14 B flat major BWV 785 piano",
+ "beet49-1":"Beethoven Sonata op 49 no 1 first movement","kv545-3":"Mozart Sonata K 545 third movement Rondo","chopin-walc-h":"Chopin Waltz B minor op 69 no 2",
+ "chopin-maz-b":"Chopin Mazurka B flat major op 7 no 1","chopin-noct-cis":"Chopin Nocturne C sharp minor op posth",
+ "czerny299-1":"Czerny op 299 no 1","czerny299-2":"Czerny op 299 no 2","czerny299-3":"Czerny op 299 no 3"
+};
+const KEY_EN = ["C major","G major","D major","A major","E major","B major","F sharp major","D flat major","A flat major","E flat major","B flat major","F major"];
+const ytUrl = (q) => "https://www.youtube.com/results?search_query=" + encodeURIComponent(q);
+// Own pieces: RCM pieces reuse their query; typed names drop Polish fillers like "które znasz".
+const myQuery = (m) => (m.id.startsWith("r-") && YT[m.id.slice(2)]) || (m.name.replace(/[–—-]/g," ").replace(/,?\s*(które|utwory)([\s,].*)?$/i,"").replace(/\s+/g," ").trim() + " piano");
+const ytLink = (q, label) => `<a href="${ytUrl(q)}" target="_blank" rel="noopener">▶ ${label||"YouTube"}</a>`;
+
 const LISTS = {A:"Barok", B:"Klasycyzm", C:"Romantyzm i XX w.", E:"Etiudy"};
 
 function P(id,g,list,name,src,tempo,t,i,c,q){return {id,g,list,name,src,tempo,tips:{t,i,c},q:q||name};}
@@ -698,7 +725,8 @@ function links(p){
   const q=encodeURIComponent(p.q.replace(/–/g,"").replace(/\(.*?\)/g,""));
   return `<span class="row small"><span class="pill ${["burg","wtk","czerny"].includes(p.src)?"own":""}">${SRC[p.src]}</span>
   <a href="https://imslp.org/index.php?search=${q}" target="_blank" rel="noopener">IMSLP</a>
-  <a href="https://musescore.com/sheetmusic?text=${q}" target="_blank" rel="noopener">MuseScore</a></span>`;
+  <a href="https://musescore.com/sheetmusic?text=${q}" target="_blank" rel="noopener">MuseScore</a>
+  ${ytLink(YT[p.id]||p.q)}</span>`;
 }
 function statusBtns(p){
   return `<div class="status" role="group" aria-label="Etap nauki">${STATUS.map((s,i)=>`<button data-act="status" data-id="${p.id}" data-s="${i}" aria-pressed="${st(p.id)===i}">${s}</button>`).join("")}</div>`;
@@ -717,11 +745,13 @@ function blockBody(b){
       <li>${extra}</li>
     </ol>
     <p class="note">Książka: „Gamy i pasaże na fortepian” (PWM) – tonacja ${k[0]}. Szukaj lekkości, a nie szybkości: kciuk podkładaj bez ruchu łokcia.</p>
+    <p class="small">Posłuchaj, jak brzmi równa gama: ${ytLink(KEY_EN[b.key]+" scale and arpeggio piano 4 octaves", "gama i pasaż "+k[0])}</p>
     ${metroInline(g>=8?112:g>=7?100:g>=6?88:80)}`;
   }
   if(b.type==="hanon"){
     const n=b.n, tip=HANON_TIPS.find(t=>n>=t[0]&&n<=t[1]);
     return `<p><b>Ćwiczenia nr ${n} i ${n+1}</b> <span class="muted small">(powtórka ${Math.min(S.hanon.reps+1,3)} z 3, potem kolejne)</span></p>
+    <p class="small row">${ytLink("Hanon exercise "+n+" piano","Hanon nr "+n)} ${ytLink("Hanon exercise "+(n+1)+" piano","Hanon nr "+(n+1))}</p>
     <p class="small">${tip?tip[2]:""}</p>
     <p class="small muted">Tempo: zacznij od ♩ = 60 szesnastkami, cel ♩ = 96–108. Zagraj każde ćwiczenie 2 razy: legato, potem staccato lub w rytmie punktowanym.</p>
     ${metroInline(72)}`;
@@ -734,6 +764,7 @@ function blockBody(b){
     <p class="small muted">Tempo docelowe: <span class="mono">${p.tempo}</span></p>${links(p)}</div>
     <p class="note"><b>Dziś:</b> ${STEP_HINT[s]}</p>
     ${statusBtns(p)}
+    <p class="small muted">Porównując nagrania, słuchaj tempa, balansu rąk, pedału i tego, gdzie pianista oddycha między frazami. Wybieraj wykonania na prawdziwym fortepianie, a nie samouczki z kolorowymi klawiszami.</p>
     <details><summary>Wskazówki techniczne i interpretacyjne</summary><div class="stack" style="margin-top:8px">${tipsHtml(p)}</div></details>
     <button class="btn sm ghost" data-act="goto" data-tab="rep">Zmień ${b.type==="etude"?"etiudę":"utwór"}</button>`;
   }
@@ -771,7 +802,7 @@ function blockBody(b){
   if(b.type==="free"){
     const items=(b.items||[]).map(id=>S.my.find(m=>m.id===id)).filter(Boolean);
     return `<p class="small">Graj dla przyjemności, ale z jednym celem na każdy utwór: czysty pedał, śpiewna melodia albo zagranie z pamięci.</p>
-    <ul class="tips">${items.map(m=>`<li>${esc(m.name)} <span class="muted small">${m.last?"(ostatnio "+m.last+")":"(dawno nie grane)"}</span></li>`).join("") || "<li>Dodaj swoje utwory w zakładce Utwory.</li>"}</ul>`;
+    <ul class="tips">${items.map(m=>`<li>${esc(m.name)} <span class="small">${ytLink(myQuery(m))}</span> <span class="muted small">${m.last?"(ostatnio "+m.last+")":"(dawno nie grane)"}</span></li>`).join("") || "<li>Dodaj swoje utwory w zakładce Utwory.</li>"}</ul>`;
   }
   return "";
 }
