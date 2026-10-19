@@ -145,6 +145,44 @@ input[type=text],select{font:inherit;color:inherit;background:var(--surface);bor
 .sync{font-size:.75rem;color:var(--muted)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 [hidden]{display:none!important}
+/* new modules: notation, lessons, ear input, exam */
+.abc{width:100%;overflow-x:auto;color:var(--ink)}
+.abc svg{max-width:100%;height:auto}
+.lesson{font-size:1rem;line-height:1.65}
+.lesson h2{margin-top:4px}
+.lesson h4{font-family:var(--f-display);font-size:1rem;margin:14px 0 4px}
+.lesson p,.lesson ul,.lesson ol{margin:6px 0}
+.lesson table{border-collapse:collapse;font-size:.9rem}
+.lesson td,.lesson th{border:1px solid var(--line);padding:4px 8px;text-align:left}
+.tablewrap{overflow-x:auto}
+.box{background:var(--sunk);border-radius:12px;padding:10px 14px}
+.box.tip{background:var(--c-tech-soft)}
+.box.ok{background:var(--c-music-soft)}
+.check-q{display:flex;flex-direction:column;gap:6px}
+.check-q .opts{display:flex;flex-wrap:wrap;gap:6px}
+.check-q .opts button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 12px}
+.check-q .opts button.right{border-color:var(--ok);color:var(--ok);background:var(--c-music-soft)}
+.check-q .opts button.wrong{border-color:var(--danger);color:var(--danger)}
+.tapbtn{width:100%;height:120px;border-radius:18px;border:2px solid var(--accent);background:var(--accent-soft);color:var(--accent);font-family:var(--f-display);font-size:1.4rem;font-weight:700;touch-action:manipulation;user-select:none}
+.tapbtn:active,.tapbtn.hit{background:var(--accent);color:var(--accent-ink)}
+.kbd{position:relative;height:130px;display:flex;user-select:none;touch-action:manipulation}
+.kbd .w{flex:1;border:1px solid var(--line);border-radius:0 0 8px 8px;background:var(--surface);position:relative;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-size:.7rem;color:var(--muted)}
+.kbd .w:active,.kbd .w.on{background:var(--accent-soft)}
+.kbd .b{position:absolute;top:0;height:60%;background:var(--ink);border-radius:0 0 6px 6px;z-index:2}
+.kbd .b:active,.kbd .b.on{background:var(--accent)}
+.seqline{display:flex;gap:6px;flex-wrap:wrap;min-height:32px}
+.seqline span{font-family:var(--f-mono);background:var(--sunk);border-radius:8px;padding:4px 8px}
+.rubric label{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-top:1px solid var(--line)}
+.rubric input{margin-top:4px;accent-color:var(--accent);width:18px;height:18px}
+.spark{display:block}
+.spark .ln{stroke:var(--accent);fill:none;stroke-width:2}
+.spark .tg{stroke:var(--c-tech);stroke-dasharray:3 3;stroke-width:1}
+.spark circle{fill:var(--accent)}
+.lessonlist button{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:none;padding:10px 2px}
+.lessonlist button:first-child{border-top:0}
+.lessonlist .ok{color:var(--ok);font-weight:700}
+input[type=number]{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 8px;width:5.5em}
+.grade-badge{display:inline-block;font-family:var(--f-display);font-weight:700;font-size:1.1rem;padding:4px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
 :root{padding-top:env(safe-area-inset-top,0px)}
 input[type=email],input[type=password]{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;width:100%}
 </style>
@@ -168,6 +206,7 @@ input[type=email],input[type=password]{font:inherit;color:inherit;background:var
   <button data-tab="today" aria-current="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Dziś</button>
   <button data-tab="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Postęp</button>
   <button data-tab="rep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Utwory</button>
+  <button data-tab="learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h6a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H3z"/><path d="M21 5h-6a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h7z"/></svg>Nauka</button>
   <button data-tab="tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 21h8l-2-17h-4z"/><path d="M12 14l5-8"/></svg>Narzędzia</button>
 </nav>
 
@@ -175,6 +214,9 @@ input[type=email],input[type=password]{font:inherit;color:inherit;background:var
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/abcjs/6.4.4/abcjs-basic-min.js" defer></script>
+<script src="content.js"></script>
+<script src="extra.js"></script>
 <script>
 "use strict";
 /* ============================== DANE ============================== */
@@ -482,6 +524,7 @@ const BLOCKS = {
  theory:{name:"Teoria",grp:"mind"},
  ear:{name:"Kształcenie słuchu",grp:"mind"},
  piece:{name:"Nowy utwór",grp:"music"},
+ pedal:{name:"Kurs pedału",grp:"tech"},
  free:{name:"Wolny czas: Twoje utwory",grp:"music"}
 };
 const STATUS = ["nie zaczęty","rozczytywanie","razem wolno","w tempie","opanowany"];
@@ -516,7 +559,10 @@ function defaultState(){
     ],
     sessions:0,
     plans:{},
-    minutes:60
+    minutes:60,
+    tempo:{},
+    pedal:{done:{}},
+    exams:[]
   };
 }
 let S = defaultState();
@@ -663,7 +709,8 @@ function genPlan(key, minutes){
   if(S.grade-S.sr.level>=2 && w.hanon>=5){ w.sr+=2; w.hanon-=2; }
   if(!activePiece("etude")){ w.free+=w.etude; delete w.etude; }
   if(minutes<=30){ if(idx%2===0) delete w.ear; else delete w.hanon; }
-  const order=["warm","hanon","etude","sr","theory","ear","piece","free"].filter(k=>w[k]);
+  if(!pedalCourseDone()){ w.pedal=4; w.free=Math.max(4,w.free-1); w.warm-=1; w.piece-=2; }
+  const order=["warm","hanon","etude","sr","theory","ear","piece","pedal","free"].filter(k=>w[k]);
   const sum=order.reduce((a,k)=>a+w[k],0);
   let blocks=order.map(k=>({type:k, min:Math.max(3,Math.round(w[k]*minutes/sum)), done:false}));
   let diff=minutes-blocks.reduce((a,b)=>a+b.min,0);
@@ -676,7 +723,7 @@ function genPlan(key, minutes){
     if(b.type==="hanon"){ b.n=S.hanon.n; }
     if(b.type==="sr"){ b.level=S.sr.level; b.book=rnd % SR[S.sr.level].books.length; }
     if(b.type==="free"){ b.items=mySorted.slice(0, b.min>=12?3:2).map(m=>m.id); }
-    if(b.type==="ear"){ b.mode = idx%2===0 ? "int":"chord"; }
+    if(b.type==="ear"){ const ms=earModes(); b.mode = ms[idx%ms.length]; }
   }
   return {minutes, blocks, counted:false};
 }
@@ -718,7 +765,8 @@ function render(){
   if(TAB==="today") v.innerHTML=viewToday();
   if(TAB==="progress") v.innerHTML=viewProgress();
   if(TAB==="rep") v.innerHTML=viewRep();
-  if(TAB==="tools") { v.innerHTML=viewTools(); afterTools(); }
+  if(TAB==="tools") { v.innerHTML=viewTools(); afterTools(); afterToolsExtra(); }
+  if(TAB==="learn") { v.innerHTML=viewLearn(); afterLearn(); }
   if(TAB==="today") afterToday();
 }
 
@@ -770,6 +818,7 @@ function blockBody(b){
     <p class="small muted">Tempo docelowe: <span class="mono">${p.tempo}</span></p>${links(p)}</div>
     <p class="note"><b>Dziś:</b> ${STEP_HINT[s]}</p>
     ${statusBtns(p)}
+    ${tempoLogHtml(p)}
     <p class="small muted">Porównując nagrania, słuchaj tempa, balansu rąk, pedału i tego, gdzie pianista oddycha między frazami. Wybieraj wykonania na prawdziwym fortepianie, a nie samouczki z kolorowymi klawiszami.</p>
     <details><summary>Wskazówki techniczne i interpretacyjne</summary><div class="stack" style="margin-top:8px">${tipsHtml(p)}</div></details>
     <button class="btn sm ghost" data-act="goto" data-tab="rep">Zmień ${b.type==="etude"?"etiudę":"utwór"}</button>`;
@@ -777,8 +826,9 @@ function blockBody(b){
   if(b.type==="sr"){
     const L=SR[b.level]||SR[8], book=L.books[b.book%L.books.length];
     const key="sr"+b.level+":"+book, cnt=(S.srCounter[key]||0)+1;
-    return `<p><b>Poziom ${b.level}</b> · ${book}</p>
-    <p class="small">Następny utwór lub ćwiczenie w kolejności (to będzie Twoje ${cnt}. z tej książki). ${L.how}</p>
+    return `<p><b>Poziom ${b.level}</b> · ${b.gen?"ćwiczenie z aplikacji":book}</p>
+    <p class="small">${b.gen?"Nowe ćwiczenie wygenerowane dla Twojego poziomu.":`Z książki: następny utwór lub ćwiczenie w kolejności (to będzie Twoje ${cnt}. z tej książki).`} ${L.how}</p>
+    ${srInlineHtml(b)}
     <ol class="tips small">
       <li>30 sekund bez grania: tonacja, metrum, najmniejsza wartość rytmiczna, powtórzenia, trudne miejsca.</li>
       <li>Wystukaj rytm pierwszych taktów.</li>
@@ -794,17 +844,19 @@ function blockBody(b){
     if(!t) return `<p>Level ${S.th.level} ukończony.</p><button class="btn primary" data-act="thup">Przejdź na Level ${S.th.level+1}</button>`;
     return `<div><span class="eyebrow">Level ${S.th.level} · temat ${list.indexOf(t)+1} z ${list.length}</span><h3 style="font-size:1.15rem">${t[1]}</h3></div>
     <ol class="tips small">
-      <li>${t[2]?`Przeczytaj lekcję <b>„${t[2]}”</b> na <a href="https://www.musictheory.net/lessons" target="_blank" rel="noopener">musictheory.net</a> (po angielsku, z animacjami)`:"Przeczytaj o tym temacie w podręczniku (np. Celebrate Theory) lub poproś Claude'a o krótkie wyjaśnienie"}.</li>
+      <li>Przeczytaj lekcję w aplikacji i odpowiedz na pytania sprawdzające.${t[2]?` Dla chętnych: lekcja „${t[2]}” na <a href="https://www.musictheory.net/lessons" target="_blank" rel="noopener">musictheory.net</a> (po angielsku, z animacjami).`:""}</li>
       <li>${t[3]?`Zrób quiz w aplikacji (poniżej), aż dojdziesz do 8 z 10.`:`Zapisz w zeszycie 3 przykłady z utworów, które grasz.`}</li>
       <li>Znajdź ten element w utworze, którego się teraz uczysz.</li>
     </ol>
+    <div class="row"><button class="btn sm primary" data-act="lesson" data-id="${t[0]}">Otwórz lekcję</button>
     ${t[3]?`<button class="btn sm" data-act="quiz" data-q="${t[3]}">Otwórz quiz</button>`:""}
-    <button class="btn sm" data-act="thdone" data-id="${t[0]}">Temat opanowany ✓</button>`;
+    <button class="btn sm" data-act="thdone" data-id="${t[0]}">Temat opanowany ✓</button></div>`;
   }
   if(b.type==="ear"){
-    return `<p class="small">${b.mode==="int"?"Interwały":"Akordy"} z poziomu ${S.ear.level}. Odsłuchaj i wybierz odpowiedź. Celność na tym poziomie: <b>${pct(earAcc())}</b> (${earLevelLog().length} odpowiedzi).</p>
+    return `<p class="small"><b>${EAR_MODE_NAMES[b.mode]||"Słuch"}</b> z poziomu ${S.ear.level}. ${EAR_MODE_HINTS[b.mode]||"Odsłuchaj i wybierz odpowiedź."} Celność na tym poziomie: <b>${pct(earAcc())}</b> (${earLevelLog().length} odpowiedzi).</p>
     <div id="ear-inline" data-mode="${b.mode}"></div>`;
   }
+  if(b.type==="pedal") return pedalBlockBody(b);
   if(b.type==="free"){
     const items=(b.items||[]).map(id=>S.my.find(m=>m.id===id)).filter(Boolean);
     return `<p class="small">Graj dla przyjemności, ale z jednym celem na każdy utwór: czysty pedał, śpiewna melodia albo zagranie z pamięci.</p>
@@ -936,12 +988,15 @@ function viewTools(){
     <input type="range" id="bpm" min="30" max="220" step="1" value="${metro.bpm}" aria-label="Tempo">
     <div class="row"><button class="btn sm" data-act="bpm" data-d="-4">−4</button><button class="btn primary" data-act="metro">${metro.on?"Stop":"Start"}</button><button class="btn sm" data-act="bpm" data-d="4">+4</button>
     <select id="beats" aria-label="Metrum">${[2,3,4,6].map(n=>`<option value="${n}" ${n===metro.beats?"selected":""}>${n}/4</option>`).join("")}</select></div>
+    ${trainerHtml()}
   </div>
+  ${srGenCardHtml()}
   <div class="card stack" id="quizcard">
     <div class="spread"><h3>Ćwiczenia</h3>
     <select id="quizsel" aria-label="Wybierz ćwiczenie">
       <option value="ear-int">Słuch: interwały</option><option value="ear-chord">Słuch: akordy</option>
       <option value="notes">Teoria: czytanie nut</option><option value="keys">Teoria: znaki przykluczowe</option><option value="intervals">Teoria: interwały w nutach</option>
+      <option value="ear-clap">Słuch: powtarzanie rytmu</option><option value="ear-play">Słuch: powtarzanie melodii</option><option value="ear-cad">Słuch: kadencje</option>
     </select></div>
     <div id="quiz"></div>
   </div>
@@ -978,7 +1033,7 @@ function chime(){ const c=ac(), t=c.currentTime+0.02; tone(72,t,1.2,0.25); tone(
 const metro={bpm:80,beats:4,on:false,next:0,beat:0,timer:null};
 function metroStart(){
   const c=ac(); metro.on=true; metro.next=c.currentTime+0.06; metro.beat=0;
-  metro.timer=setInterval(()=>{ while(metro.next<c.currentTime+0.12){ click(metro.next, metro.beat%metro.beats===0); const b=metro.beat%metro.beats, delay=(metro.next-c.currentTime)*1000; setTimeout(()=>lightDot(b),Math.max(0,delay)); metro.next+=60/metro.bpm; metro.beat++; } },25);
+  metro.timer=setInterval(()=>{ while(metro.next<c.currentTime+0.12){ click(metro.next, metro.beat%metro.beats===0); const b=metro.beat%metro.beats, delay=(metro.next-c.currentTime)*1000; setTimeout(()=>lightDot(b),Math.max(0,delay)); metro.next+=60/metro.bpm; metro.beat++; onMetroBeat(); } },25);
 }
 function metroStop(){ metro.on=false; clearInterval(metro.timer); lightDot(-1); }
 function lightDot(b){ const d=document.querySelectorAll("#dots i"); d.forEach((x,i)=>x.classList.toggle("on",i===b)); }
@@ -1021,23 +1076,30 @@ function staffSvg(notes, clef, sig){
   }
   return h+"</svg>";
 }
-const Q={type:null,cur:null,score:0,count:0,locked:false,host:null,inline:false};
-function quizStart(type, hostId, inline){
-  Q.type=type; Q.score=0; Q.count=0; Q.host=hostId; Q.inline=!!inline; quizNext();
+const Q={type:null,cur:null,score:0,count:0,locked:false,host:null,inline:false,max:10,seq:null,onDone:null};
+function quizStart(type, hostId, inline, opts){
+  opts=opts||{};
+  Q.type=type; Q.score=0; Q.count=0; Q.host=hostId; Q.inline=!!inline;
+  Q.seq=opts.seq||null; Q.onDone=opts.onDone||null; Q.level=opts.level||null;
+  Q.max=opts.max || (Q.seq? Q.seq.length : (type==="ear-clap"||type==="ear-play")? 5 : 10);
+  quizNext();
 }
 function quizNext(){
   const host=document.getElementById(Q.host); if(!host) return;
   Q.locked=false;
-  if(Q.inline && Q.count>=10){
-    host.innerHTML=`<p><b>Wynik: ${Q.score} z 10.</b> ${Q.score>=8?"Świetnie!":"Spróbuj jeszcze raz jutro."}</p><button class="btn sm" data-act="quiz-again">Jeszcze 10</button>`;
+  if(Q.inline && Q.count>=Q.max){
+    if(Q.onDone){ const f=Q.onDone; Q.onDone=null; Q.seq=null; f(Q.score,Q.max); return; }
+    host.innerHTML=`<p><b>Wynik: ${Q.score} z ${Q.max}.</b> ${Q.score>=Q.max*0.8?"Świetnie!":"Spróbuj jeszcze raz jutro."}</p><button class="btn sm" data-act="quiz-again">Jeszcze raz</button>`;
     return;
   }
+  if(Q.seq) Q.type=Q.seq[Math.min(Q.count,Q.seq.length-1)];
+  if(EXTRA_QUIZ[Q.type]){ EXTRA_QUIZ[Q.type](host); return; }
   const t=Q.type; let q;
   if(t==="ear-int"||t==="ear-chord"){
-    const E=EAR[Math.min(8,Math.max(2,S.ear.level))];
+    const E=EAR[earLvl()];
     if(t==="ear-int"){ const semi=E.ints[Math.floor(Math.random()*E.ints.length)], root=55+Math.floor(Math.random()*12); q={answer:INT_NAMES[semi],opts:E.ints.map(s=>INT_NAMES[s]),play:()=>{const c=ac(),n=c.currentTime+0.05; tone(root,n); tone(root+semi,n+0.7); tone(root,n+1.5,1.6); tone(root+semi,n+1.5,1.6);}}; }
     else { const k=E.chords[Math.floor(Math.random()*E.chords.length)], root=52+Math.floor(Math.random()*10); q={answer:k,opts:E.chords,play:()=>{const c=ac(),n=c.currentTime+0.05; CHORD_SEMIS[k].forEach((s,i)=>tone(root+s,n+i*0.35)); CHORD_SEMIS[k].forEach(s=>tone(root+s,n+CHORD_SEMIS[k].length*0.35+0.3,1.8,0.16));}}; }
-    host.innerHTML=`<div class="stack"><div class="row"><button class="btn primary" data-act="q-play">▶ Odtwórz</button><span class="small muted">Pytanie ${Q.count+1}${Q.inline?" z 10":""} · wynik ${Q.score}</span></div><div class="answers wide">${q.opts.map(o=>`<button data-act="q-ans" data-a="${esc(o)}">${o}</button>`).join("")}</div></div>`;
+    host.innerHTML=`<div class="stack"><div class="row"><button class="btn primary" data-act="q-play">▶ Odtwórz</button><span class="small muted">Pytanie ${Q.count+1}${Q.inline?" z "+Q.max:""} · wynik ${Q.score}</span></div><div class="answers wide">${q.opts.map(o=>`<button data-act="q-ans" data-a="${esc(o)}">${o}</button>`).join("")}</div></div>`;
     Q.cur=q; setTimeout(()=>q.play(),50); return;
   }
   if(t==="notes"){
@@ -1057,19 +1119,24 @@ function quizNext(){
     const a=-1+Math.floor(Math.random()*6), d=1+Math.floor(Math.random()*7);
     q={answer:NAMES[d],opts:NAMES.slice(1),svg:staffSvg([{s:a,x:150},{s:a+d,x:220}],"treble")};
   }
-  host.innerHTML=`<div class="stack">${q.svg}<p class="small" style="text-align:center">${q.prompt||(t==="notes"?"Jaka to nuta?":"Jaki to interwał?")} <span class="muted">· pytanie ${Q.count+1}${Q.inline?" z 10":""} · wynik ${Q.score}</span></p><div class="answers ${t==="notes"?"":"wide"}">${q.opts.map(o=>`<button data-act="q-ans" data-a="${esc(o)}">${o}</button>`).join("")}</div></div>`;
+  host.innerHTML=`<div class="stack">${q.svg}<p class="small" style="text-align:center">${q.prompt||(t==="notes"?"Jaka to nuta?":"Jaki to interwał?")} <span class="muted">· pytanie ${Q.count+1}${Q.inline?" z "+Q.max:""} · wynik ${Q.score}</span></p><div class="answers ${t==="notes"?"":"wide"}">${q.opts.map(o=>`<button data-act="q-ans" data-a="${esc(o)}">${o}</button>`).join("")}</div></div>`;
   Q.cur=q;
 }
 function quizAnswer(btn){
   if(Q.locked) return; Q.locked=true;
-  const ok=btn.dataset.a===Q.cur.answer; Q.count++; if(ok) Q.score++;
+  const ok=btn.dataset.a===Q.cur.answer;
   btn.classList.add(ok?"right":"wrong");
   if(!ok) document.querySelectorAll(`#${Q.host} [data-act="q-ans"]`).forEach(b=>{ if(b.dataset.a===Q.cur.answer) b.classList.add("right"); });
-  if(Q.type.startsWith("ear")){ S.ear.log.push({l:S.ear.level,ok}); save(); }
-  if(Q.inline && Q.count>=10 && Q.type.startsWith("ear")){
+  quizStep(ok, ok?600:1400);
+}
+// One answered question: score, ear log, finishing today's ear block, next question.
+function quizStep(ok, delay){
+  Q.count++; if(ok) Q.score++;
+  if(Q.type.startsWith("ear") && !Q.level){ S.ear.log.push({l:S.ear.level,ok}); save(); }
+  if(Q.inline && !Q.seq && Q.count>=Q.max && Q.host==="ear-inline"){
     const plan=todayPlan(), b=plan.blocks.find(x=>x.type==="ear"); if(b && !b.done){ setTimeout(()=>markBlock(b,true),900); return; }
   }
-  setTimeout(quizNext, ok?600:1400);
+  setTimeout(quizNext, delay);
 }
 
 /* ============================== ZDARZENIA ============================== */
@@ -1078,7 +1145,7 @@ function toast(t){ let el=document.querySelector(".toast"); if(!el){el=document.
 
 function afterToday(){
   const ear=document.getElementById("ear-inline");
-  if(ear){ const plan=todayPlan(), b=plan.blocks.find(x=>x.type==="ear"); if(b&&b.done){ ear.innerHTML=`<p class="small muted">Zrobione na dziś.</p>`; } else { ear.innerHTML=`<button class="btn sm primary" data-act="ear-go" data-mode="${ear.dataset.mode}">Zacznij (10 pytań)</button>`; } }
+  if(ear){ const plan=todayPlan(), b=plan.blocks.find(x=>x.type==="ear"); if(b&&b.done){ ear.innerHTML=`<p class="small muted">Zrobione na dziś.</p>`; } else { ear.innerHTML=`<button class="btn sm primary" data-act="ear-go" data-mode="${ear.dataset.mode}">Zacznij (${["clap","play"].includes(ear.dataset.mode)?5:10} pytań)</button>`; } }
   if(timerState.i!==null) tickTimer();
 }
 function afterTools(){
@@ -1108,7 +1175,8 @@ document.addEventListener("click",(e)=>{
     case "repgrade": repGrade=+t.dataset.g; render(); break;
     case "mydel": S.my=S.my.filter(m=>m.id!==t.dataset.id); save(); render(); break;
     case "srrate": { const b=plan.blocks.find(x=>x.type==="sr"); const r=+t.dataset.r; const first=!b.rating; b.rating=r;
-      if(first){ S.sr.log.push({l:S.sr.level,r,d:todayKey()}); const L=SR[b.level]||SR[8], key="sr"+b.level+":"+L.books[b.book%L.books.length]; S.srCounter[key]=(S.srCounter[key]||0)+1; } else { const last=S.sr.log[S.sr.log.length-1]; if(last) last.r=r; }
+      if(first && b.gen){ S.sr.log.push({l:S.sr.level,r,d:todayKey(),src:"gen"}); }
+      else if(first){ S.sr.log.push({l:S.sr.level,r,d:todayKey()}); const L=SR[b.level]||SR[8], key="sr"+b.level+":"+L.books[b.book%L.books.length]; S.srCounter[key]=(S.srCounter[key]||0)+1; } else { const last=S.sr.log[S.sr.log.length-1]; if(last) last.r=r; }
       if(!b.done) markBlock(b,true); else { save(); render(); } break; }
     case "srup": S.sr.level=Math.min(8,S.sr.level+1); save(); toast("Czytanie a vista: poziom "+S.sr.level); render(); break;
     case "thdone": S.th.done[t.dataset.id]=true; save(); toast("Temat zaliczony"); render(); break;
@@ -1121,7 +1189,7 @@ document.addEventListener("click",(e)=>{
     case "reset-yes": S=defaultState(); save(); render(); toast("Zaczynasz od nowa"); break;
     case "quiz": pendingQuiz=t.dataset.q; TAB="tools"; render(); window.scrollTo(0,0); setTimeout(()=>{const c=document.getElementById("quizcard"); c&&c.scrollIntoView({block:"start"});},50); break;
     case "quiz-begin": ac(); quizStart(t.dataset.q,"quiz",false); break;
-    case "ear-go": ac(); quizStart(t.dataset.mode==="int"?"ear-int":"ear-chord","ear-inline",true); break;
+    case "ear-go": ac(); quizStart("ear-"+t.dataset.mode,"ear-inline",true); break;
     case "quiz-again": quizStart(Q.type,Q.host,Q.inline); break;
     case "q-play": Q.cur&&Q.cur.play&&Q.cur.play(); break;
     case "q-ans": quizAnswer(t); break;
