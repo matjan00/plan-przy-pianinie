@@ -292,7 +292,7 @@ function srGenCardHtml() {
     <div><button class="btn primary" data-act="srgen-tools">Nowe ćwiczenie</button></div>
     <div id="srgen-tools"></div>
     <div id="srgen-tools-rate" ${SRGEN["srgen-tools"] ? "" : "hidden"}><span class="small">Jak poszło? (1 = wiele przerw, 5 = płynnie)</span>
-      <div class="rate" role="group" aria-label="Ocena">${[1, 2, 3, 4, 5].map(r => `<button data-act="srgenrate" data-r="${r}">${r}</button>`).join("")}</div></div>
+      <div class="rate" role="group" aria-label="Ocena czytania a vista">${[1, 2, 3, 4, 5].map(r => `<button data-act="srgenrate" data-r="${r}" aria-label="${r} na 5">${r}</button>`).join("")}</div></div>
   </div>`;
 }
 
@@ -548,9 +548,9 @@ function listenView(id) {
   return `<section class="stack">
     <div><button class="btn sm ghost" data-act="learn-home">‹ Nauka</button></div>
     <article class="card stack lesson">
-      <span class="eyebrow">Poznaj muzykę klasyczną · ${era.name} · ${i + 1} z ${LISTEN.length}</span>
       <h2>${esc(x.title)}</h2>
       <p class="muted" style="margin:0">${esc(x.composer)} · ${x.year} · ok. ${x.min} min</p>
+      <p class="meta">Poznaj muzykę klasyczną · ${era.name} · ${i + 1} z ${LISTEN.length}</p>
       <div class="row">
         <a class="btn primary" href="${spUrl(x.sp)}" target="_blank" rel="noopener">▶ Słuchaj na Spotify</a>
         <a class="btn sm ghost" href="${spSearch(x.composer + " " + x.title)}" target="_blank" rel="noopener">inne wykonania</a>
@@ -602,8 +602,8 @@ function lessonView(id) {
   return `<section class="stack">
     <div><button class="btn sm ghost" data-act="learn-home">‹ Nauka</button></div>
     <article class="card stack lesson">
-      <span class="eyebrow">Teoria · Level ${T.lv} · temat ${T.i + 1} z ${list.length}</span>
       <h2>${T.t[1]}</h2>
+      <p class="meta">Teoria · Level ${T.lv} · temat ${T.i + 1} z ${list.length}</p>
       ${L ? L.body : `<p>Lekcja w przygotowaniu.</p>`}
       ${L && L.abc ? L.abc.map((a, i) => `<div><div class="abc" data-abc="${id}:${i}"></div>${a.cap ? `<p class="small muted" style="margin:0">${a.cap}</p>` : ""}</div>`).join("") : ""}
       ${L && L.piano ? `<div class="box tip"><b>Przy pianinie:</b> ${L.piano}</div>` : ""}
@@ -622,8 +622,8 @@ function pedalView(id) {
   return `<section class="stack">
     <div><button class="btn sm ghost" data-act="learn-home">‹ Nauka</button></div>
     <article class="card stack lesson">
-      <span class="eyebrow">Kurs pedału · lekcja ${i + 1} z ${PEDAL.length}</span>
       <h2>${l.title}</h2>
+      <p class="meta">Kurs pedału · lekcja ${i + 1} z ${PEDAL.length}</p>
       ${l.body}
       ${l.abc ? l.abc.map((a, k) => `<div><div class="abc" data-abc="pedal:${id}:${k}"></div>${a.cap ? `<p class="small muted" style="margin:0">${a.cap}</p>` : ""}</div>`).join("") : ""}
       <div class="box tip"><b>Ćwiczenie:</b> ${l.drill}</div>
@@ -638,7 +638,7 @@ function pedalBlockBody(b) {
   const l = pedalCurrent();
   if (!l) return `<p>Kurs pedału ukończony. Gratulacje!</p>`;
   const i = PEDAL.indexOf(l);
-  return `<div><span class="eyebrow">Lekcja ${i + 1} z ${PEDAL.length}</span><h3 style="font-size:1.15rem">${l.title}</h3></div>
+  return `<div><h3 style="font-size:1.15rem">${l.title}</h3><p class="meta">Kurs pedału · lekcja ${i + 1} z ${PEDAL.length}</p></div>
     <p class="small">${l.short}</p>
     <div class="box tip small"><b>Ćwiczenie:</b> ${l.drill}</div>
     <div class="row"><button class="btn sm primary" data-act="pedal-open" data-id="${l.id}">Otwórz lekcję</button>
@@ -703,10 +703,12 @@ function critHtml(prefix, crit, checked) {
 function examView() {
   if (!EXAM) return learnHome();
   const g = EXAM.g, st_ = EXAM.step;
-  const head = (title, n) => `<div class="spread"><button class="btn sm ghost" data-act="exam-quit">‹ Przerwij</button><span class="small muted">Krok ${n} z 6</span></div><h2>${title}</h2>`;
+  const head = (title, n) => `<div class="spread"><button class="btn sm ghost" data-act="exam-quit-ask">‹ Przerwij</button><span class="small muted">Krok ${n} z 6</span></div>
+    ${EXAM.quitAsk ? `<div class="confirm"><p>Przerwać egzamin? Twoje odpowiedzi z tego podejścia przepadną.</p><div class="row"><button class="btn ghost sm" data-act="exam-quit">Tak, przerwij</button><button class="btn primary sm" data-act="exam-quit-no">Wracam do egzaminu</button></div></div>` : ""}
+    <h2>${title}</h2>`;
   if (st_ === 0) return `<section class="stack"><div class="card stack lesson">
     <div><button class="btn sm ghost" data-act="exam-quit">‹ Wróć</button></div>
-    <span class="eyebrow">Próbny egzamin · Grade ${g}</span><h2>Jak to działa</h2>
+    <h2>Próbny egzamin – jak to działa</h2><p class="meta">Grade ${g}</p>
     <p>Egzamin RCM z fortepianu ocenia się w skali 100 punktów. Tutaj punkty rozkładają się tak (orientacyjnie, wzorowane na RCM):</p>
     <div class="tablewrap"><table><tr><th>Część</th><th>Punkty</th></tr>
       <tr><td>Utwór z listy A</td><td>${EXAM_W.A}</td></tr><tr><td>Utwór z listy B</td><td>${EXAM_W.B}</td></tr><tr><td>Utwór z listy C</td><td>${EXAM_W.C}</td></tr>
@@ -739,9 +741,9 @@ function examView() {
     <p class="small">Ćwiczenie na poziomie Grade ${g}. Masz 30 sekund na przegląd, potem grasz raz z metronomem.</p>
     <div id="exam-sr"></div>
     <div class="stack" style="gap:6px"><span class="small">Płynność i rytm (0 = ciągłe przerwy, 5 = bez zatrzymań, równo)</span>
-      <div class="rate">${[0, 1, 2, 3, 4, 5].map(v => `<button data-act="exam-sr" data-k="r" data-v="${v}" aria-pressed="${EXAM.sr.r === v}">${v}</button>`).join("")}</div>
+      <div class="rate" role="group" aria-label="Płynność i rytm">${[0, 1, 2, 3, 4, 5].map(v => `<button data-act="exam-sr" data-k="r" data-v="${v}" aria-pressed="${EXAM.sr.r === v}" aria-label="${v} na 5">${v}</button>`).join("")}</div>
       <span class="small">Poprawność nut (0 = większość źle, 5 = prawie wszystkie dobrze)</span>
-      <div class="rate">${[0, 1, 2, 3, 4, 5].map(v => `<button data-act="exam-sr" data-k="n" data-v="${v}" aria-pressed="${EXAM.sr.n === v}">${v}</button>`).join("")}</div></div>
+      <div class="rate" role="group" aria-label="Poprawność nut">${[0, 1, 2, 3, 4, 5].map(v => `<button data-act="exam-sr" data-k="n" data-v="${v}" aria-pressed="${EXAM.sr.n === v}" aria-label="${v} na 5">${v}</button>`).join("")}</div></div>
     <div><button class="btn primary" data-act="exam-next">Dalej: słuch</button></div></div></section>`;
   if (st_ === 5) return `<section class="stack"><div class="card stack">${head("Słuch", 5)}
     <p class="small">Interwały, akordy, powtarzanie rytmu i melodii${EAR_EXTRA[Math.min(8, Math.max(2, g))].cad.length ? " oraz kadencja" : ""} na poziomie Grade ${g}. Ten wynik nie wpływa na Twoje statystyki z codziennych ćwiczeń.</p>
@@ -751,7 +753,7 @@ function examView() {
   const rows = [["Lista A", sc.A, EXAM_W.A], ["Lista B", sc.B, EXAM_W.B], ["Lista C", sc.C, EXAM_W.C], ["Etiudy", sc.E, EXAM_W.E], ["Technika", sc.T, EXAM_W.T], ["Czytanie a vista", sc.SR, EXAM_W.SR], ["Słuch", sc.EAR, EXAM_W.EAR]];
   const weak = rows.slice().sort((a, b) => a[1] / a[2] - b[1] / b[2]).slice(0, 2);
   return `<section class="stack"><div class="card stack">
-    <span class="eyebrow">Próbny egzamin · Grade ${EXAM.g}</span>
+    <h2>Wynik próbnego egzaminu</h2><p class="meta">Grade ${EXAM.g}</p>
     <div class="row" style="align-items:flex-end;gap:14px"><span class="big">${total}</span><span class="muted">na 100</span></div>
     <span class="grade-badge">${examClass(total)}</span>
     ${rows.map(r => `<div class="stack" style="gap:4px"><div class="spread small"><span>${r[0]}</span><span class="mono">${Math.round(r[1] * 10) / 10} / ${r[2]}</span></div><div class="bar"><span style="width:${Math.round(r[1] / r[2] * 100)}%"></span></div></div>`).join("")}
@@ -856,7 +858,7 @@ document.addEventListener("click", (e) => {
     case "mel-check": melCheck(); break;
     case "learn-home": LEARN.view = "home"; render(); window.scrollTo(0, 0); break;
     case "lesson": LEARN.view = "lesson"; LEARN.id = t.dataset.id; TAB = "learn"; render(); window.scrollTo(0, 0); break;
-    case "thdone-lesson": S.th.done[t.dataset.id] = true; save(); toast("Temat zaliczony"); render(); break;
+    case "thdone-lesson": withUndo("Temat zaliczony", () => { S.th.done[t.dataset.id] = true; }); break;
     case "chk": checkAnswer(t); break;
     case "pedal-open": LEARN.view = "pedal"; LEARN.id = t.dataset.id; TAB = "learn"; render(); window.scrollTo(0, 0); break;
     case "pedal-done": S.pedal.done[t.dataset.id] = true; save(); toast(pedalCourseDone() ? "Kurs pedału ukończony!" : "Lekcja zaliczona"); render(); break;
@@ -872,8 +874,10 @@ document.addEventListener("click", (e) => {
       t.parentElement.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === t))); save(); break;
     }
     case "exam-start": examStart(); render(); window.scrollTo(0, 0); break;
+    case "exam-quit-ask": EXAM.quitAsk = true; render(); { const b = document.querySelector('[data-act="exam-quit-no"]'); b && b.focus(); } break;
+    case "exam-quit-no": EXAM.quitAsk = false; render(); break;
     case "exam-quit": EXAM = null; delete SRGEN["exam-sr"]; stopQueue(); LEARN.view = "home"; render(); window.scrollTo(0, 0); break;
-    case "exam-next": examCollect(); EXAM.step++; render(); window.scrollTo(0, 0); break;
+    case "exam-next": examCollect(); EXAM.quitAsk = false; EXAM.step++; render(); window.scrollTo(0, 0); break;
     case "exam-tech": EXAM.tech[+t.dataset.i].v = +t.dataset.v; t.parentElement.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === t))); break;
     case "exam-sr": EXAM.sr[t.dataset.k] = +t.dataset.v; t.parentElement.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === t))); break;
     case "exam-done": EXAM = null; LEARN.view = "home"; render(); window.scrollTo(0, 0); break;
