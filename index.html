@@ -17,7 +17,7 @@
 :root{
   --bg:#F3F4F1; --surface:#FFFFFF; --sunk:#E9EBE6; --ink:#16181D; --muted:#5B6169; --line:#D8DBD4;
   --accent:#1E6B57; --accent-ink:#FFFFFF; --accent-soft:#E0EEE8;
-  --c-tech:#A9741C; --c-tech-soft:#F5EAD3;
+  --c-tech:#8A5A10; --c-tech-soft:#F5EAD3;
   --c-mind:#3E5C8A; --c-mind-soft:#E3E9F3;
   --c-music:#1E6B57; --c-music-soft:#E0EEE8;
   --danger:#A63A2B; --ok:#2F7A3E;
@@ -39,7 +39,7 @@
 body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--f-body);margin:0}
 .wrap{max-width:720px;margin:0 auto;padding-block:12px 96px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
 h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:-.01em;text-wrap:balance;margin:0}
-h1{font-size:1.6rem} h2{font-size:1.25rem} h3{font-size:1.05rem;font-weight:500}
+h1{font-size:1.6rem} h2{font-size:1.6rem;line-height:1.15} h3{font-size:1.125rem;font-weight:700;line-height:1.25}
 a{color:var(--accent)}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -49,7 +49,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{ou
 .meta{font-size:.85rem;color:var(--muted);margin:2px 0 0}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 ::selection{background:var(--accent-soft);color:var(--ink)}
-.card p,.bb p{max-width:68ch}
+.card p,.bb p,section.stack > p{max-width:60ch}
 header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 header.top h1{font-size:1.25rem;line-height:1.2}
 header.top .meta{margin:0}
@@ -79,14 +79,16 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .seglabel{display:inline-flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:600}
 /* piano-key timeline */
-.keys{display:flex;gap:3px;height:78px;margin:6px 0 4px}
-.key{position:relative;flex-basis:0;min-width:20px;background:var(--surface);border:1px solid var(--line);border-top:0;border-radius:0 0 7px 7px;display:flex;align-items:flex-end;justify-content:center;padding:0 0 6px;font:500 .75rem var(--f-mono);color:var(--muted);overflow:hidden;cursor:pointer;transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s}
+.keys{display:flex;gap:2px;height:78px;margin:6px 0 4px}
+.key{position:relative;flex-basis:0;min-width:30px;background:var(--surface);border:1px solid var(--line);border-top:0;border-radius:0 0 7px 7px;display:flex;align-items:flex-end;justify-content:center;padding:0 0 6px;font:500 .75rem var(--f-mono);color:var(--muted);overflow:hidden;cursor:pointer;transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s}
 .key::before{content:"";position:absolute;left:0;right:0;top:0;height:10px;background:var(--kc)}
 .key.done{background:var(--kcs);color:var(--ink)}
-.key.done::after{content:"";position:absolute;top:20px;left:50%;width:7px;height:12px;border:solid var(--kc);border-width:0 2.5px 2.5px 0;transform:translateX(-50%) rotate(45deg)}
+.key.done::after{content:"";position:absolute;top:16px;left:50%;width:7px;height:12px;border:solid var(--kc);border-width:0 2.5px 2.5px 0;transform:translateX(-50%) rotate(45deg)}
 /* the block you are on now is the key held down */
-.key.now{transform:translateY(4px);border-color:var(--kc);box-shadow:inset 0 -3px 0 var(--kc);color:var(--ink);font-weight:700}
-.key.open{background:var(--kcs)}
+.key.now{transform:translateY(4px);border-color:var(--kc);background:var(--kcs);box-shadow:inset 0 -3px 0 var(--kc);color:var(--ink)}
+.key{flex-direction:column;justify-content:flex-end;align-items:center;gap:1px}
+.key .ab{font:700 .8rem var(--f-display);color:var(--ink);letter-spacing:-.01em}
+.key .mn{font-size:.72rem}
 .key:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--kc);margin-right:5px;vertical-align:-1px}
@@ -108,7 +110,8 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .block .bb{padding:4px 14px 14px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .block .bb p,.block .bb ol,.block .bb ul,.card.stack > p{margin:0}
 .block .bb > .btn{align-self:flex-start}
-.block.open{border-color:var(--kc);box-shadow:0 6px 20px -12px color-mix(in srgb,var(--kc) 60%,transparent)}
+.block.open{border-color:var(--kc)}
+.block .bh h3{font-weight:500}
 .block.isdone{background:var(--kcs);border-color:transparent}
 .block.isdone .nm{text-decoration:line-through;text-decoration-color:var(--kc);text-decoration-thickness:2px}
 .block .donemark{width:22px;height:22px;border-radius:50%;background:var(--kc);flex:none;position:relative}
@@ -117,12 +120,42 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .block .bh .timer{min-width:0}
 .donebar{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;border-radius:12px;border:2px solid var(--kc);background:var(--surface);color:var(--ink);font-weight:600;font-size:1rem}
 .donebar[aria-pressed="true"]{background:var(--kc);color:var(--surface)}
+.btn.danger{border-color:var(--danger);color:var(--danger);background:transparent;font-weight:600}
+/* Utwory: one row per piece, stage as four small keys */
+.pieces{padding:4px 16px}
+details.piece{border-top:1px solid var(--line);padding:0}
+details.piece:first-child{border-top:0}
+details.piece > summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:56px;padding:8px 0;color:var(--ink);font-weight:500;font-size:1rem}
+details.piece > summary::-webkit-details-marker{display:none}
+details.piece > summary .pn{flex:1;min-width:0}
+details.piece[open] > summary .pn{font-weight:700}
+details.piece > summary::after{content:"";width:9px;height:9px;border:solid var(--muted);border-width:0 2px 2px 0;transform:rotate(45deg);margin:0 4px 4px 2px;flex:none;transition:transform .2s}
+details.piece[open] > summary::after{transform:rotate(225deg);margin-bottom:-4px}
+.minikeys{display:flex;gap:2px;flex:none}
+.minikeys i{width:9px;height:18px;border:1px solid var(--line);border-top:3px solid var(--line);border-radius:0 0 3px 3px;background:var(--surface)}
+.minikeys i.on{background:var(--kcs);border-color:var(--kc);border-top-color:var(--kc)}
+.ladder.stage span{font-family:var(--f-body);font-size:.72rem;line-height:1.1;text-align:center;height:40px}
+/* Postęp: the last 14 days as a row of keys pressed in by minutes played */
+.daykeys{list-style:none;margin:0;padding:0;display:flex;gap:3px;height:96px}
+.daykeys li{position:relative;flex:1;border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:0 0 6px 6px;background:var(--surface);overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
+.daykeys li i{position:absolute;left:0;right:0;top:0;background:var(--accent-soft)}
+.daykeys li.zero{border-top-color:var(--line)}
+.daykeys li.today{border-color:var(--accent);border-top-width:4px}
+.daykeys li > span[aria-hidden]{position:relative;font:500 .72rem var(--f-mono);color:var(--muted);padding-bottom:4px}
+.daykeys li.today > span[aria-hidden]{color:var(--ink);font-weight:700}
+.genrow{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.genrow .btn{width:100%;padding-inline:6px}
+.genrow .wide{grid-column:1 / -1}
+.genstatus{font-size:1rem;margin:0;min-height:1.5em}
+.chkfb{font-weight:500} .chkfb.ok{color:var(--ok)} .chkfb.bad{color:var(--danger)}
+.genstatus .cd{font:600 1.6rem var(--f-mono);color:var(--accent);margin-right:8px;vertical-align:-3px}
 .donebar .box{width:22px;height:22px;border-radius:6px;border:2px solid currentColor;position:relative}
 .donebar[aria-pressed="true"] .box::after{content:"";position:absolute;left:5px;top:1px;width:6px;height:11px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg)}
 .metroline{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .metroline .btn{min-width:48px}
 .metroline .mbpm{font-family:var(--f-mono);font-weight:500;min-width:3.2em;text-align:center}
 .extlinks{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.extlinks .pill{white-space:normal;line-height:1.35;padding:3px 10px}
 .extlinks a{display:inline-flex;align-items:center;min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:999px;text-decoration:none;font-size:.85rem}
 /* now playing: the running block, pinned above the tab bar */
 .nowbar{position:fixed;left:0;right:0;bottom:calc(62px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;justify-content:center;padding:0 max(10px, env(safe-area-inset-right,0px)) 8px max(10px, env(safe-area-inset-left,0px));pointer-events:none}
@@ -813,7 +846,10 @@ function markBlock(b, done){
   const plan=todayPlan();
   b.done=done;
   if(done && !plan.counted){ plan.counted=true; S.sessions++; }
+  // undoing the last done block takes the session back, so "Sesja N" and tomorrow's key stay right
+  if(!done && plan.counted && !plan.blocks.some(x=>x.done)){ plan.counted=false; S.sessions=Math.max(0,S.sessions-1); }
   if(b.type==="hanon" && done && !b.adv){ b.adv=true; S.hanon.reps++; if(S.hanon.reps>=3){ S.hanon.reps=0; S.hanon.n = S.hanon.n>=58?1:S.hanon.n+2; } }
+  if(b.type==="hanon" && !done && b.adv){ b.adv=false; if(S.hanon.reps>0) S.hanon.reps--; else { S.hanon.reps=2; S.hanon.n = S.hanon.n<=1?57:S.hanon.n-2; } }
   if(b.type==="free" && done){ for(const id of b.items||[]){ const m=S.my.find(x=>x.id===id); if(m) m.last=todayKey(); } }
   save(); render();
 }
@@ -890,8 +926,24 @@ function links(p){
   <a href="https://musescore.com/sheetmusic?text=${q}" target="_blank" rel="noopener">MuseScore</a>
   ${ytLink(YT[p.id]||p.q)}</div>`;
 }
-function statusBtns(p){
-  return `<div class="status" role="group" aria-label="Etap nauki: ${esc(p.name)}">${STATUS.map((s,i)=>`<button data-act="status" data-id="${p.id}" data-s="${i}" aria-pressed="${st(p.id)===i}">${s}</button>`).join("")}</div>`;
+// Learning stage of a piece, drawn as four keys (one per stage reached); moving on is one deliberate button,
+// corrections go through the select, and every change can be undone.
+const STAGE_KEY=["rozczytuję","razem wolno","w tempie","opanowany"];
+function stageHtml(p){
+  const s=st(p.id);
+  return `<div class="stack" style="gap:8px">
+    <div class="ladder stage t-music" role="img" aria-label="Etap: ${STATUS[s]}">${STAGE_KEY.map((n,i)=>`<span class="${i+1<s?"on":i+1===s?"cur":""}">${n}</span>`).join("")}</div>
+    <div class="row">${s<4?`<button class="btn sm primary" data-act="status" data-id="${p.id}" data-s="${s+1}">${s===0?"Zaczynam: rozczytuję":"Dalej: "+STATUS[s+1]}</button>`:`<span class="pill own">opanowany</span>`}
+    <label class="small muted row" style="gap:6px">zmień etap <select data-act="setstage" data-id="${p.id}" aria-label="Etap nauki: ${esc(p.name)}">${STATUS.map((n,i)=>`<option value="${i}" ${i===s?"selected":""}>${n}</option>`).join("")}</select></label></div></div>`;
+}
+function setStage(id, s){
+  const p=PIECES.find(x=>x.id===id);
+  const msg = s===4? "Opanowany! "+p.name+" trafia do Twoich utworów." : p.name+": "+STATUS[s];
+  withUndo(msg,()=>{
+    S.pieces[id]={s};
+    if(s>0 && s<4){ if(p.list==="E") S.active.etude=id; else S.active.piece=id; }
+    if(s===4){ if(!S.my.some(m=>m.name===p.name)) S.my.push({id:"r-"+id,name:p.name,last:todayKey()}); if(S.active.piece===id) S.active.piece=null; if(S.active.etude===id) S.active.etude=null; }
+  });
 }
 
 function blockBody(b){
@@ -925,7 +977,7 @@ function blockBody(b){
     return `<div class="stack" style="gap:8px"><div><h3 style="font-size:1.15rem">${p.name}</h3>
     <p class="meta">${p.list==="E"?"Etiuda":"Lista "+p.list+" – "+LISTS[p.list]} · Grade ${p.g} · tempo docelowe <span class="mono">${p.tempo}</span></p></div>${links(p)}</div>
     <p class="note"><b>Dziś:</b> ${STEP_HINT[s]}</p>
-    ${statusBtns(p)}
+    ${stageHtml(p)}
     ${tempoLogHtml(p)}
     <details><summary>Wskazówki techniczne i interpretacyjne</summary><div class="stack" style="margin-top:8px">${tipsHtml(p)}</div></details>
     <button class="btn sm ghost" data-act="goto" data-tab="rep">Zmień ${b.type==="etude"?"etiudę":"utwór"}</button>`;
@@ -967,7 +1019,8 @@ function blockBody(b){
   if(b.type==="free"){
     const items=(b.items||[]).map(id=>S.my.find(m=>m.id===id)).filter(Boolean);
     return `<p class="small">Graj dla przyjemności, ale z jednym celem na każdy utwór: czysty pedał, śpiewna melodia albo zagranie z pamięci.</p>
-    <ul class="tips">${items.map(m=>`<li>${esc(m.name)} <span class="small">${ytLink(myQuery(m))}</span> <span class="muted small">${m.last?"(ostatnio "+m.last+")":"(dawno nie grane)"}</span></li>`).join("") || "<li>Dodaj swoje utwory w zakładce Utwory.</li>"}</ul>`;
+    <ul class="tips">${items.map(m=>`<li>${esc(m.name)} <span class="small">${ytLink(myQuery(m))}</span> <span class="muted small">${m.last?"(ostatnio "+m.last+")":"(dawno nie grane)"}</span></li>`).join("") || "<li>Nie masz jeszcze swoich utworów.</li>"}</ul>
+    ${items.length?"":`<div><button class="btn sm" data-act="goto" data-tab="rep">Dodaj swoje utwory</button></div>`}`;
   }
   return "";
 }
@@ -993,20 +1046,23 @@ function streakDays(){
   let n=0; for(let i=0;i<400;i++){ const d=new Date(); d.setDate(d.getDate()-i); const pl=S.plans[todayKey(d)]; const m=pl? pl.blocks.filter(b=>b.done).length:0; if(m) n++; else if(i===0) continue; else break; }
   return n;
 }
+// short names printed on the keys; the full name is in the aria-label and the block header
+const KEY_ABBR={warm:"Ga",hanon:"Ha",etude:"Et",sr:"AV",theory:"Te",ear:"Sł",piece:"Ut",pedal:"Pe",free:"Wo"};
 function keyRow(plan, nav){
   const cur=curIndex(plan), open=openIndex(plan);
   return plan.blocks.map((b,i)=>{
-    const nm=BLOCKS[b.type].name, cls=`key t-${BLOCKS[b.type].grp} ${b.done?"done":""} ${nav&&i===cur?"now":""} ${nav&&i===open?"open":""}`;
-    if(!nav) return `<div class="${cls}" style="flex-grow:${b.min}"></div>`;
-    return `<button class="${cls}" style="flex-grow:${b.min}" data-act="jump" data-i="${i}" aria-label="${nm}, ${b.min} min${b.done?", zrobione":i===cur?", teraz":""}"${i===open?' aria-current="step"':""}>${b.min}</button>`;
+    const nm=BLOCKS[b.type].name, cls=`key t-${BLOCKS[b.type].grp} ${b.done?"done":""} ${nav&&i===open?"now":""}`;
+    const face=`<b class="ab">${KEY_ABBR[b.type]}</b><span class="mn">${b.min}</span>`;
+    if(!nav) return `<div class="${cls}" style="flex-grow:${b.min}">${face}</div>`;
+    return `<button class="${cls}" style="flex-grow:${b.min}" data-act="jump" data-i="${i}" aria-label="${nm}, ${b.min} min${b.done?", zrobione":i===cur?", następny do zrobienia":""}"${i===open?' aria-current="step"':""}>${face}</button>`;
   }).join("");
 }
 function blockHtml(b, i, isOpen, last){
   const nm=BLOCKS[b.type].name, run=timerState.i===i;
   return `<article class="block t-${BLOCKS[b.type].grp} ${b.done?"isdone":""} ${isOpen?"open":""}" id="blk-${i}">
     <div class="bh">
-      <h3><button class="bt" data-act="open" data-i="${i}" aria-expanded="${isOpen}" aria-controls="bb-${i}">${b.done?'<span class="donemark" aria-hidden="true"></span>':""}<span class="nm">${nm}</span><span class="min">${b.done?"zrobione":b.min+" min"}</span><span class="chev" aria-hidden="true"></span></button></h3>
-      ${b.done?"":`<span class="timer" id="tm-${i}"></span><button class="btn sm ${run?"primary":""}" data-act="timer" data-i="${i}" aria-label="${run?"Zatrzymaj":"Włącz"} minutnik: ${nm}">${run?"Stop":"Start"}</button>`}
+      <h3><button class="bt" data-act="open" data-i="${i}" aria-expanded="${isOpen}" aria-controls="bb-${i}">${b.done?'<span class="donemark" aria-hidden="true"></span>':""}<span class="nm">${nm}</span><span class="min" ${run?`id="tm-${i}"`:""}>${b.done?"zrobione":run?fmtLeft():b.min+" min"}</span><span class="chev" aria-hidden="true"></span></button></h3>
+      ${!b.done && (isOpen||run)?`<button class="btn ${run?"primary":""}" data-act="timer" data-i="${i}" aria-label="${run?"Zatrzymaj":"Włącz"} minutnik: ${nm}">${run?"Stop":"Start"}</button>`:""}
     </div>
     ${isOpen?`<div class="bb" id="bb-${i}">${blockBody(b)}
       <button class="donebar" data-act="done" data-i="${i}" aria-pressed="${b.done}"><span class="box" aria-hidden="true"></span>${b.done?"Zrobione – cofnij":last?"Gotowe – koniec sesji":"Gotowe – następny blok"}</button></div>`:""}
@@ -1037,7 +1093,7 @@ function viewToday(){
       <p class="meta">Sesja ${S.sessions + (plan.counted?0:1)} · ${done.length} z ${n} bloków${cur>=0?" · teraz: "+BLOCKS[plan.blocks[cur].type].name.split(":")[0]:""}</p></div>
     <div class="seglabel"><span aria-hidden="true">min</span><div class="seg" role="group" aria-label="Długość sesji w minutach">${[30,45,60,90].map(m=>`<button data-act="minutes" data-m="${m}" aria-pressed="${plan.minutes===m}">${m}</button>`).join("")}</div></div></div>
     <div class="keys" role="group" aria-label="Bloki sesji – stuknij, żeby przejść">${keyRow(plan,true)}</div>
-    <div class="legend"><span class="t-tech"><i></i>technika</span><span class="t-mind"><i></i>czytanie, teoria, słuch</span><span class="t-music"><i></i>utwory</span></div>
+    <div class="legend"><span class="t-tech"><i></i>technika</span><span class="t-mind"><i></i>czytanie, teoria, słuch</span><span class="t-music"><i></i>utwory</span><span>wciśnięty klawisz = otwarty blok</span></div>
   </div>
   ${all?finaleHtml(plan,p):""}
   <div class="blocks">${plan.blocks.map((b,i)=>blockHtml(b,i,i===open,i===n-1)).join("")}</div>
@@ -1048,6 +1104,13 @@ function viewToday(){
 function renderNowbar(){
   const nb=document.getElementById("nowbar"); if(!nb) return;
   const i=timerState.i;
+  if(i===null && metro.on && TAB!=="tools"){
+    // a metronome started inside a block keeps ticking after you scroll or switch tabs: give it a visible Stop
+    nb.hidden=false; document.body.classList.add("playing");
+    nb.innerHTML=`<div class="in t-music" role="region" aria-label="Metronom"><div class="nb-t"><b>Metronom</b><span>${metroUnit()} ${metro.bpm}</span></div>
+      <button class="btn sm primary" data-act="metro-off">Stop</button></div>`;
+    return;
+  }
   if(i===null){ nb.hidden=true; nb.innerHTML=""; document.body.classList.remove("playing"); return; }
   const b=todayPlan().blocks[i], nm=BLOCKS[b.type].name;
   nb.hidden=false; document.body.classList.add("playing");
@@ -1082,8 +1145,6 @@ function viewProgress(){
     <div class="bar"><span style="width:${pct(p.total)}"></span></div>
     ${all? (gradeAsk?`<div class="confirm"><p>Przejście na Grade ${g+1} ustawi nowe utwory, etiudy i technikę. Postęp z Grade ${g} zostaje w historii.</p><div class="row"><button class="btn primary" data-act="gradeup">Tak, przechodzę na Grade ${g+1}</button><button class="btn ghost" data-act="gradeup-no">Jeszcze nie</button></div></div>`:`<button class="btn primary" data-act="gradeup-ask">Zalicz Grade ${g}…</button>`):`<p class="small muted">Grade ${g} jest zaliczony, gdy wszystkie paski poniżej dojdą do 100%: po jednym opanowanym utworze z list A, B i C, 2 etiudy, technika, a czytanie a vista, teoria i słuch na poziomie ${g}.</p>`}
   </div>
-  ${accountCard()}
-  ${installCard()}
   <div class="minis">
     <div class="mini"><div class="small muted">Ten tydzień</div><div class="v">${week} min</div></div>
     <div class="mini"><div class="small muted">Dni z rzędu</div><div class="v">${streak}</div></div>
@@ -1091,8 +1152,8 @@ function viewProgress(){
   </div>
   <div class="card stack">
     <h3>Ostatnie 14 dni</h3>
-    <div class="chart">${days.map(x=>`<div class="${x.m?"":"zero"}" style="height:${Math.max(2,x.m/max*100)}%" title="${x.k}: ${x.m} min"></div>`).join("")}</div>
-    <div class="chartx">${days.map(x=>`<span>${x.d.getDate()}</span>`).join("")}</div>
+    <ul class="daykeys" aria-label="Minuty przy pianinie w ostatnich 14 dniach">${days.map((x,i)=>`<li class="${x.m?"":"zero"} ${i===days.length-1?"today":""} ${x.d.getDay()===0?"sun":""}"><i style="height:${Math.round(x.m/max*100)}%"></i><span aria-hidden="true">${x.d.getDate()}</span><span class="sr-only">${x.d.toLocaleDateString("pl-PL",{day:"numeric",month:"long"})}: ${x.m} min</span></li>`).join("")}</ul>
+    <p class="small muted" style="margin:0">Im głębiej wciśnięty klawisz, tym dłużej grałaś. Pełny klawisz = ${max} min.</p>
   </div>
   <div class="card stack">
     <h3>Ścieżki</h3>
@@ -1114,6 +1175,8 @@ function viewProgress(){
     ${(THEORY[S.th.level]||[]).map(t=>`<button class="check t-mind" data-act="thtoggle" data-id="${t[0]}" aria-pressed="${!!S.th.done[t[0]]}" style="justify-content:flex-start;border-radius:12px;text-align:left"><span class="box">✓</span>${t[1]}</button>`).join("")}
     ${thInLevel()>=1?`<button class="btn primary" data-act="thup">Przejdź na Level ${S.th.level+1}</button>`:""}
   </div>
+  ${accountCard()}
+  ${installCard()}
   <details class="card"><summary>Ustawienia poziomów</summary>
     <div class="stack" style="margin-top:10px">
       <p class="small muted">Jeśli coś jest za łatwe albo za trudne, przestaw poziom ręcznie.</p>
@@ -1130,20 +1193,23 @@ function viewRep(){
   const g=repGrade||S.grade;
   const grades=[5,6,7,8];
   const sec=(l)=>`<div class="listhead"><span class="lt">${l==="E"?"E":l}</span><h3>${LISTS[l]}</h3><span class="small muted">${l==="E"?"opanuj 2":"opanuj 1"}</span></div>
-  <div class="card">${piecesFor(g,l).map(p=>{
-    const isAct = S.active.piece===p.id || S.active.etude===p.id;
-    return `<div class="piece"><div class="spread"><b>${p.name}</b>${isAct?`<span class="pill own">aktywny</span>`:""}</div>
-      <span class="small muted">Tempo: <span class="mono">${p.tempo}</span></span>${links(p)}
-      ${statusBtns(p)}
-      <div class="row">${g===S.grade && st(p.id)<4 && !isAct?`<button class="btn sm" data-act="activate" data-id="${p.id}">Ucz się teraz</button>`:""}</div>
-      <details><summary>Wskazówki</summary><div class="stack" style="margin-top:8px">${tipsHtml(p)}</div></details></div>`;}).join("")}</div>`;
+  <div class="card pieces">${piecesFor(g,l).map(p=>{
+    const isAct = S.active.piece===p.id || S.active.etude===p.id, s=st(p.id);
+    return `<details class="piece"${isAct?" open":""}><summary><span class="pn">${p.name}</span>
+        <span class="minikeys t-music" aria-hidden="true">${[1,2,3,4].map(i=>`<i class="${i<=s?"on":""}"></i>`).join("")}</span>
+        <span class="sr-only">, etap: ${STATUS[s]}</span>${isAct?`<span class="pill own">w planie</span>`:""}</summary>
+      <div class="stack" style="gap:10px;padding:2px 0 6px">
+      <p class="meta" style="margin:0">Tempo docelowe <span class="mono">${p.tempo}</span></p>${links(p)}
+      ${stageHtml(p)}
+      ${g===S.grade && s<4 && !isAct?`<div><button class="btn sm" data-act="activate" data-id="${p.id}">Ucz się teraz – ustaw w planie</button></div>`:""}
+      <details><summary>Wskazówki</summary><div class="stack" style="margin-top:8px">${tipsHtml(p)}</div></details></div></details>`;}).join("")}</div>`;
   return `<section class="stack">
     <div class="spread"><h2>Repertuar</h2><div class="seg" role="group" aria-label="Poziom">${grades.map(x=>`<button data-act="repgrade" data-g="${x}" aria-pressed="${x===g}">G${x}</button>`).join("")}</div></div>
-    <p class="small muted">Listy są wzorowane na sylabusie RCM i dopasowane do Twoich nut. Poziomy są orientacyjne, bo różne edycje RCM przypisują niektóre utwory do sąsiednich poziomów. „Ucz się teraz” ustawia utwór w dzisiejszym planie.</p>
+    <p class="small muted">Stuknij utwór, żeby zobaczyć nuty, etap i wskazówki. „Ucz się teraz” ustawia go w dzisiejszym planie. Listy są wzorowane na sylabusie RCM, a poziomy są orientacyjne.</p>
     ${["A","B","C","E"].map(sec).join("")}
     <div class="listhead"><span class="lt">♪</span><h3>Twoje utwory</h3><span class="small muted">do wolnego czasu</span></div>
     <div class="card stack">
-      ${S.my.map(m=>`<div class="spread"><span>${esc(m.name)}</span><button class="btn sm ghost" data-act="mydel" data-id="${m.id}" aria-label="Usuń">Usuń</button></div>`).join("")}
+      ${S.my.map(m=>`<div class="spread"><span>${esc(m.name)}</span><button class="btn sm ghost" data-act="mydel" data-id="${m.id}" aria-label="Usuń: ${esc(m.name)}">Usuń</button></div>`).join("")}
       <form class="row" id="myform"><input type="text" id="myname" placeholder="Einaudi – Nuvole bianche" style="flex:1"><button class="btn primary sm" type="submit">Dodaj</button></form>
       <p class="small muted">Utwory, które opanujesz z list RCM, trafiają tu same.</p>
     </div>
@@ -1157,7 +1223,7 @@ function viewTools(){
     <div class="bpm mono"><span class="small muted" id="bpm-unit">${metroUnit()}</span> <span id="bpm-out">${metro.bpm}</span></div>
     <div class="dots" id="dots">${metroDots()}</div>
     <input type="range" id="bpm" min="30" max="220" step="1" value="${metro.bpm}" aria-label="Tempo">
-    <div class="row"><button class="btn sm" data-act="bpm" data-d="-4">−4</button><button class="btn primary" data-act="metro">${metro.on?"Stop":"Start"}</button><button class="btn sm" data-act="bpm" data-d="4">+4</button>
+    <div class="row"><button class="btn sm" data-act="bpm" data-d="-4">−4</button><button class="btn primary" data-act="metro" aria-pressed="${metro.on}">${metro.on?"Stop":"Start"}</button><button class="btn sm" data-act="bpm" data-d="4">+4</button>
     <select id="beats" aria-label="Metrum">${Object.keys(METERS).map(m=>`<option value="${m}" ${m===metro.meter?"selected":""}>${m}${m==="5/8"?" (2+3)":m==="7/8"?" (2+2+3)":""}</option>`).join("")}</select></div>
     ${trainerHtml()}
   </div>
@@ -1165,19 +1231,17 @@ function viewTools(){
   <div class="card stack" id="quizcard">
     <div class="spread"><h3>Ćwiczenia</h3>
     <select id="quizsel" aria-label="Wybierz ćwiczenie">
-      <option value="ear-int">Słuch: interwały</option><option value="ear-chord">Słuch: akordy</option>
-      <option value="notes">Teoria: czytanie nut</option><option value="keys">Teoria: znaki przykluczowe</option><option value="intervals">Teoria: interwały w nutach</option>
-      <option value="ear-clap">Słuch: powtarzanie rytmu</option><option value="ear-play">Słuch: powtarzanie melodii</option><option value="ear-cad">Słuch: kadencje</option>
+      <optgroup label="Słuch"><option value="ear-int">Interwały</option><option value="ear-chord">Akordy</option><option value="ear-cad">Kadencje</option><option value="ear-clap">Powtarzanie rytmu</option><option value="ear-play">Powtarzanie melodii</option></optgroup>
+      <optgroup label="Teoria"><option value="notes">Czytanie nut</option><option value="keys">Znaki przykluczowe</option><option value="intervals">Interwały w nutach</option></optgroup>
     </select></div>
     <div id="quiz"></div>
   </div>
-  <div class="card stack">
-    <h3>Twoje nuty i co dokupić</h3>
+  <details class="card"><summary>Twoje nuty i co dokupić</summary><div class="stack" style="margin-top:10px">
     <p class="small"><b>Masz i używasz w planie:</b> Gamy i pasaże (PWM) w rozgrzewce, Hanon, Burgmüller op. 100 (etiudy Grade 5), Czerny op. 299 (etiudy Grade 8), Bach WTK I (Grade 8+), Najpiękniejszy Chopin (utwory listy C), Kember 2 i 3 oraz książki z łatwymi utworami do czytania a vista, a 50 Greats i Play it again do czytania a vista i wolnego czasu.</p>
     <p class="small"><b>Pobierz za darmo z IMSLP (do druku):</b> Bach: Małe preludia BWV 924–943 i 999 oraz Inwencje BWV 772–786. Clementi: Sonatiny op. 36. Kuhlau: Sonatiny op. 55 i op. 20. Schumann: Album dla młodzieży op. 68. Grieg: Utwory liryczne op. 12. Czajkowski: Album dla dzieci op. 39. Heller: Etiudy op. 47. Czerny: op. 636. Burgmüller: op. 109. Między op. 100 a op. 299 jest duża luka i te zbiory ją wypełniają.</p>
     <p class="small"><b>Warto kupić:</b> Celebrate Theory (Prep, 1, 2 i dalej) jako główny podręcznik teorii. Four Star Sight Reading and Ear Tests (Level 2–5) jako uzupełnienie czytania a vista i słuchu. Celebration Series Repertoire 5–6, jeśli chcesz mieć oficjalne listy RCM.</p>
     <p class="small"><b>MuseScore:</b> szukaj oficjalnych wydań (filtr „Official scores”) utworów z list. Do czytania a vista wybieraj łatwe aranżacje z oceną „Beginner” lub „Intermediate”.</p>
-  </div>
+  </div></details>
   </section>`;
 }
 
@@ -1212,7 +1276,7 @@ function metroStart(){
   const c=ac(); metro.on=true; metro.next=c.currentTime+0.06; metro.beat=0; if(!wake) keepAwake();
   metro.timer=setInterval(()=>{ while(metro.next<c.currentTime+0.12){ click(metro.next, METERS[metro.meter][metro.beat%metro.beats]); const b=metro.beat%metro.beats, delay=(metro.next-c.currentTime)*1000; setTimeout(()=>lightDot(b),Math.max(0,delay)); metro.next+=60/metro.bpm; metro.beat++; onMetroBeat(); } },25);
 }
-function metroStop(){ metro.on=false; metro.inl=null; clearInterval(metro.timer); lightDot(-1); if(timerState.i===null) releaseAwake(); }
+function metroStop(){ metro.on=false; metro.inl=null; clearInterval(metro.timer); lightDot(-1); if(timerState.i===null) releaseAwake(); renderNowbar(); }
 function lightDot(b){ const d=document.querySelectorAll("#dots i"); d.forEach((x,i)=>x.classList.toggle("on",i===b)); }
 
 /* block timer */
@@ -1266,7 +1330,7 @@ function quizStart(type, hostId, inline, opts){
 function quizNext(){
   const host=document.getElementById(Q.host); if(!host) return;
   Q.locked=false;
-  if(Q.inline && Q.count>=Q.max){
+  if(Q.count>=Q.max){
     if(Q.onDone){ const f=Q.onDone; Q.onDone=null; Q.seq=null; f(Q.score,Q.max); return; }
     host.innerHTML=`<p><b>Wynik: ${Q.score} z ${Q.max}.</b> ${Q.score>=Q.max*0.8?"Świetnie!":"Spróbuj jeszcze raz jutro."}</p><button class="btn sm" data-act="quiz-again">Jeszcze raz</button>`;
     return;
@@ -1278,7 +1342,7 @@ function quizNext(){
     const E=EAR[earLvl()];
     if(t==="ear-int"){ const semi=E.ints[Math.floor(Math.random()*E.ints.length)], root=55+Math.floor(Math.random()*12); q={answer:INT_NAMES[semi],opts:E.ints.map(s=>INT_NAMES[s]),play:()=>{const c=ac(),n=c.currentTime+0.05; tone(root,n); tone(root+semi,n+0.7); tone(root,n+1.5,1.6); tone(root+semi,n+1.5,1.6);}}; }
     else { const k=E.chords[Math.floor(Math.random()*E.chords.length)], root=52+Math.floor(Math.random()*10); q={answer:k,opts:E.chords,play:()=>{const c=ac(),n=c.currentTime+0.05; CHORD_SEMIS[k].forEach((s,i)=>tone(root+s,n+i*0.35)); CHORD_SEMIS[k].forEach(s=>tone(root+s,n+CHORD_SEMIS[k].length*0.35+0.3,1.8,0.16));}}; }
-    host.innerHTML=`<div class="stack"><div class="row"><button class="btn primary" data-act="q-play">▶ Odtwórz</button><span class="small muted">Pytanie ${Q.count+1}${Q.inline?" z "+Q.max:""} · wynik ${Q.score}</span></div><div class="answers wide">${q.opts.map(o=>`<button data-act="q-ans" data-a="${esc(o)}">${o}</button>`).join("")}</div></div>`;
+    host.innerHTML=`<div class="stack"><div class="row"><button class="btn primary" data-act="q-play">▶ Odtwórz</button><span class="small muted">Pytanie ${Q.count+1} z ${Q.max} · wynik ${Q.score}</span></div><div class="answers wide">${q.opts.map(o=>`<button data-act="q-ans" data-a="${esc(o)}">${o}</button>`).join("")}</div></div>`;
     Q.cur=q; setTimeout(()=>q.play(),50); return;
   }
   if(t==="notes"){
@@ -1298,7 +1362,7 @@ function quizNext(){
     const a=-1+Math.floor(Math.random()*6), d=1+Math.floor(Math.random()*7);
     q={answer:NAMES[d],opts:NAMES.slice(1),svg:staffSvg([{s:a,x:150},{s:a+d,x:220}],"treble")};
   }
-  host.innerHTML=`<div class="stack">${q.svg}<p class="small" style="text-align:center">${q.prompt||(t==="notes"?"Jaka to nuta?":"Jaki to interwał?")} <span class="muted">· pytanie ${Q.count+1}${Q.inline?" z "+Q.max:""} · wynik ${Q.score}</span></p><div class="answers ${t==="notes"?"":"wide"}">${q.opts.map(o=>`<button data-act="q-ans" data-a="${esc(o)}">${o}</button>`).join("")}</div></div>`;
+  host.innerHTML=`<div class="stack">${q.svg}<p class="small" style="text-align:center">${q.prompt||(t==="notes"?"Jaka to nuta?":"Jaki to interwał?")} <span class="muted">· pytanie ${Q.count+1} z ${Q.max} · wynik ${Q.score}</span></p><div class="answers ${t==="notes"?"":"wide"}">${q.opts.map(o=>`<button data-act="q-ans" data-a="${esc(o)}">${o}</button>`).join("")}</div></div>`;
   Q.cur=q;
 }
 function quizAnswer(btn){
@@ -1366,16 +1430,17 @@ document.addEventListener("click",(e)=>{
       if(nowDone && timerState.i===i) stopTimer();
       OPEN.day=todayKey(); OPEN.i=null;
       markBlock(b,nowDone);
-      if(nowDone && TAB==="today"){ const nx=curIndex(plan); if(nx>=0) showBlock(nx,true); else { const f=document.querySelector(".finale"); f&&f.scrollIntoView({block:"start",behavior:smooth()}); } announce(nx>=0? "Zrobione. Teraz: "+BLOCKS[plan.blocks[nx].type].name : "Sesja skończona"); }
+      if(nowDone){
+        const nx=curIndex(plan), nm=BLOCKS[b.type].name.split(":")[0];
+        if(TAB==="today"){ if(nx>=0) showBlock(nx,true); else { const f=document.querySelector(".finale"); f&&f.scrollIntoView({block:"start",behavior:smooth()}); } }
+        toast(nx>=0? "Zrobione: "+nm+" · Teraz: "+BLOCKS[plan.blocks[nx].type].name.split(":")[0] : "Sesja skończona", {label:"Cofnij", fn:()=>{ OPEN.day=todayKey(); OPEN.i=i; markBlock(b,false); }});
+      }
       break; }
     case "jump": { const i=+t.dataset.i; OPEN.day=todayKey(); OPEN.i=i; render(); showBlock(i,false); break; }
     case "open": { const i=+t.dataset.i, open=openIndex(plan); OPEN.day=todayKey(); OPEN.i=(open===i)?-1:i; render(); if(OPEN.i===i) showBlock(i,true); break; }
     case "minutes": { const m=+t.dataset.m; S.minutes=m; if(plan.blocks.some(b=>b.done)){ const np=genPlan(todayKey(),m); np.counted=plan.counted; np.blocks.forEach(nb=>{ const ob=plan.blocks.find(x=>x.type===nb.type); if(ob&&ob.done){nb.done=true;nb.rating=ob.rating;nb.adv=ob.adv;} }); S.plans[todayKey()]=np; } else S.plans[todayKey()]=genPlan(todayKey(),m); save(); render(); break; }
     case "timer": { const i=+t.dataset.i; if(timerState.i===i){stopTimer();render();} else startTimer(i); break; }
-    case "status": { const id=t.dataset.id, s=+t.dataset.s; S.pieces[id]={s}; const p=PIECES.find(x=>x.id===id);
-      if(s>0 && s<4){ if(p.list==="E") S.active.etude=id; else S.active.piece=id; }
-      if(s===4){ if(!S.my.some(m=>m.name===p.name)) S.my.push({id:"r-"+id,name:p.name,last:todayKey()}); if(S.active.piece===id) S.active.piece=null; if(S.active.etude===id) S.active.etude=null; toast("Opanowany! Trafia do Twoich utworów."); }
-      save(); render(); break; }
+    case "status": setStage(t.dataset.id, +t.dataset.s); break;
     case "activate": { const p=PIECES.find(x=>x.id===t.dataset.id); if(p.list==="E") S.active.etude=p.id; else S.active.piece=p.id; if(!st(p.id)) S.pieces[p.id]={s:1}; save(); toast("Ustawiono w planie: "+p.name); render(); break; }
     case "repgrade": repGrade=+t.dataset.g; render(); break;
     case "mydel": { const m=S.my.find(x=>x.id===t.dataset.id); withUndo("Usunięto: "+(m?m.name:"utwór"),()=>{ S.my=S.my.filter(x=>x.id!==t.dataset.id); }); break; }
@@ -1383,37 +1448,40 @@ document.addEventListener("click",(e)=>{
       if(first && b.gen){ S.sr.log.push({l:S.sr.level,r,d:todayKey(),src:"gen"}); }
       else if(first){ S.sr.log.push({l:S.sr.level,r,d:todayKey()}); const L=SR[b.level]||SR[8], key="sr"+b.level+":"+L.books[b.book%L.books.length]; S.srCounter[key]=(S.srCounter[key]||0)+1; } else { const last=S.sr.log[S.sr.log.length-1]; if(last) last.r=r; }
       if(!b.done) markBlock(b,true); else { save(); render(); } break; }
-    case "srup": S.sr.level=Math.min(8,S.sr.level+1); save(); toast("Czytanie a vista: poziom "+S.sr.level); render(); break;
+    case "srup": withUndo("Czytanie a vista: poziom "+Math.min(8,S.sr.level+1),()=>{ S.sr.level=Math.min(8,S.sr.level+1); }); break;
     case "thdone": withUndo("Temat zaliczony",()=>{ S.th.done[t.dataset.id]=true; }); break;
     case "thtoggle": S.th.done[t.dataset.id]=!S.th.done[t.dataset.id]; save(); render(); break;
-    case "thup": S.th.level=Math.min(8,S.th.level+1); save(); toast("Teoria: Level "+S.th.level); render(); break;
-    case "earup": S.ear.level=Math.min(8,S.ear.level+1); save(); render(); break;
+    case "thup": withUndo("Teoria: Level "+Math.min(8,S.th.level+1),()=>{ S.th.level=Math.min(8,S.th.level+1); }); break;
+    case "earup": withUndo("Słuch: poziom "+Math.min(8,S.ear.level+1),()=>{ S.ear.level=Math.min(8,S.ear.level+1); }); break;
     case "tech": S.tech.done[t.dataset.id]=!S.tech.done[t.dataset.id]; save(); render(); break;
     case "gradeup-ask": gradeAsk=true; render(); { const y=document.querySelector('[data-act="gradeup"]'); y&&y.focus(); } break;
     case "gradeup-no": gradeAsk=false; render(); break;
-    case "gradeup": gradeAsk=false; S.grade=Math.min(8,S.grade+1); S.active={piece:null,etude:null}; S.celebrate={grade:S.grade,d:todayKey()}; save(); render(); window.scrollTo(0,0); announce("Gratulacje! Grade "+(S.grade-1)+" zaliczony."); break;
+    case "gradeup": gradeAsk=false; try{ localStorage.setItem("ppp-backup",JSON.stringify({at:Date.now(),s:S,why:"grade"})); }catch(err){} S.grade=Math.min(8,S.grade+1); S.active={piece:null,etude:null}; S.celebrate={grade:S.grade,d:todayKey()}; save(); render(); window.scrollTo(0,0); announce("Gratulacje! Grade "+(S.grade-1)+" zaliczony."); break;
     case "celebrate-ok": delete S.celebrate; save(); render(); break;
-    case "reset-ask": document.getElementById("reset-confirm").innerHTML=`<p class="small">Usunie to cały postęp i historię. Na pewno?</p><button class="btn sm" data-act="reset-yes">Tak, zacznij od nowa</button>`; break;
-    case "reset-yes": S=defaultState(); save(); render(); toast("Zaczynasz od nowa"); break;
+    case "reset-ask": document.getElementById("reset-confirm").innerHTML=`<div class="confirm"><p class="small"><b>Usunąć cały postęp i historię?</b> Aplikacja zachowa obecny stan jako kopię awaryjną na tym urządzeniu (Postęp → Konto).</p><div class="row"><button class="btn sm danger" data-act="reset-yes">Tak, zacznij od nowa</button><button class="btn sm ghost" data-act="reset-no">Anuluj</button></div></div>`; document.querySelector('[data-act="reset-no"]').focus(); break;
+    case "reset-no": document.getElementById("reset-confirm").innerHTML=""; break;
+    case "reset-yes": try{ localStorage.setItem("ppp-backup",JSON.stringify({at:Date.now(),s:S,why:"reset"})); }catch(err){} S=defaultState(); save(); render(); toast("Zaczynasz od nowa",{label:"Cofnij",fn:restoreBackup}); break;
     case "quiz": pendingQuiz=t.dataset.q; TAB="tools"; render(); window.scrollTo(0,0); setTimeout(()=>{const c=document.getElementById("quizcard"); c&&c.scrollIntoView({block:"start"});},50); break;
     case "quiz-begin": ac(); quizStart(t.dataset.q,"quiz",false); break;
     case "ear-go": ac(); quizStart("ear-"+t.dataset.mode,"ear-inline",true); break;
     case "quiz-again": quizStart(Q.type,Q.host,Q.inline); break;
     case "q-play": Q.cur&&Q.cur.play&&Q.cur.play(); break;
     case "q-ans": quizAnswer(t); break;
-    case "metro": if(metro.on) metroStop(); else metroStart(); t.textContent=metro.on?"Stop":"Start"; break;
+    case "metro": if(metro.on) metroStop(); else metroStart(); t.textContent=metro.on?"Stop":"Start"; t.setAttribute("aria-pressed",String(metro.on)); break;
+    case "metro-off": metroStop(); document.querySelectorAll('[data-act="metro-inline"]').forEach(x=>{ x.classList.remove("primary"); x.setAttribute("aria-pressed","false"); }); renderNowbar(); break;
     case "bpm": metro.bpm=Math.max(30,Math.min(220,metro.bpm+(+t.dataset.d))); document.getElementById("bpm").value=metro.bpm; document.getElementById("bpm-out").textContent=metro.bpm; break;
     case "metro-inline": { const k=t.dataset.k, bpm=inlineBpm(k);
       if(metro.on && metro.inl===k){ metroStop(); } else { if(metro.on) metroStop(); metro.bpm=bpm; metroStart(); metro.inl=k; }
       document.querySelectorAll('[data-act="metro-inline"]').forEach(x=>{ const on=metro.on && metro.inl===x.dataset.k; x.classList.toggle("primary",on); x.setAttribute("aria-pressed",String(on)); });
-      break; }
+      renderNowbar(); break; }
     case "mi-step": { const k=t.dataset.k, v=Math.max(30,Math.min(220,inlineBpm(k)+(+t.dataset.d))); INLINE_BPM[k]=v;
       const line=t.closest(".metroline"); line.querySelector(".mbpm").textContent=v; line.querySelector('[data-act="metro-inline"]').setAttribute("aria-label","Metronom "+v+" na minutę");
       if(metro.on && metro.inl===k) metro.bpm=v; break; }
   }
 });
 document.addEventListener("change",(e)=>{
-  const t=e.target; if(t.dataset.act!=="setlevel") return;
+  const t=e.target; if(t.dataset.act==="setstage"){ setStage(t.dataset.id,+t.value); return; }
+  if(t.dataset.act!=="setlevel") return;
   const v=+t.value, k=t.dataset.k, names={grade:"Grade",sr:"Czytanie a vista: poziom",th:"Teoria: Level",ear:"Słuch: poziom"};
   withUndo(names[k]+" "+v,()=>{
     if(k==="grade"){ S.grade=v; S.active={piece:null,etude:null}; }
@@ -1449,7 +1517,7 @@ function accountCard(){
       <p class="small">W pliku: ${esc(stateSummary(pendingImport))}.<br>Teraz w aplikacji: ${esc(stateSummary(S))}.</p>
       <p class="small muted">Obecny postęp zostanie zastąpiony. Aplikacja zachowa go jako kopię awaryjną na tym urządzeniu, więc możesz wrócić.</p>
       <div class="row"><button class="btn primary sm" data-act="import-yes">Zastąp postęp</button><button class="btn ghost sm" data-act="import-no">Anuluj</button></div></div>`:""}
-    ${bk?`<p class="small muted">Kopia awaryjna sprzed wczytania (${esc(bk)}). <button class="btn sm ghost" data-act="import-undo">Przywróć ją</button></p>`:""}</div>`;
+    ${bk?`<p class="small muted">Kopia awaryjna z ${esc(bk)}. <button class="btn sm ghost" data-act="import-undo">Przywróć ją</button></p>`:""}</div>`;
 }
 function authErr(e){
   const c=(e&&e.code)||"";
@@ -1493,7 +1561,7 @@ document.addEventListener("click", async (e)=>{
 function backupInfo(){ try{ const b=JSON.parse(localStorage.getItem("ppp-backup")||"null"); return b? new Date(b.at).toLocaleString("pl-PL",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}) : null; }catch(e){ return null; } }
 function restoreBackup(){
   try{ const b=JSON.parse(localStorage.getItem("ppp-backup")||"null"); if(!b) return;
-    S=merge(defaultState(), b.s); localStorage.removeItem("ppp-backup"); save(); render(); toast("Przywrócono postęp sprzed wczytania"); }catch(e){ toast("Nie udało się przywrócić kopii awaryjnej"); }
+    S=merge(defaultState(), b.s); localStorage.removeItem("ppp-backup"); save(); render(); toast("Przywrócono postęp z kopii awaryjnej"); }catch(e){ toast("Nie udało się przywrócić kopii awaryjnej"); }
 }
 document.addEventListener("change",(e)=>{
   if(e.target.id!=="importfile") return;

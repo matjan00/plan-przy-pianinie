@@ -242,26 +242,30 @@ function mountGen(hostId) {
   host.innerHTML = `<div class="stack" style="gap:8px">
     <p class="small"><b>${p.K.pl}</b> · metrum ${p.time} · tempo <span class="mono">${p.mi.compound ? "♩." : "♩"} = ${p.bpm}</span> · poziom ${p.level}</p>
     <div class="abc" id="${hostId}-abc"></div>
-    <div class="row">
+    <p class="genstatus" id="${hostId}-status">Najpierw przegląd, potem zagraj raz, bez zatrzymywania. „Odsłuchaj” dopiero po swoim podejściu.</p>
+    <div class="genrow">
+      <button class="btn primary wide" data-act="sg-play" data-host="${hostId}">Graj z metronomem</button>
       <button class="btn sm" data-act="sg-preview" data-host="${hostId}">Przegląd 30 s</button>
-      <button class="btn sm primary" data-act="sg-play" data-host="${hostId}">Graj z metronomem</button>
       <button class="btn sm" data-act="sg-listen" data-host="${hostId}">Odsłuchaj</button>
       <button class="btn sm ghost" data-act="sg-stop" data-host="${hostId}">Stop</button>
     </div>
-    <p class="small muted" id="${hostId}-status">Najpierw przegląd, potem zagraj raz, bez zatrzymywania. „Odsłuchaj” dopiero po swoim podejściu.</p>
   </div>`;
   const narrow = host.clientWidth < 560;
   renderAbcInto(document.getElementById(hostId + "-abc"), narrow ? toAbc(p, 2) : p.abc);
 }
-function genStatus(hostId, t) { const el = document.getElementById(hostId + "-status"); if (el) el.textContent = t; }
+function genStatus(hostId, t, cd) {
+  const el = document.getElementById(hostId + "-status"); if (!el) return;
+  el.textContent = t;
+  if (cd !== undefined) { const b = document.createElement("span"); b.className = "cd"; b.textContent = cd + " s"; el.prepend(b); }
+}
 let previewTimer = null;
 function genPreview(hostId) {
   clearInterval(previewTimer); let left = 30;
-  genStatus(hostId, "Przegląd: " + left + " s – tonacja, metrum, rytm, powtórzenia, trudne miejsca.");
+  genStatus(hostId, "Tonacja, metrum, rytm, powtórzenia, trudne miejsca.", left);
   previewTimer = setInterval(() => {
     left--;
     if (left <= 0) { clearInterval(previewTimer); genPlay(hostId); return; }
-    genStatus(hostId, "Przegląd: " + left + " s – tonacja, metrum, rytm, powtórzenia, trudne miejsca.");
+    genStatus(hostId, "Tonacja, metrum, rytm, powtórzenia, trudne miejsca.", left);
   }, 1000);
 }
 function genPlay(hostId) {
@@ -607,7 +611,7 @@ function lessonView(id) {
       ${L ? L.body : `<p>Lekcja w przygotowaniu.</p>`}
       ${L && L.abc ? L.abc.map((a, i) => `<div><div class="abc" data-abc="${id}:${i}"></div>${a.cap ? `<p class="small muted" style="margin:0">${a.cap}</p>` : ""}</div>`).join("") : ""}
       ${L && L.piano ? `<div class="box tip"><b>Przy pianinie:</b> ${L.piano}</div>` : ""}
-      ${L && L.check ? `<h4>Sprawdź się</h4>${L.check.map((c, qi) => `<div class="check-q"><span>${c.q}</span><div class="opts">${c.opts.map((o, oi) => `<button type="button" data-act="chk" data-id="${id}" data-q="${qi}" data-o="${oi}">${o}</button>`).join("")}</div><p class="small muted" id="why-${qi}" style="margin:0"></p></div>`).join("")}` : ""}
+      ${L && L.check ? `<h4>Sprawdź się</h4>${L.check.map((c, qi) => `<div class="check-q"><span>${c.q}</span><div class="opts">${c.opts.map((o, oi) => `<button type="button" data-act="chk" data-id="${id}" data-q="${qi}" data-o="${oi}">${o}</button>`).join("")}</div><p class="small muted" id="why-${qi}" role="status" style="margin:0"></p></div>`).join("")}` : ""}
       <div class="row">
         ${T.t[3] ? `<button class="btn sm" data-act="quiz" data-q="${T.t[3]}">Ćwicz w quizie</button>` : ""}
         ${S.th.done[id] ? `<span class="pill own">opanowany ✓</span>` : `<button class="btn sm primary" data-act="thdone-lesson" data-id="${id}">Temat opanowany ✓</button>`}
@@ -627,7 +631,7 @@ function pedalView(id) {
       ${l.body}
       ${l.abc ? l.abc.map((a, k) => `<div><div class="abc" data-abc="pedal:${id}:${k}"></div>${a.cap ? `<p class="small muted" style="margin:0">${a.cap}</p>` : ""}</div>`).join("") : ""}
       <div class="box tip"><b>Ćwiczenie:</b> ${l.drill}</div>
-      ${l.check ? `<h4>Sprawdź się</h4>${l.check.map((c, qi) => `<div class="check-q"><span>${c.q}</span><div class="opts">${c.opts.map((o, oi) => `<button type="button" data-act="chk" data-id="pedal:${id}" data-q="${qi}" data-o="${oi}">${o}</button>`).join("")}</div><p class="small muted" id="why-${qi}" style="margin:0"></p></div>`).join("")}` : ""}
+      ${l.check ? `<h4>Sprawdź się</h4>${l.check.map((c, qi) => `<div class="check-q"><span>${c.q}</span><div class="opts">${c.opts.map((o, oi) => `<button type="button" data-act="chk" data-id="pedal:${id}" data-q="${qi}" data-o="${oi}">${o}</button>`).join("")}</div><p class="small muted" id="why-${qi}" role="status" style="margin:0"></p></div>`).join("")}` : ""}
       <div class="row">
         ${S.pedal.done[id] ? `<span class="pill own">zaliczona ✓</span>` : `<button class="btn sm primary" data-act="pedal-done" data-id="${id}">Lekcja zaliczona ✓</button>`}
         ${next ? `<button class="btn sm ghost" data-act="pedal-open" data-id="${next.id}">Następna lekcja ›</button>` : ""}
@@ -659,11 +663,11 @@ function checkAnswer(btn) {
   let c;
   if (id.startsWith("pedal:")) { const l = PEDAL.find(x => x.id === id.slice(6)); c = l.check[qi]; }
   else c = LESSONS[id].check[qi];
-  const wrap = btn.closest(".check-q");
-  wrap.querySelectorAll("button").forEach(b => b.classList.remove("right", "wrong"));
-  btn.classList.add(oi === c.ok ? "right" : "wrong");
-  const why = document.getElementById("why-" + qi);
-  if (why) why.textContent = (oi === c.ok ? "Tak. " : "Nie – poprawna odpowiedź: " + c.opts[c.ok] + ". ") + (c.why || "");
+  const wrap = btn.closest(".check-q"), ok = oi === c.ok;
+  wrap.querySelectorAll("button").forEach((b, i) => { b.classList.remove("right", "wrong"); if (!ok && i === c.ok) b.classList.add("right"); });
+  btn.classList.add(ok ? "right" : "wrong");
+  const why = wrap.querySelector("[id^='why-']");
+  if (why) { why.className = "small chkfb " + (ok ? "ok" : "bad"); why.textContent = (ok ? "Dobrze. " : "Nie – poprawna odpowiedź: " + c.opts[c.ok] + ". ") + (c.why || ""); }
 }
 
 /* ============================== PRÓBNY EGZAMIN ============================== */
