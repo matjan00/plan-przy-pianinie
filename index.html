@@ -315,6 +315,7 @@ input[type=email],input[type=password]{font:inherit;color:inherit;background:var
 <script src="content.js"></script>
 <script src="listening.js"></script>
 <script src="extra.js"></script>
+<script src="notes.js"></script>
 <script>
 "use strict";
 /* ============================== DANE ============================== */
@@ -914,8 +915,11 @@ function render(){
 }
 
 function tipsHtml(p){
-  return `<div class="tipgrp"><b>Technika</b><ul class="tips">${p.tips.t.map(x=>`<li>${x}</li>`).join("")}</ul></div>
-  <div class="tipgrp"><b>Interpretacja</b><ul class="tips">${p.tips.i.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+  const n=NOTES[p.id]||{}, li=(a)=>a.map(x=>`<li>${x}</li>`).join("");
+  return `${n.m?`<div class="tipgrp"><b>Oznaczenia w nutach</b><ul class="tips">${li(n.m)}</ul><p class="small muted" style="margin:2px 0 0">Wydania się różnią – jeśli w Twoich nutach jest inaczej, wygrywa Twoje wydanie (najlepiej Urtext).</p></div>`:""}
+  <div class="tipgrp"><b>Technika</b><ul class="tips">${li(p.tips.t.concat(n.t||[]))}</ul></div>
+  <div class="tipgrp"><b>Interpretacja</b><ul class="tips">${li(p.tips.i.concat(n.i||[]))}</ul></div>
+  ${STYLE[p.list]?`<details><summary>Styl epoki: ozdobniki, dynamika, pedał (${LISTS[p.list]})</summary><ul class="tips" style="margin-top:6px">${li(STYLE[p.list])}</ul></details>`:""}
   <div class="tipgrp"><b>Jak ćwiczyć</b><ul class="tips">${p.tips.c.map(x=>`<li>${x}</li>`).join("")}</ul></div>
   <div class="tipgrp"><b>Słuchanie nagrań</b><p class="small" style="margin:2px 0 0">Słuchaj tempa, balansu rąk, pedału i tego, gdzie pianista oddycha między frazami. Wybieraj wykonania na prawdziwym fortepianie, a nie samouczki z kolorowymi klawiszami.</p></div>`;
 }
