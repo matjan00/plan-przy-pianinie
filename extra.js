@@ -10,7 +10,7 @@ const SR_KEYS = {
   "F": {pl: "F-dur", sig: -1}, "Bb": {pl: "B-dur", sig: -2}, "Eb": {pl: "Es-dur", sig: -3}, "Ab": {pl: "As-dur", sig: -4},
   "Am": {pl: "a-moll", sig: 0, minor: true}, "Em": {pl: "e-moll", sig: 1, minor: true}, "Bm": {pl: "h-moll", sig: 2, minor: true},
   "F#m": {pl: "fis-moll", sig: 3, minor: true}, "Dm": {pl: "d-moll", sig: -1, minor: true}, "Gm": {pl: "g-moll", sig: -2, minor: true},
-  "Cm": {pl: "c-moll", sig: -3, minor: true}
+  "Cm": {pl: "c-moll", sig: -3, minor: true}, "C#m": {pl: "cis-moll", sig: 4, minor: true}, "Fm": {pl: "f-moll", sig: -4, minor: true}
 };
 const PC_NAMES = ["C", "Cis", "D", "Dis", "E", "F", "Fis", "G", "Gis", "A", "B", "H"];
 const rnd = (n) => Math.floor(Math.random() * n);
@@ -508,6 +508,82 @@ EXTRA_QUIZ["ear-cad"] = function (host) {
   setTimeout(play, 60);
 };
 
+// dur czy moll: krótki fragment z tymi samymi znakami dla tonacji durowej i równoległej molowej
+const KM_PAIRS = [["C", "Am"], ["G", "Em"], ["F", "Dm"], ["D", "Bm"], ["Bb", "Gm"], ["A", "F#m"], ["Eb", "Cm"], ["E", "C#m"], ["Ab", "Fm"]];
+// melodia prawej ręki w stopniach od toniki (6 / -1 = 7. stopień, w molu podwyższony); ostatni takt to jedna długa nuta
+const KM_TUNES = [
+  {time: "4/4", ch: ["I", "IV", "V", "I"], rh: [[0, 1, 2, 0], [3, 5, 4, 3], [4, 3, 1, -1], [0]]},
+  {time: "4/4", ch: ["I", "IV", "V", "I"], rh: [[4, 2, 0, 2], [3, 5, 7, 5], [4, 1, 4, 6], [7]]},
+  {time: "4/4", ch: ["I", "V", "V", "I"], rh: [[2, 4, 2, 0], [1, -1, 1, 4], [3, 1, -1, 1], [0]]},
+  {time: "3/4", ch: ["I", "IV", "V", "I"], rh: [[0, 2, 4], [5, 3, 0], [4, 1, -1], [0]]},
+  {time: "3/4", ch: ["I", "IV", "V", "I"], rh: [[2, 1, 0], [5, 3, 0], [-1, 1, -1], [0]]},
+  {time: "3/4", ch: ["I", "V", "IV", "V", "I"], rh: [[4, 2, 0], [1, 4, 1], [3, 5, 3], [4, 6, 4], [7]]}
+];
+const KM_ROOT = {I: 0, IV: -4, V: -3};
+function plNoteName(li, alter) {
+  const L = "CDEFGAH"[li];
+  if (alter === 1) return L + "is";
+  if (alter === -1) return {E: "Es", A: "As", H: "B"}[L] || L + "es";
+  return L;
+}
+function sigText(sig) { return sig === 0 ? "bez znaków" : Math.abs(sig) + (sig > 0 ? "♯" : "♭"); }
+EXTRA_QUIZ["keymode"] = function (host) {
+  const max = Math.min(4, Math.max(1, S.th.level - 1));
+  const pair = pick(KM_PAIRS.filter(p => Math.abs(SR_KEYS[p[0]].sig) <= max));
+  const minor = Math.random() < 0.5, keyName = pair[minor ? 1 : 0], K = SR_KEYS[keyName], piece = {K};
+  const tune = pick(KM_TUNES), beats = tune.time === "3/4" ? 3 : 4;
+  const li = LETTERS.indexOf(keyName[0]), rhBase = li + 28, lhBase = li + 21;
+  const accR = [], accL = [], events = [], spb = 0.6;
+  const rh = tune.rh.map((bar, b) => {
+    const st = {}; accR.push(st);
+    return bar.map((d, i) => {
+      const n = noteInfo(piece, rhBase, d), len = bar.length === 1 ? beats : 1;
+      events.push({t: (b * beats + i) * spb, m: n.midi, d: len * spb});
+      return abcPitch(n, st) + (len === 1 ? "" : len);
+    }).join(" ");
+  });
+  const lh = tune.ch.map((c, b) => {
+    const st = {}, r = KM_ROOT[c], last = b === tune.ch.length - 1;
+    const root = noteInfo(piece, lhBase, r), chord = [r + 2, r + 4].map(x => noteInfo(piece, lhBase, x));
+    events.push({t: b * beats * spb, m: root.midi, d: (last ? beats : beats === 4 ? 2 : 1) * spb});
+    if (last) return abcPitch(root, st) + beats;
+    const tok = "[" + chord.map(n => abcPitch(n, st)).join("") + "]";
+    for (let k = beats === 4 ? 2 : 1; k < beats; k += beats === 4 ? 2 : 1) chord.forEach(n => events.push({t: (b * beats + k) * spb, m: n.midi, d: (beats === 4 ? 2 : 1) * spb}));
+    return abcPitch(root, st) + (beats === 4 ? "2 " + tok + "2" : " " + tok + " " + tok);
+  });
+  const abc = `X:1\nM:${tune.time}\nL:1/4\nK:${keyName}\n%%staves {RH LH}\nV:RH clef=treble\nV:LH clef=bass\n[V:RH] ${rh.join(" | ")} |]\n[V:LH] ${lh.join(" | ")} |]\n`;
+  // do wyjaśnienia: tonika obu tonacji i podwyższony 7. stopień molowej
+  const maj = SR_KEYS[pair[0]], min = SR_KEYS[pair[1]], mLi = LETTERS.indexOf(pair[1][0]), MLi = LETTERS.indexOf(pair[0][0]);
+  const ltLi = mod7(mLi - 1), ltAlt = sigAlter(min.sig, ltLi) + 1, lt = plNoteName(ltLi, ltAlt) + (ltAlt === 0 ? " (z kasownikiem)" : "");
+  const minT = plNoteName(mLi, sigAlter(min.sig, mLi)), majT = plNoteName(MLi, sigAlter(maj.sig, MLi));
+  const why = minor
+    ? [`Znaki: ${sigText(maj.sig)}, czyli ${maj.pl} albo ${min.pl}.`,
+       `W nutach pojawia się <b>${lt}</b> jako znak przygodny – to podwyższony 7. stopień ${min.pl}, który prowadzi do toniki ${minT}.`,
+       `Bas kończy na <b>${minT}</b>, a pierwszy i ostatni akord to ${min.pl}.`]
+    : [`Znaki: ${sigText(maj.sig)}, czyli ${maj.pl} albo ${min.pl}.`,
+       `Nie ma <b>${lt}</b> – podwyższonego 7. stopnia ${min.pl}, który w tonacji molowej prawie zawsze się pojawia.`,
+       `Bas kończy na <b>${majT}</b>, a pierwszy i ostatni akord to ${maj.pl}.`];
+  const play = () => playQueue(events.map(e => ({t: e.t, fn: (x) => tone(e.m, x, e.d * 1.1, 0.16)})));
+  Q.cur = {answer: K.pl, play, why};
+  host.innerHTML = `<div class="stack">
+    <div class="abc" id="km-abc"></div>
+    <p class="small" style="margin:0">Dur czy moll? Sprawdź znaki, znaki przygodne i ostatnią nutę basu. <span class="muted">· pytanie ${Q.count + 1} z ${Q.max} · wynik ${Q.score}</span></p>
+    <div class="answers wide">${[maj.pl, min.pl].map(o => `<button data-act="km-ans" data-a="${esc(o)}">${o}</button>`).join("")}</div>
+    <div id="km-res"></div></div>`;
+  renderAbcInto(document.getElementById("km-abc"), abc);
+};
+function kmAnswer(btn) {
+  if (Q.locked) return; Q.locked = true;
+  const ok = btn.dataset.a === Q.cur.answer;
+  btn.classList.add(ok ? "right" : "wrong");
+  if (!ok) document.querySelectorAll(`#${Q.host} [data-act="km-ans"]`).forEach(b => { if (b.dataset.a === Q.cur.answer) b.classList.add("right"); });
+  const msg = ok ? "Dobrze – " + Q.cur.answer : "To " + Q.cur.answer;
+  document.getElementById("km-res").innerHTML = `<p class="qfb ${ok ? "ok" : "bad"}" style="text-align:left">${msg}</p>
+    <ul class="tips small">${Q.cur.why.map(x => `<li>${x}</li>`).join("")}</ul>
+    <div class="row"><button class="btn sm" data-act="q-play">▶ Posłuchaj</button><button class="btn sm primary" data-act="ear-next" data-ok="${ok ? 1 : 0}">Dalej</button></div>`;
+  announce(msg);
+}
+
 /* ============================== ZAKŁADKA NAUKA ============================== */
 const LEARN = {view: "home", id: null};
 function topicById(id) {
@@ -856,6 +932,7 @@ document.addEventListener("click", (e) => {
       t.textContent = "Zatrzymaj trenera"; const mb = document.querySelector('[data-act="metro"]'); if (mb) mb.textContent = "Stop"; break;
     }
     case "clap-go": ac(); clapGo(); break;
+    case "km-ans": kmAnswer(t); break;
     case "ear-next": if (Q.locked === "done") break; Q.locked = "done"; quizStep(t.dataset.ok === "1", 0); break;
     case "kb": { const m = +t.dataset.m; tone(m, ac().currentTime + 0.01, 0.7, 0.24); if (Q.cur && Q.cur.ans && !Q.locked) { Q.cur.ans.push(m); seqRender(); } break; }
     case "mel-undo": if (Q.cur && Q.cur.ans && Q.cur.ans.length > 1 && !Q.locked) { Q.cur.ans.pop(); seqRender(); } break;
