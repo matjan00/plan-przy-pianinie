@@ -302,15 +302,23 @@ function srGenCardHtml() {
 
 /* ============================== DZIENNIK I TRENER TEMPA ============================== */
 function tempoTargets(p) { const m = (p.tempo || "").match(/(\d+)\D+(\d+)/); return m ? [+m[1], +m[2]] : null; }
+// Last 10 entries, each point labelled with its tempo above and its day (dd.mm) below; older ones in a list.
+const dayLbl = (d) => d.slice(8) + "." + d.slice(5, 7);
 function spark(log, tg) {
-  const W = 260, H = 54, vals = log.map(x => x.bpm);
+  const shown = log.slice(-10), W = 300, top = 16, plotH = 60, H = top + plotH + 18, vals = shown.map(x => x.bpm);
   let mn = Math.min(...vals, tg ? tg[0] : Infinity) - 4, mx = Math.max(...vals, tg ? tg[0] : -Infinity) + 4;
   if (mx - mn < 10) mx = mn + 10;
-  const x = (i) => 6 + i * (W - 12) / Math.max(1, vals.length - 1), y = (v) => H - 6 - (v - mn) * (H - 12) / (mx - mn);
+  const x = (i) => 16 + i * (W - 32) / Math.max(1, vals.length - 1), y = (v) => top + plotH - (v - mn) * plotH / (mx - mn);
   const pts = vals.map((v, i) => x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ");
-  return `<svg class="spark" viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="Wykres tempa">
-    ${tg ? `<line class="tg" x1="0" x2="${W}" y1="${y(tg[0])}" y2="${y(tg[0])}"/>` : ""}
-    <polyline class="ln" points="${pts}"/><circle cx="${x(vals.length - 1)}" cy="${y(vals[vals.length - 1])}" r="3.5"/></svg>`;
+  const desc = shown.map(e => `${dayLbl(e.d)}: ${e.bpm}`).join(", ");
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Wykres tempa – ${desc}">
+    ${tg ? `<line class="tg" x1="0" x2="${W}" y1="${y(tg[0])}" y2="${y(tg[0])}"/><text class="tgl" x="2" y="${y(tg[0]) - 3}">cel ${tg[0]}</text>` : ""}
+    <polyline class="ln" points="${pts}"/>
+    ${shown.map((e, i) => `<g><title>${dayLbl(e.d)}: ♩ = ${e.bpm}</title><circle cx="${x(i)}" cy="${y(e.bpm)}" r="${i === shown.length - 1 ? 3.5 : 2.5}"/>
+      <text class="v" x="${x(i)}" y="${y(e.bpm) - 6}" text-anchor="middle">${e.bpm}</text>
+      <text class="d" x="${x(i)}" y="${H - 4}" text-anchor="middle">${dayLbl(e.d)}</text></g>`).join("")}</svg>
+    ${log.length > shown.length ? `<details><summary class="small">Wszystkie wpisy (${log.length})</summary>
+      <ul class="tips small" style="margin-top:6px">${log.slice().reverse().map(e => `<li>${dayLbl(e.d)}.${e.d.slice(0, 4)} – ♩ = ${e.bpm}</li>`).join("")}</ul></details>` : ""}`;
 }
 function tempoLogHtml(p) {
   const log = (S.tempo && S.tempo[p.id]) || [], tg = tempoTargets(p), last = log[log.length - 1];
