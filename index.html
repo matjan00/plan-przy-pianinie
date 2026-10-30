@@ -254,6 +254,12 @@ input[type=text],select{font:inherit;color:inherit;background:var(--surface);bor
 .box{background:var(--sunk);border-radius:12px;padding:10px 14px}
 .box.tip{background:var(--c-tech-soft)}
 .box.ok{background:var(--c-music-soft)}
+.keygrid{border-collapse:collapse;font-size:.85rem;width:100%}
+.keygrid th,.keygrid td{padding:2px 1px;text-align:center;border-bottom:1px solid var(--line)}
+.keygrid thead th{font-weight:600;font-size:.7rem;color:var(--muted);vertical-align:bottom}
+.keygrid tbody th{text-align:left;font-weight:500;white-space:nowrap}
+.keygrid .check{padding:0;border:0;background:none;width:40px;height:40px;justify-content:center}
+.keygrid .check[aria-pressed="true"]{background:none}
 .check-q{display:flex;flex-direction:column;gap:6px}
 .check-q .opts{display:flex;flex-wrap:wrap;gap:6px}
 .check-q .opts button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 12px;min-height:44px}
@@ -771,6 +777,19 @@ function piecesFor(g,list){ return PIECES.filter(p=>p.g===g && (!list || p.list=
 function st(id){ return (S.pieces[id]&&S.pieces[id].s)||0; }
 function repProg(g){ return ["A","B","C"].reduce((a,l)=>a+Math.max(0,...piecesFor(g,l).map(p=>st(p.id)))/4,0)/3; }
 function etProg(g){ const s=piecesFor(g,"E").map(p=>st(p.id)/4).sort((a,b)=>b-a); return ((s[0]||0)+(s[1]||0))/2; }
+/* per-key checklist: every key × scale, arpeggio, triads, cadence (minor scales split harmonic/melodic) */
+const KEY_COLS = {maj:[["sc","Gama"],["arp","Pasaż"],["tri","Trójdźw."],["cad","Kadencja"]],
+ min:[["harm","Gama harm."],["mel","Gama mel."],["arp","Pasaż"],["tri","Trójdźw."],["cad","Kadencja"]]};
+const keyId = (g,k,m,c) => `k${g}-${k}-${m}-${c}`;
+function keyGrid(g){
+  const ids=[]; for(const m of ["maj","min"]) KEYS.forEach((_,k)=>KEY_COLS[m].forEach(c=>ids.push(keyId(g,k,m,c[0]))));
+  const n=ids.filter(id=>S.tech.done[id]).length;
+  const table=(m)=>`<div class="tablewrap"><table class="keygrid"><thead><tr><th scope="col">${m==="maj"?"Dur":"Moll"}</th>${KEY_COLS[m].map(c=>`<th scope="col">${c[1]}</th>`).join("")}</tr></thead><tbody>
+    ${KEYS.map((key,k)=>{ const nm=key[m==="maj"?0:1]; return `<tr><th scope="row">${nm}</th>${KEY_COLS[m].map(c=>{ const id=keyId(g,k,m,c[0]); return `<td><button class="check t-tech" data-act="tech" data-id="${id}" aria-pressed="${!!S.tech.done[id]}" aria-label="${nm}: ${c[1]}"><span class="box">✓</span></button></td>`; }).join("")}</tr>`; }).join("")}
+  </tbody></table></div>`;
+  return `<details><summary data-k="keygrid">Wszystkie tonacje – gamy, pasaże, trójdźwięki, kadencje <span class="mono small muted">${n}/${ids.length}</span></summary>
+    <div class="stack" style="margin-top:8px"><p class="small muted" style="margin:0">Odhacz każdą tonację osobno, gdy zagrasz ją pewnie w tempie z listy powyżej.</p>${table("maj")}${table("min")}</div></details>`;
+}
 function techProg(g){ const it=TECH[g]||[]; return it.length? it.filter(i=>S.tech.done[i[0]]).length/it.length : 1; }
 function srLevelLog(){ return S.sr.log.filter(x=>x.l===S.sr.level); }
 function srInLevel(){ const L=srLevelLog(); if(!L.length) return 0; const last=L.slice(-5); const avg=last.reduce((a,b)=>a+b.r,0)/last.length; return clamp(L.length/20)*clamp(avg/4); }
@@ -904,7 +923,7 @@ function render(){
   // keep open <details> and keyboard focus across the rebuild of the same tab
   const ae=document.activeElement, fk=(ae && ae!==document.body && (v.contains(ae)||ae.closest("#nowbar")))? ctlKey(ae) : null;
   const seen={}, openD=new Set();
-  if(lastTab===TAB) v.querySelectorAll("details > summary").forEach(sm=>{ const t=sm.textContent.trim(); seen[t]=(seen[t]||0)+1; if(sm.parentElement.open) openD.add(t+"#"+seen[t]); });
+  if(lastTab===TAB) v.querySelectorAll("details > summary").forEach(sm=>{ const t=sm.dataset.k||sm.textContent.trim(); seen[t]=(seen[t]||0)+1; if(sm.parentElement.open) openD.add(t+"#"+seen[t]); });
   lastTab=TAB;
   if(TAB==="today") v.innerHTML=viewToday();
   if(TAB==="progress") v.innerHTML=viewProgress();
@@ -912,7 +931,7 @@ function render(){
   if(TAB==="tools") { v.innerHTML=viewTools(); afterTools(); afterToolsExtra(); }
   if(TAB==="learn") { v.innerHTML=viewLearn(); afterLearn(); }
   if(TAB==="today") afterToday();
-  if(openD.size){ const seen2={}; v.querySelectorAll("details > summary").forEach(sm=>{ const t=sm.textContent.trim(); seen2[t]=(seen2[t]||0)+1; if(openD.has(t+"#"+seen2[t])) sm.parentElement.open=true; }); }
+  if(openD.size){ const seen2={}; v.querySelectorAll("details > summary").forEach(sm=>{ const t=sm.dataset.k||sm.textContent.trim(); seen2[t]=(seen2[t]||0)+1; if(openD.has(t+"#"+seen2[t])) sm.parentElement.open=true; }); }
   renderNowbar();
   if(fk){ const el=document.querySelector(fk); if(el && el!==document.activeElement) el.focus({preventScroll:true}); }
 }
@@ -1185,6 +1204,7 @@ function viewProgress(){
     <h3>Technika – Grade ${g}</h3>
     <p class="small muted">Odhacz, gdy zagrasz pewnie w podanym tempie. Tempa są orientacyjne.</p>
     ${(TECH[g]||[]).map(t=>`<button class="check t-tech" data-act="tech" data-id="${t[0]}" aria-pressed="${!!S.tech.done[t[0]]}" style="justify-content:flex-start;border-radius:12px;text-align:left"><span class="box">✓</span><span>${t[1]} <span class="mono small muted">${t[2]}</span></span></button>`).join("")}
+    ${keyGrid(g)}
   </div>
   <div class="card stack">
     <h3>Teoria – Level ${S.th.level}</h3>
