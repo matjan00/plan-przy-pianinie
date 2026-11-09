@@ -325,6 +325,7 @@ input[type=email],input[type=password]{font:inherit;color:inherit;background:var
 <script src="listening.js"></script>
 <script src="extra.js"></script>
 <script src="notes.js"></script>
+<script src="beginner.js"></script>
 <script>
 "use strict";
 /* ============================== DANE ============================== */
@@ -635,6 +636,7 @@ const BLOCKS = {
  pedal:{name:"Kurs pedału",grp:"tech"},
  free:{name:"Wolny czas: Twoje utwory",grp:"music"}
 };
+Object.assign(BLOCKS, BEG_BLOCKS);
 const STATUS = ["nie zaczęty","rozczytywanie","razem wolno","w tempie","opanowany"];
 const STEP_HINT = [
  "Wybierz ten utwór i zacznij: przejrzyj nuty, zaznacz frazy i trudne miejsca.",
@@ -649,6 +651,7 @@ const todayKey = (d=new Date()) => d.getFullYear()+"-"+String(d.getMonth()+1).pa
 function defaultState(){
   return {
     v:1, created:todayKey(),
+    mode:"adv", g:"f",
     grade:5,
     start:{sr:2, th:1, ear:3},
     sr:{level:2, log:[]},
@@ -734,6 +737,11 @@ async function syncNow(){
   if(!SYNC.ref) return;
   const snap=await SYNC.ref.get();
   const d=snap.exists? snap.data() : null;
+  // A fresh device (no progress yet, or a different program picked before signing in) takes the account's progress.
+  if(d && d.data && (ONBOARD || ((d.data.mode||"adv")!==(S.mode||"adv") && !(S.sessions>0)))){
+    if(!ONBOARD){ try{ localStorage.setItem("ppp-backup",JSON.stringify({at:Date.now(),s:S,why:"sync"})); }catch(e){} }
+    ONBOARD=false; S.updated=0;
+  }
   if(!applyRemote(d)){
     if(!d || (S.updated||0)>(d.updatedAt||0)) await push();
     else { SYNC.last=new Date(); setSync("Zsynchronizowano o "+fmtTime(SYNC.last)); }
@@ -752,7 +760,7 @@ async function attach(user){
 }
 
 async function initStore(){
-  const local=lsGet(); if(local) S=merge(defaultState(),local);
+  const local=lsGet(); if(local) S=merge(defaultState(),local); else ONBOARD=true;
   render();
   const cfg=window.FIREBASE_CONFIG;
   if(!cfg){ setSync("Postęp zapisuje się na tym urządzeniu."); return; }
@@ -834,6 +842,7 @@ function activePiece(kind){
   return null;
 }
 function genPlan(key, minutes){
+  if(isBeg()) return begGenPlan(key, minutes);
   const idx=S.sessions;
   let w={warm:9,hanon:5,etude:7,sr:7,theory:6,ear:3,piece:15,free:8};
   if(idx%2===1){ w.theory=5; w.ear=5; w.free=7; }
@@ -862,7 +871,7 @@ function genPlan(key, minutes){
 }
 function todayPlan(){
   const k=todayKey();
-  if(!S.plans[k]){ S.plans[k]=genPlan(k,S.minutes); saveLocal(); }
+  if(!S.plans[k] || !!S.plans[k].beg!==isBeg()){ S.plans[k]=genPlan(k,S.minutes); saveLocal(); }
   return S.plans[k];
 }
 function markBlock(b, done){
@@ -884,7 +893,7 @@ function withUndo(msg, change){
 }
 function stateSummary(o){
   const n=o.sessions||0, days=Object.keys(o.plans||{}).sort(), last=days[days.length-1];
-  return `Grade ${o.grade}, ${n} ${n===1?"sesja":(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?"sesje":"sesji"}${last?", ostatni plan "+last:""}`;
+  return `${o.mode==="beg"?"Kurs od zera":"Grade "+o.grade}, ${n} ${n===1?"sesja":(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?"sesje":"sesji"}${last?", ostatni plan "+last:""}`;
 }
 let pendingImport=null, gradeAsk=false;
 
@@ -896,14 +905,16 @@ const $view=()=>document.getElementById("view");
 
 function header(){
   const p=progress();
-  document.getElementById("chip-grade").textContent="Grade "+S.grade;
-  document.getElementById("chip-pct").textContent=pct(p.total)+" do Grade "+(S.grade+1);
+  if(ONBOARD){ document.getElementById("chip-grade").textContent="Witaj"; document.getElementById("chip-pct").textContent="wybierz program"; }
+  else if(isBeg()){ document.getElementById("chip-grade").textContent="Od zera · etap "+begEtap(); document.getElementById("chip-pct").textContent=pct(begProgress())+" kursu"; }
+  else { document.getElementById("chip-grade").textContent="Grade "+S.grade;
+  document.getElementById("chip-pct").textContent=pct(p.total)+" do Grade "+(S.grade+1); }
   const d=new Date(); document.getElementById("today-label").textContent=d.toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"});
   const ab=document.getElementById("acct-btn");
   ab.hidden=!SYNC.configured;
   ab.textContent=SYNC.user? "Konto" : "Zaloguj";
   ab.classList.toggle("primary", !SYNC.user);
-  if(SYNC.user){ ab.dataset.sync=SYNC.state; ab.setAttribute("aria-label","Konto: "+(SYNC.msg||"zalogowana jako "+(SYNC.user.email||""))); }
+  if(SYNC.user){ ab.dataset.sync=SYNC.state; ab.setAttribute("aria-label","Konto: "+(SYNC.msg||gx("zalogowana","zalogowany")+" jako "+(SYNC.user.email||""))); }
   else { delete ab.dataset.sync; ab.setAttribute("aria-label","Zaloguj się kontem Google"); }
 }
 // Stable selector for a control, so focus can return to it after the view is rebuilt.
@@ -925,13 +936,15 @@ function render(){
   const seen={}, openD=new Set();
   if(lastTab===TAB) v.querySelectorAll("details > summary").forEach(sm=>{ const t=sm.dataset.k||sm.textContent.trim(); seen[t]=(seen[t]||0)+1; if(sm.parentElement.open) openD.add(t+"#"+seen[t]); });
   lastTab=TAB;
+  if(ONBOARD){ v.innerHTML=onboardView(); renderNowbar(); return; }
   if(TAB==="today") v.innerHTML=viewToday();
-  if(TAB==="progress") v.innerHTML=viewProgress();
-  if(TAB==="rep") v.innerHTML=viewRep();
+  if(TAB==="progress") v.innerHTML=isBeg()?begViewProgress():viewProgress();
+  if(TAB==="rep") v.innerHTML=isBeg()?begViewRep():viewRep();
   if(TAB==="tools") { v.innerHTML=viewTools(); afterTools(); afterToolsExtra(); }
   if(TAB==="learn") { v.innerHTML=viewLearn(); afterLearn(); }
   if(TAB==="today") afterToday();
   if(openD.size){ const seen2={}; v.querySelectorAll("details > summary").forEach(sm=>{ const t=sm.dataset.k||sm.textContent.trim(); seen2[t]=(seen2[t]||0)+1; if(openD.has(t+"#"+seen2[t])) sm.parentElement.open=true; }); }
+  if(isBeg()) begAfter();
   renderNowbar();
   if(fk){ const el=document.querySelector(fk); if(el && el!==document.activeElement) el.focus({preventScroll:true}); }
 }
@@ -972,7 +985,8 @@ function stageHtml(p){
     <label class="small muted row" style="gap:6px">zmień etap <select data-act="setstage" data-id="${p.id}" aria-label="Etap nauki: ${esc(p.name)}">${STATUS.map((n,i)=>`<option value="${i}" ${i===s?"selected":""}>${n}</option>`).join("")}</select></label></div></div>`;
 }
 function setStage(id, s){
-  const p=PIECES.find(x=>x.id===id);
+  const p=PIECES.find(x=>x.id===id)||BEG_PIECES.find(x=>x.id===id);
+  if(p.need){ withUndo(s===4? "Opanowany! "+p.name+" wraca w powtórkach." : p.name+": "+STATUS[s],()=>{ S.pieces[id]={s}; if(s>0&&s<4) begS().piece=id; if(s===4&&begS().piece===id) begS().piece=null; }); return; }
   const msg = s===4? "Opanowany! "+p.name+" trafia do Twoich utworów." : p.name+": "+STATUS[s];
   withUndo(msg,()=>{
     S.pieces[id]={s};
@@ -982,6 +996,7 @@ function setStage(id, s){
 }
 
 function blockBody(b){
+  if(BEG_BLOCKS[b.type]) return begBlockBody(b);
   const g=S.grade;
   if(b.type==="warm"){
     const k=KEYS[b.key], sig=k[2]>0? k[2]+" ♯": k[2]<0? (-k[2])+" ♭":"bez znaków";
@@ -1083,6 +1098,7 @@ function streakDays(){
 }
 // short names printed on the keys; the full name is in the aria-label and the block header
 const KEY_ABBR={warm:"Ga",hanon:"Ha",etude:"Et",sr:"AV",theory:"Te",ear:"Sł",piece:"Ut",pedal:"Pe",free:"Wo"};
+for(const k in BEG_BLOCKS) KEY_ABBR[k]=BEG_BLOCKS[k].ab;
 function keyRow(plan, nav){
   const cur=curIndex(plan), open=openIndex(plan);
   return plan.blocks.map((b,i)=>{
@@ -1111,12 +1127,12 @@ function finaleHtml(plan, p){
   if(streak>1) rows.push(["Dni z rzędu",String(streak)]);
   tempos.forEach(t=>rows.push([t.p.name,"♩ = "+t.bpm]));
   if(sr && sr.rating) rows.push(["Czytanie a vista",sr.rating+" na 5"]);
-  rows.push(["Gotowość do Grade "+(S.grade+1),pct(p.total)]);
+  rows.push(isBeg()? ["Kurs od zera",pct(begProgress())] : ["Gotowość do Grade "+(S.grade+1),pct(p.total)]);
   return `<div class="card stack finale">
     <h2>Sesja skończona</h2>
     <div class="keys" aria-hidden="true">${keyRow(plan,false)}</div>
     <ul class="recap">${rows.map(r=>`<li><span>${esc(r[0])}</span><b>${esc(r[1])}</b></li>`).join("")}</ul>
-    <p class="small muted">Jutro nowy plan i nowa tonacja: ${KEYS[S.sessions%12][0]}.</p>
+    <p class="small muted">${isBeg()?"Jutro nowy plan. Krótko, ale codziennie – tak uczą się palce.":"Jutro nowy plan i nowa tonacja: "+KEYS[S.sessions%12][0]+"."}</p>
   </div>`;
 }
 function viewToday(){
@@ -1126,7 +1142,7 @@ function viewToday(){
   <div class="card stack">
     <div class="spread" style="align-items:flex-start"><div><h2>${mins} z ${plan.minutes} min</h2>
       <p class="meta">Sesja ${S.sessions + (plan.counted?0:1)} · ${done.length} z ${n} bloków${cur>=0?" · teraz: "+BLOCKS[plan.blocks[cur].type].name.split(":")[0]:""}</p></div>
-    <div class="seglabel"><span aria-hidden="true">min</span><div class="seg" role="group" aria-label="Długość sesji w minutach">${[30,45,60,90].map(m=>`<button data-act="minutes" data-m="${m}" aria-pressed="${plan.minutes===m}">${m}</button>`).join("")}</div></div></div>
+    <div class="seglabel"><span aria-hidden="true">min</span><div class="seg" role="group" aria-label="Długość sesji w minutach">${(isBeg()?[15,20,30,45]:[30,45,60,90]).map(m=>`<button data-act="minutes" data-m="${m}" aria-pressed="${plan.minutes===m}">${m}</button>`).join("")}</div></div></div>
     <div class="keys" role="group" aria-label="Bloki sesji – stuknij, żeby przejść">${keyRow(plan,true)}</div>
     <div class="legend"><span class="t-tech"><i></i>technika</span><span class="t-mind"><i></i>czytanie, teoria, słuch</span><span class="t-music"><i></i>utwory</span><span>wciśnięty klawisz = otwarty blok</span></div>
   </div>
@@ -1272,12 +1288,12 @@ function viewTools(){
     </select></div>
     <div id="quiz"></div>
   </div>
-  <details class="card"><summary>Twoje nuty i co dokupić</summary><div class="stack" style="margin-top:10px">
+  ${isBeg()?begToolsCard():`<details class="card"><summary>Twoje nuty i co dokupić</summary><div class="stack" style="margin-top:10px">
     <p class="small"><b>Masz i używasz w planie:</b> Gamy i pasaże (PWM) w rozgrzewce, Hanon, Burgmüller op. 100 (etiudy Grade 5), Czerny op. 299 (etiudy Grade 8), Bach WTK I (Grade 8+), Najpiękniejszy Chopin (utwory listy C), Kember 2 i 3 oraz książki z łatwymi utworami do czytania a vista, a 50 Greats i Play it again do czytania a vista i wolnego czasu.</p>
     <p class="small"><b>Pobierz za darmo z IMSLP (do druku):</b> Bach: Małe preludia BWV 924–943 i 999 oraz Inwencje BWV 772–786. Clementi: Sonatiny op. 36. Kuhlau: Sonatiny op. 55 i op. 20. Schumann: Album dla młodzieży op. 68. Grieg: Utwory liryczne op. 12. Czajkowski: Album dla dzieci op. 39. Heller: Etiudy op. 47. Czerny: op. 636. Burgmüller: op. 109. Między op. 100 a op. 299 jest duża luka i te zbiory ją wypełniają.</p>
     <p class="small"><b>Warto kupić:</b> Celebrate Theory (Prep, 1, 2 i dalej) jako główny podręcznik teorii. Four Star Sight Reading and Ear Tests (Level 2–5) jako uzupełnienie czytania a vista i słuchu. Celebration Series Repertoire 5–6, jeśli chcesz mieć oficjalne listy RCM.</p>
     <p class="small"><b>MuseScore:</b> szukaj oficjalnych wydań (filtr „Official scores”) utworów z list. Do czytania a vista wybieraj łatwe aranżacje z oceną „Beginner” lub „Intermediate”.</p>
-  </div></details>
+  </div></details>`}
   </section>`;
 }
 
@@ -1414,6 +1430,7 @@ function quizAnswer(btn){
 // One answered question: score, ear log, finishing today's ear block, next question.
 function quizStep(ok, delay){
   Q.count++; if(ok) Q.score++;
+  begLogAnswer(ok);
   if(Q.type.startsWith("ear") && !Q.level){ S.ear.log.push({l:S.ear.level,ok}); save(); }
   if(Q.inline && !Q.seq && Q.count>=Q.max && Q.host==="ear-inline"){
     const plan=todayPlan(), b=plan.blocks.find(x=>x.type==="ear"); if(b && !b.done){ setTimeout(()=>markBlock(b,true),900); return; }
@@ -1496,7 +1513,7 @@ document.addEventListener("click",(e)=>{
     case "celebrate-ok": delete S.celebrate; save(); render(); break;
     case "reset-ask": document.getElementById("reset-confirm").innerHTML=`<div class="confirm"><p class="small"><b>Usunąć cały postęp i historię?</b> Aplikacja zachowa obecny stan jako kopię awaryjną na tym urządzeniu (Postęp → Konto).</p><div class="row"><button class="btn sm danger" data-act="reset-yes">Tak, zacznij od nowa</button><button class="btn sm ghost" data-act="reset-no">Anuluj</button></div></div>`; document.querySelector('[data-act="reset-no"]').focus(); break;
     case "reset-no": document.getElementById("reset-confirm").innerHTML=""; break;
-    case "reset-yes": try{ localStorage.setItem("ppp-backup",JSON.stringify({at:Date.now(),s:S,why:"reset"})); }catch(err){} S=defaultState(); save(); render(); toast("Zaczynasz od nowa",{label:"Cofnij",fn:restoreBackup}); break;
+    case "reset-yes": try{ localStorage.setItem("ppp-backup",JSON.stringify({at:Date.now(),s:S,why:"reset"})); }catch(err){} S=defaultState(); ONBOARD=true; onbStep="home"; save(); render(); toast("Zaczynasz od nowa",{label:"Cofnij",fn:restoreBackup}); break;
     case "quiz": pendingQuiz=t.dataset.q; TAB="tools"; render(); window.scrollTo(0,0); setTimeout(()=>{const c=document.getElementById("quizcard"); c&&c.scrollIntoView({block:"start"});},50); break;
     case "quiz-begin": ac(); quizStart(t.dataset.q,"quiz",false); break;
     case "ear-go": ac(); quizStart("ear-"+t.dataset.mode,"ear-inline",true); break;
@@ -1538,10 +1555,10 @@ function accountCard(){
   if(!SYNC.configured){
     inner=`<p class="small muted">Synchronizacja nie jest jeszcze włączona. Postęp zapisuje się na tym urządzeniu.</p>`;
   } else if(!SYNC.user){
-    inner=`<p class="small">Zaloguj się kontem Google – tym samym co w Arabesce. Postęp będzie wspólny na telefonie i komputerze.</p>
+    inner=`<p class="small">${isBeg()?"Zaloguj się swoim kontem Google.":"Zaloguj się kontem Google – tym samym co w Arabesce."} Postęp będzie wspólny na telefonie i komputerze.</p>
     <div class="row"><button class="btn primary sm" data-act="glogin">Zaloguj przez Google</button></div>`;
   } else {
-    inner=`<p class="small">Zalogowana jako <b>${esc(SYNC.user.email||"")}</b>.</p>
+    inner=`<p class="small">${gx("Zalogowana","Zalogowany")} jako <b>${esc(SYNC.user.email||"")}</b>.</p>
     <p class="small ${SYNC.state==="err"?"":"muted"}" id="syncmsg" role="status">${esc(SYNC.msg||"")}</p>
     <div class="row"><button class="btn sm" data-act="syncnow">Synchronizuj teraz</button><button class="btn sm ghost" data-act="logout">Wyloguj</button></div>`;
   }

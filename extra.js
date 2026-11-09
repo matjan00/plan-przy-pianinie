@@ -434,7 +434,7 @@ function clapEval() {
     const bad = u.filter((x, i) => Math.abs(x - shift - e[i]) > tol).length;
     ok = bad === 0;
     msg = ok ? "Dobrze! Rytm się zgadza." : `Liczba uderzeń się zgadza, ale ${bad} z nich ${bad === 1 ? "było" : "były"} nie w czasie.`;
-  } else msg = `Stuknęłaś ${u.length} razy, a w rytmie jest ${e.length} dźwięków.`;
+  } else msg = `Liczba stuknięć: ${u.length}, a w rytmie jest ${e.length} dźwięków.`;
   const res = document.getElementById("clap-res");
   res.innerHTML = `<p style="margin:0;color:${ok ? "var(--ok)" : "var(--danger)"}"><b>${msg}</b></p><div class="abc" id="clap-abc"></div>
     <div class="row"><button class="btn sm" data-act="q-play">▶ Odsłuchaj jeszcze raz</button><button class="btn sm primary" data-act="ear-next" data-ok="${ok ? 1 : 0}">Dalej</button></div>`;
@@ -601,6 +601,8 @@ function topicById(id) {
 function pedalCourseDone() { return PEDAL.every(l => S.pedal && S.pedal.done && S.pedal.done[l.id]); }
 function pedalCurrent() { return PEDAL.find(l => !(S.pedal && S.pedal.done && S.pedal.done[l.id])) || null; }
 function viewLearn() {
+  if (LEARN.view === "blesson") return begLessonView(LEARN.id);
+  if (isBeg() && LEARN.view === "home") return begLearnHome();
   if (LEARN.view === "lesson") return lessonView(LEARN.id);
   if (LEARN.view === "pedal") return pedalView(LEARN.id);
   if (LEARN.view === "exam") return examView();

@@ -1,8 +1,8 @@
 // Offline cache. The page and the app's own scripts come from the network first (so updates apply at once)
 // and fall back to the cache offline; other files are served from cache and refreshed in the background.
-const CACHE = "ppp-v10";
+const CACHE = "ppp-v11";
 const SHELL = [
-  "./", "index.html", "manifest.webmanifest", "config.js", "content.js", "listening.js", "extra.js", "notes.js",
+  "./", "index.html", "manifest.webmanifest", "config.js", "content.js", "listening.js", "extra.js", "notes.js", "beginner.js",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
   "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js",
   "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js",
