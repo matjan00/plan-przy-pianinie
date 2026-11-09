@@ -727,7 +727,7 @@ async function push(){
 }
 function applyRemote(d){
   if(d && d.data && (d.updatedAt||0)>(S.updated||0)){
-    S=merge(defaultState(), JSON.parse(JSON.stringify(d.data))); saveLocal();
+    S=merge(defaultState(), JSON.parse(JSON.stringify(d.data))); if(SYNC.user) S.uid=SYNC.user.uid; saveLocal();
     SYNC.last=new Date(); setSync("Pobrano postęp z konta o "+fmtTime(SYNC.last));
     render(); return true;
   }
@@ -736,18 +736,35 @@ function applyRemote(d){
 async function syncNow(){
   if(!SYNC.ref) return;
   const snap=await SYNC.ref.get();
-  const d=snap.exists? snap.data() : null;
+  const d=snap.exists? snap.data() : null, uid=SYNC.user&&SYNC.user.uid;
+  // A new account (nothing on the server) on a device that holds progress not saved by this account:
+  // never copy it over silently – ask in the welcome screen (start from scratch / take this device's progress).
+  if(!d && uid && !ONBOARD && S.uid!==uid){
+    try{ localStorage.setItem("ppp-backup",JSON.stringify({at:Date.now(),s:S,why:"account"})); }catch(e){}
+    TRANSFER=S; S=defaultState(); ONBOARD=true; onbStep="home";
+    setSync("To konto nie ma jeszcze postępu."); render(); return;
+  }
+  if(!d && ONBOARD){ setSync("To konto nie ma jeszcze postępu."); return; }
   // A fresh device (no progress yet, or a different program picked before signing in) takes the account's progress.
   if(d && d.data && (ONBOARD || ((d.data.mode||"adv")!==(S.mode||"adv") && !(S.sessions>0)))){
     if(!ONBOARD){ try{ localStorage.setItem("ppp-backup",JSON.stringify({at:Date.now(),s:S,why:"sync"})); }catch(e){} }
     ONBOARD=false; S.updated=0;
   }
   if(!applyRemote(d)){
+    if(uid) S.uid=uid;
     if(!d || (S.updated||0)>(d.updatedAt||0)) await push();
     else { SYNC.last=new Date(); setSync("Zsynchronizowano o "+fmtTime(SYNC.last)); }
   }
 }
 async function attach(user){
+  // Progress of another account on this device: put it aside under its uid and load this account's own.
+  if(S.uid && S.uid!==user.uid){
+    try{ localStorage.setItem("ppp-user-"+S.uid,JSON.stringify(S)); }catch(e){}
+    let mine=null; try{ mine=JSON.parse(localStorage.getItem("ppp-user-"+user.uid)||"null"); }catch(e){}
+    S=mine? merge(defaultState(),mine) : defaultState(); TRANSFER=null;
+    if(!mine){ ONBOARD=true; onbStep="home"; }
+    saveLocal(); render();
+  }
   const ref=SYNC.db.collection("piano").doc(user.uid);
   SYNC.ref=ref;
   setSync("Łączę z kontem…","busy");

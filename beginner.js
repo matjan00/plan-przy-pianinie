@@ -583,7 +583,7 @@ function begToolsCard() {
 }
 
 /* ============================== POWITANIE ============================== */
-let ONBOARD = false, onbStep = "home";
+let ONBOARD = false, onbStep = "home", TRANSFER = null;
 function onboardView() {
   if (onbStep === "beg") return `<section class="stack">
     <div class="card stack">
@@ -599,16 +599,18 @@ function onboardView() {
   return `<section class="stack">
     <div class="card stack">
       <h2>Witaj przy pianinie</h2>
-      <p>Na tym urządzeniu nie ma jeszcze żadnego postępu. Od czego zaczynamy?</p>
+      ${SYNC.user ? `<p>Zalogowano jako <b>${esc(SYNC.user.email || "")}</b>. To konto nie ma jeszcze postępu. Od czego zaczynamy?</p>` : `<p>Na tym urządzeniu nie ma jeszcze żadnego postępu. Od czego zaczynamy?</p>`}
       <button class="btn primary" data-act="onb-beg" style="justify-content:flex-start;text-align:left">Zaczynam od zera – nigdy nie grałem/grałam</button>
       <button class="btn" data-act="onb-adv" style="justify-content:flex-start;text-align:left">Gram już – program RCM Grade 5–8</button>
-      ${SYNC.configured ? `<button class="btn ghost" data-act="glogin" style="justify-content:flex-start;text-align:left">Mam już konto – zaloguj przez Google</button>` : ""}
+      ${TRANSFER && SYNC.user ? `<button class="btn ghost" data-act="onb-transfer" style="justify-content:flex-start;text-align:left">Przenieś na to konto postęp z tego urządzenia (${esc(stateSummary(TRANSFER))})</button>` : ""}
+      ${SYNC.configured && !SYNC.user ? `<button class="btn ghost" data-act="glogin" style="justify-content:flex-start;text-align:left">Mam już konto – zaloguj przez Google</button>` : ""}
     </div></section>`;
 }
 function startBeginner() {
   const keep = {g: S.g, minutes: S.minutes};
   S = defaultState(); Object.assign(S, keep, {mode: "beg", my: [], pieces: {}, beg: {done: {}, piece: null, notes: []}, plans: {}});
-  ONBOARD = false; onbStep = "home"; save(); TAB = "today"; render(); window.scrollTo(0, 0);
+  if (SYNC.user) S.uid = SYNC.user.uid;
+  ONBOARD = false; onbStep = "home"; TRANSFER = null; save(); TAB = "today"; render(); window.scrollTo(0, 0);
 }
 
 /* ============================== QUIZY ============================== */
@@ -742,7 +744,8 @@ document.addEventListener("click", (e) => {
     case "onb-g": S.g = t.dataset.g; render(); break;
     case "onb-min": S.minutes = +t.dataset.m; render(); break;
     case "onb-start": startBeginner(); toast("Pierwsza lekcja czeka w planie dnia"); break;
-    case "onb-adv": ONBOARD = false; S.mode = "adv"; save(); render(); break;
+    case "onb-adv": ONBOARD = false; TRANSFER = null; S.mode = "adv"; if (SYNC.user) S.uid = SYNC.user.uid; save(); render(); break;
+    case "onb-transfer": if (TRANSFER) { S = TRANSFER; TRANSFER = null; if (SYNC.user) S.uid = SYNC.user.uid; ONBOARD = false; save(); render(); toast("Postęp przeniesiony na to konto"); } break;
     case "b-lesson": LEARN.view = "blesson"; LEARN.id = t.dataset.id; TAB = "learn"; render(); window.scrollTo(0, 0); break;
     case "b-ldone": { const id = t.dataset.id, was = begDone(id);
       withUndo(was ? "Lekcja znów do zrobienia" : "Lekcja zaliczona", () => { begS().done[id] = !was; });
