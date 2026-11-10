@@ -290,6 +290,17 @@ input[type=number]{font:inherit;color:inherit;background:var(--surface);border:1
 .grade-badge{display:inline-block;font-family:var(--f-display);font-weight:700;font-size:1.1rem;padding:4px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
 :root{padding-top:env(safe-area-inset-top,0px)}
 input[type=email],input[type=password]{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;width:100%}
+/* piano over USB (midi.js): pressed keys on an 88-key strip; fixed key colours like a real keyboard */
+.midinote{font-family:var(--f-display);font-size:2.2rem;font-weight:700;line-height:1.15;min-height:1.15em;text-align:center;overflow-wrap:anywhere}
+.midinote.idle{color:var(--muted)}
+.mkb{display:block;width:100%;height:auto}
+.mkb .w{fill:#fff;stroke:#666;stroke-width:.6}
+.mkb .b{fill:#222}
+.mkb .w.on{fill:#1E8F6F}
+.mkb .b.on{fill:#5FD3AE}
+.mkb .cdot{fill:var(--muted)}
+#midicard summary .pill{margin-left:6px;font-weight:500}
+#midi-body p,#midi-body ul{margin:0}
 </style>
 </head>
 <body>
@@ -326,6 +337,7 @@ input[type=email],input[type=password]{font:inherit;color:inherit;background:var
 <script src="extra.js"></script>
 <script src="notes.js"></script>
 <script src="beginner.js"></script>
+<script src="midi.js"></script>
 <script>
 "use strict";
 /* ============================== DANE ============================== */
@@ -957,7 +969,7 @@ function render(){
   if(TAB==="today") v.innerHTML=viewToday();
   if(TAB==="progress") v.innerHTML=isBeg()?begViewProgress():viewProgress();
   if(TAB==="rep") v.innerHTML=isBeg()?begViewRep():viewRep();
-  if(TAB==="tools") { v.innerHTML=viewTools(); afterTools(); afterToolsExtra(); }
+  if(TAB==="tools") { v.innerHTML=viewTools(); afterTools(); afterToolsExtra(); if(typeof midiPaint==="function") midiPaint(); }
   if(TAB==="learn") { v.innerHTML=viewLearn(); afterLearn(); }
   if(TAB==="today") afterToday();
   if(openD.size){ const seen2={}; v.querySelectorAll("details > summary").forEach(sm=>{ const t=sm.dataset.k||sm.textContent.trim(); seen2[t]=(seen2[t]||0)+1; if(openD.has(t+"#"+seen2[t])) sm.parentElement.open=true; }); }
@@ -1305,6 +1317,7 @@ function viewTools(){
     </select></div>
     <div id="quiz"></div>
   </div>
+  ${typeof midiCardHtml==="function"?midiCardHtml():""}
   ${isBeg()?begToolsCard():`<details class="card"><summary>Twoje nuty i co dokupić</summary><div class="stack" style="margin-top:10px">
     <p class="small"><b>Masz i używasz w planie:</b> Gamy i pasaże (PWM) w rozgrzewce, Hanon, Burgmüller op. 100 (etiudy Grade 5), Czerny op. 299 (etiudy Grade 8), Bach WTK I (Grade 8+), Najpiękniejszy Chopin (utwory listy C), Kember 2 i 3 oraz książki z łatwymi utworami do czytania a vista, a 50 Greats i Play it again do czytania a vista i wolnego czasu.</p>
     <p class="small"><b>Pobierz za darmo z IMSLP (do druku):</b> Bach: Małe preludia BWV 924–943 i 999 oraz Inwencje BWV 772–786. Clementi: Sonatiny op. 36. Kuhlau: Sonatiny op. 55 i op. 20. Schumann: Album dla młodzieży op. 68. Grieg: Utwory liryczne op. 12. Czajkowski: Album dla dzieci op. 39. Heller: Etiudy op. 47. Czerny: op. 636. Burgmüller: op. 109. Między op. 100 a op. 299 jest duża luka i te zbiory ją wypełniają.</p>
