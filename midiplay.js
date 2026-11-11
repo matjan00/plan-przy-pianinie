@@ -196,6 +196,7 @@ function mpSessionHtml() {
       return `${head("Nuty czekają")}
         <div class="minis two"><div class="mini"><div class="small muted">Za pierwszym razem</div><div class="v">${r.first}/${r.n}</div></div><div class="mini"><div class="small muted">Wynik</div><div class="v">${r.p}%</div></div></div>
         <p class="mp-msg ${r.p === 100 ? "ok" : ""}">${r.p === 100 ? "Bezbłędnie! Spróbuj teraz z metronomem." : "Czerwone nuty wymagały poprawki – poćwicz te miejsca."}</p>
+        ${r.goal || ""}
         <div class="row"><button class="btn sm primary" data-act="mp-restart">Jeszcze raz</button><button class="btn sm" data-act="mp-mode" data-mode="tempo">Z metronomem</button><button class="btn sm ghost" data-act="mp-stop">Zakończ</button></div>`;
     }
     return `${head("Nuty czekają")}${bar}${mpHandsHtml()}
@@ -214,6 +215,7 @@ function mpSessionHtml() {
     return `${head("Z metronomem")}
       <div class="minis"><div class="mini"><div class="small muted">Nuty</div><div class="v">${r.hit}/${r.n}</div></div><div class="mini"><div class="small muted">Rytm</div><div class="v">${r.rhythm}%</div></div><div class="mini"><div class="small muted">Długość</div><div class="v">${r.len}%</div></div></div>
       <p class="mp-msg ${r.all === 100 ? "ok" : ""}">${r.text}</p>
+      ${r.goal || ""}
       ${MP_LEGEND}
       <div class="row"><button class="btn sm primary" data-act="mp-go">Jeszcze raz</button><button class="btn sm" data-act="mp-setup">Zmień tempo</button><button class="btn sm ghost" data-act="mp-stop">Zakończ</button></div>`;
   }
@@ -269,6 +271,7 @@ function mpWaitFinish() {
     const r = B.play[MP.src] || {};
     r.best = Math.max(r.best || 0, p); r.n = (r.n || 0) + 1; r.d = todayKey(); B.play[MP.src] = r; save();
   }
+  MP.res.goal = mpGoalAfter(MP.res);
   mpBars(); mpPaintScore();
   announce(`Koniec. Za pierwszym razem ${first} z ${n}.`);
 }
@@ -389,6 +392,7 @@ function mpTempoFinish() {
     if (r.tb === undefined || res.all > r.tb || (res.all === r.tb && MP.bpm > r.tbpm)) { r.tb = res.all; r.tbpm = MP.bpm; }
     r.d = todayKey(); B.play[MP.src] = r; save();
   }
+  res.goal = mpGoalAfter(res);
   mpBars(); mpPaintScore();
   announce(`Koniec. Nuty ${res.hit} z ${res.n}, rytm ${res.rhythm} procent, długość ${res.len} procent.`);
 }
@@ -417,13 +421,69 @@ document.addEventListener("click", (e) => {
     case "mp-go": ac(); mpTempoGo(); mpShow(); break;
     case "mp-setup": mpTempoSetup(); break;
     case "mp-stop": mpStop(); break;
-    case "mp-hide": mpStop(); mpSetHidden(true); mpBars(); mpCardExtra();
-      toast("Opcja pianina ukryta. Włączysz ją w Narzędziach → Pianino przez USB.", {label: "Cofnij", fn: () => { mpSetHidden(false); mpBars(); mpCardExtra(); }}); break;
-    case "mp-show": mpSetHidden(t.dataset.v !== "1"); if (mpHidden()) mpStop(); mpBars(); mpCardExtra(); break;
+    case "mp-hide": mpStop(); mpSetHidden(true); mpBars(); mpCardExtra(); mpStagesRefresh();
+      toast("Opcja pianina ukryta. Włączysz ją w Narzędziach → Pianino przez USB.", {label: "Cofnij", fn: () => { mpSetHidden(false); mpBars(); mpCardExtra(); mpStagesRefresh(); }}); break;
+    case "mp-show": mpSetHidden(t.dataset.v !== "1"); if (mpHidden()) mpStop(); mpBars(); mpCardExtra(); mpStagesRefresh(); break;
   }
 });
 // w tle zegar i metronom stają – przerywamy przejście z metronomem
 document.addEventListener("visibilitychange", () => { if (document.hidden && MP.on && MP.mode === "tempo" && (MP.stage === "count" || MP.stage === "run")) mpTempoSetup("Przerwano."); });
+
+/* ============================== CEL: UTWÓR OPANOWANY ==============================
+   Gdy opcja pianina jest włączona na urządzeniu, etap „opanowany” utworu z kursu przyznaje aplikacja, a nie przycisk:
+   - „Nuty czekają”, cały utwór, min. 90% za pierwszym razem → co najmniej etap 2 (razem wolno),
+   - „Z metronomem” wolniej, min. 90% za nuty, rytm i długość → co najmniej etap 3 (w tempie),
+   - to samo w pełnym tempie → etap 4 (opanowany).
+   Etap nigdy nie spada sam. Bez pianina (opcja ukryta albo przeglądarka bez MIDI) etapy ustawia się ręcznie jak dotąd. */
+const MP_GOAL = 90;
+const mpGoalOn = () => MIDI.supported && !mpHidden() && isBeg();
+const mpPieceOf = (src) => src && src.startsWith("piece:") ? BEG_PIECES.find(p => p.id === src.slice(6)) || null : null;
+function mpStageBody(p) {
+  if (!mpGoalOn()) return stageHtml(p);
+  const s = st(p.id), r = mpRec("piece:" + p.id);
+  const best = r && r.tb !== undefined ? ` Najlepszy wynik z metronomem: ${r.tb}% przy ♩ = ${r.tbpm}.` : "";
+  return `<div class="stack" style="gap:8px">
+    <div class="ladder stage t-music" role="img" aria-label="Etap: ${STATUS[s]}">${STAGE_KEY.map((n, i) => `<span class="${i + 1 < s ? "on" : i + 1 === s ? "cur" : ""}">${n}</span>`).join("")}</div>
+    <div class="row">${s < 3 ? `<button class="btn sm primary" data-act="status" data-id="${p.id}" data-s="${s + 1}">${s === 0 ? "Zaczynam: rozczytuję" : "Dalej: " + STATUS[s + 1]}</button>` : s === 4 ? `<span class="pill own">opanowany</span>` : ""}
+    <label class="small muted row" style="gap:6px">zmień etap <select data-act="setstage" data-id="${p.id}" aria-label="Etap nauki: ${esc(p.name)}">${STATUS.map((n, i) => `<option value="${i}" ${i === s ? "selected" : ""} ${i === 4 && s !== 4 ? "disabled" : ""}>${n}</option>`).join("")}</select></label></div>
+    ${s === 4 ? "" : `<p class="pgoal"><b>Cel: opanowany.</b> Zagraj cały utwór z pianinem w trybie „Z metronomem”, w pełnym tempie, i zdobądź co najmniej ${MP_GOAL}% za nuty, rytm i długość. Wtedy aplikacja sama zaliczy utwór.${best}</p>`}</div>`;
+}
+function mpStagesRefresh() {
+  document.querySelectorAll("#view [data-stage]").forEach(el => { const p = BEG_PIECES.find(x => x.id === el.dataset.stage); if (p) el.innerHTML = mpStageBody(p); });
+}
+// podnosi etap utworu (nigdy nie obniża); bez przerysowania widoku, żeby panel z wynikiem został na ekranie
+function mpRaiseStage(p, s) {
+  const prev = st(p.id); if (prev >= s) return false;
+  const B = begS(), prevPiece = B.piece;
+  S.pieces[p.id] = {s};
+  if (s < 4) B.piece = p.id; else if (B.piece === p.id) B.piece = null;
+  save(); mpStagesRefresh(); header();
+  toast(s === 4 ? "Opanowany! " + p.name + " wraca w powtórkach." : p.name + ": " + STATUS[s],
+    {label: "Cofnij", fn: () => { if (prev) S.pieces[p.id] = {s: prev}; else delete S.pieces[p.id]; begS().piece = prevPiece; save(); render(); toast("Cofnięto"); }});
+  return true;
+}
+// po przejściu całego utworu: czy cel osiągnięty i co jeszcze brakuje (tekst trafia do panelu z wynikiem)
+function mpGoalAfter(res) {
+  const p = mpPieceOf(MP.src); if (!p || !mpGoalOn()) return "";
+  if (MP.hand !== null) return `<p class="pgoal">Wynik jednej ręki nie liczy się do zaliczenia utworu – zagraj obiema rękami.</p>`;
+  if (MP.mode === "wait") {
+    if (res.p < MP_GOAL) return `<p class="pgoal"><b>Cel: ${MP_GOAL}%</b> nut za pierwszym razem. Teraz ${res.p}%.</p>`;
+    mpRaiseStage(p, 2);
+    return `<p class="pgoal ok">✓ Nuty opanowane (${res.p}%). Kolejny krok: tryb „Z metronomem”.</p>`;
+  }
+  const notes = Math.round(res.hit / res.n * 100), miss = [];
+  if (notes < MP_GOAL) miss.push(`nuty ${notes}%`);
+  if (res.rhythm < MP_GOAL) miss.push(`rytm ${res.rhythm}%`);
+  if (res.len < MP_GOAL) miss.push(`długość ${res.len}%`);
+  if (res.extra > Math.floor(res.n * 0.1)) miss.push(`dodatkowe dźwięki: ${res.extra}`);
+  if (miss.length) return `<p class="pgoal"><b>Cel: ${MP_GOAL}% w każdej kategorii.</b> Do poprawy: ${miss.join(", ")}.</p>`;
+  if (MP.tempoIdx < 2) {
+    mpRaiseStage(p, 3);
+    return `<p class="pgoal ok">✓ ${MP_GOAL}% w każdej kategorii. Żeby utwór był opanowany, zagraj tak samo w pełnym tempie (♩ = ${mpTempos()[2][1]}).</p>`;
+  }
+  mpRaiseStage(p, 4);
+  return `<p class="pgoal ok">✓ Cel osiągnięty: co najmniej ${MP_GOAL}% w każdej kategorii, w pełnym tempie. Utwór opanowany!</p>`;
+}
 
 /* przełącznik w karcie „Pianino przez USB” (Narzędzia): pokazuj albo ukryj opcję pianina w kursie */
 function mpCardExtraHtml() {

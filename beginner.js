@@ -454,7 +454,7 @@ function begPieceHtml(p, inPlan) {
     <div class="row"><button class="btn sm" data-act="b-play" data-src="piece:${p.id}">▶ Posłuchaj</button><button class="btn sm ghost" data-act="b-stop">Stop</button>
       ${ytLink(p.name.replace(/\s*\(.*\)/, "") + " easy piano tutorial", "YouTube")}${mpUi("piece:" + p.id)}
     ${inPlan ? `<p class="note"><b>Dziś:</b> ${BEG_STEP[s]}</p>` : ""}
-    ${stageHtml(p)}
+    <div data-stage="${p.id}">${typeof mpStageBody === "function" ? mpStageBody(p) : stageHtml(p)}</div>
     <ul class="tips small">${p.tips.map(t => `<li>${t}</li>`).join("")}</ul>
     ${inPlan ? metroInline(60, "bpiece") : ""}
     </div>`;
