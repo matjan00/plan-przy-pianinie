@@ -15,7 +15,7 @@
 
 const MP = {on: false, src: null, mode: null, stage: null, hand: null, nv: 1, steps: [], i: 0, wrong: 0, msg: "", cls: "",
   tempoIdx: 0, bpm: 0, beats: 4, den: 4, beatMs: 0, tol: 0, matchW: 0, endT: 0, a0: 0, c0: 0, t0: 0, clickK: 0, clickN: 0, beat: -1, mi: 0,
-  extra: 0, lastOff: null, timer: null, res: null};
+  extra: 0, lastOff: null, timer: null, res: null, gen: 0, ready: false, off: null, lat: 0, start: 0, offs: [], cal: null};
 const MP_HIDE = "ppp-midi-hide", MP_LAT = "ppp-midi-lat";
 
 function mpHidden() { try { return localStorage.getItem(MP_HIDE) === "1"; } catch (e) { return false; } }
@@ -166,7 +166,7 @@ function mpStart(src, mode, hand) {
 }
 function mpStop() {
   if (!MP.on) return;
-  clearInterval(MP.timer); MP.timer = null;
+  clearInterval(MP.timer); MP.timer = null; MP.gen++; MP.ready = false;
   MP.on = false;
   mpClear(mpScoreEl());
   MP.src = null; MP.steps = []; MP.stage = null; MP.mode = null;
@@ -203,11 +203,19 @@ function mpSessionHtml() {
       <p class="mp-msg" data-mp-msg></p>
       <div class="row"><button class="btn sm" data-act="mp-restart">Od początku</button><button class="btn sm ghost" data-act="mp-stop">Zakończ</button></div>`;
   }
+  if (MP.stage === "cal") {
+    return `${head("Kalibracja metronomu")}
+      <p class="small" style="margin:0">Stukaj w dowolny klawisz pianina dokładnie razem z kliknięciami, tak jak grasz z metronomem. Trwa to około 13 sekund.</p>
+      <div class="pbeat"><span class="pcount" data-mp-count></span><div class="dots" data-mp-dots>${Array.from({length: 4}, (x, k) => `<i class="${k ? "" : "g"}"></i>`).join("")}</div></div>
+      <p class="mp-msg one" data-mp-msg></p>
+      <div class="row"><button class="btn sm" data-act="mp-setup">Przerwij</button></div>`;
+  }
   if (MP.stage === "setup") {
     return `${head("Z metronomem")}${mpHandsHtml()}
       <div class="stack" style="gap:4px"><span class="small muted">Tempo</span>
         <div class="seg ptempo" role="group" aria-label="Tempo">${mpTempos().map(([lbl, bpm], k) => `<button data-act="mp-tempo" data-k="${k}" aria-pressed="${k === MP.tempoIdx}">${lbl}<small>♩ = ${bpm}</small></button>`).join("")}</div></div>
       <p class="small muted" style="margin:0">${MP.msg ? `<b>${MP.msg}</b> ` : ""}Najpierw usłyszysz takt odliczania. Potem graj równo z metronomem – nuty nie czekają.</p>
+      <div class="pcal"><span>Opóźnienie dźwięku: <b class="mono">${Math.round(mpLat())} ms</b><br><span class="muted">Grasz równo, a aplikacja mówi „za późno”? Zrób kalibrację.</span></span><button class="btn sm" data-act="mp-cal">Kalibruj</button></div>
       <div class="row"><button class="btn primary" data-act="mp-go">Start</button><button class="btn sm ghost" data-act="mp-stop">Zakończ</button></div>`;
   }
   if (MP.stage === "done") {
@@ -231,7 +239,7 @@ function mpPanelUpdate() {
   const host = mpHostEl(); if (!host || !MP.on) return;
   const n = MP.steps.length, done = MP.stage === "done";
   const prog = host.querySelector("[data-mp-prog]");
-  if (prog) prog.textContent = MP.stage === "setup" || done ? "" : Math.min(MP.i + 1, n) + " / " + n;
+  if (prog) prog.textContent = MP.stage === "cal" ? (MP.cal ? MP.cal.taps.length : 0) + " / " + (MP_CAL.n - MP_CAL.warm) : MP.stage === "setup" || done ? "" : Math.min(MP.i + 1, n) + " / " + n;
   const bar = host.querySelector("[data-mp-bar]"); if (bar) bar.style.width = Math.round((done ? n : MP.i) / n * 100) + "%";
   const msg = host.querySelector("[data-mp-msg]"); if (msg) { msg.textContent = MP.msg; msg.classList.toggle("ok", MP.cls === "ok"); msg.classList.toggle("bad", MP.cls === "bad"); }
   const dot = host.querySelector("[data-mp-dot]");
@@ -277,40 +285,65 @@ function mpWaitFinish() {
 }
 
 /* ============================== TRYB „Z METRONOMEM” ============================== */
-// chwila (performance.now), w której dźwięk zaplanowany na czas `at` zegara audio wyjdzie z głośnika
-function mpPerfAt(c, at) {
+// Zegary: kliknięcia planujemy w czasie AudioContext, klawisze przychodzą w czasie performance.now().
+// off = różnica między nimi w chwili, gdy dźwięk faktycznie wychodzi z głośnika; liczona na nowo w każdym takcie zegara,
+// bo przy starcie dźwięk rusza z opóźnieniem, a oba zegary mogą się lekko rozjeżdżać.
+function mpClockOff(c) {
   let ts = null; try { ts = c.getOutputTimestamp ? c.getOutputTimestamp() : null; } catch (e) {}
-  if (ts && ts.contextTime > 0 && ts.performanceTime > 0) return ts.performanceTime + (at - ts.contextTime) * 1000;
-  return performance.now() + (at - c.currentTime) * 1000 + (c.outputLatency || c.baseLatency || 0) * 1000;
+  if (ts && ts.contextTime > 0 && ts.performanceTime > 0) return ts.performanceTime - ts.contextTime * 1000;
+  return performance.now() - c.currentTime * 1000 + (c.outputLatency || c.baseLatency || 0) * 1000;
 }
-function mpTempoGo() {
+function mpClockSync(c) {
+  const o = mpClockOff(c);
+  if (MP.off === null || Math.abs(o - MP.off) > 60) MP.off = o; else MP.off += (o - MP.off) * 0.1;
+}
+// czeka, aż dźwięk naprawdę ruszy (świeży albo wybudzony AudioContext stoi przez chwilę w miejscu)
+async function mpAudioReady(c) {
+  if (c.state !== "running") { try { await c.resume(); } catch (e) {} }
+  const t = c.currentTime;
+  for (let k = 0; k < 40 && c.currentTime === t; k++) await new Promise(r => setTimeout(r, 25));
+  await new Promise(r => setTimeout(r, 60));
+}
+// stałe przesunięcie w tym przejściu (mediana ostatnich nut): w trakcie gry nie liczy się jako błąd rytmu
+function mpLiveShift() {
+  const o = MP.offs; if (!o || o.length < 3) return 0;
+  const L = o.slice(-8).sort((a, b) => a - b);
+  return Math.max(-250, Math.min(250, L[Math.floor(L.length / 2)]));
+}
+async function mpTempoGo() {
   if (!MP.on || MP.mode !== "tempo") return;
-  clearInterval(MP.timer);
+  clearInterval(MP.timer); MP.timer = null;
   if (metro.on) metroStop();
   stopQueue();
-  const c = ac();
+  const gen = ++MP.gen, c = ac();
   MP.bpm = mpTempos()[MP.tempoIdx][1];
   MP.beatMs = 60000 / MP.bpm;
   const perWhole = MP.beatMs * MP.den;                                   // ms na całą nutę; miara metronomu = 1/den
   MP.tol = Math.max(90, Math.min(180, MP.beatMs / 6));                   // „równo”: około jednej szóstej miary w każdą stronę
   MP.matchW = Math.max(MP.tol + 60, Math.min(450, MP.beatMs / 2));       // dalej niż tyle od nuty = pominięta albo dodatkowy dźwięk
   MP.endT = 0;
-  for (const st of MP.steps) { st.T = st.w * perWhole; for (const n of st.notes) { n.D = n.d * perWhole; delete n.s; delete n.len; delete n.on; delete n.off; delete n.rel; MP.endT = Math.max(MP.endT, st.T + n.D); } }
+  for (const st of MP.steps) { st.T = st.w * perWhole; for (const n of st.notes) { n.D = n.d * perWhole; delete n.s; delete n.len; delete n.on; delete n.off; delete n.raw; delete n.rel; MP.endT = Math.max(MP.endT, st.T + n.D); } }
   for (const st of MP.steps) for (const n of st.notes) n.last = st.T + n.D >= MP.endT - 1;     // nuty kończące utwór można trzymać dłużej
-  MP.a0 = c.currentTime + 0.3;
-  MP.c0 = mpPerfAt(c, MP.a0) + mpLat();
-  MP.t0 = MP.c0 + MP.beats * MP.beatMs;
-  MP.clickK = 0; MP.clickN = MP.beats + Math.max(1, Math.ceil(MP.endT / MP.beatMs - 1e-6));
-  Object.assign(MP, {stage: "count", i: 0, mi: 0, beat: -1, extra: 0, lastOff: null, msg: "Odliczanie…", cls: "", res: null});
+  Object.assign(MP, {stage: "count", ready: false, i: 0, mi: 0, beat: -1, extra: 0, offs: [], lastOff: null, msg: "Odliczanie…", cls: "", res: null});
   if (!wake) keepAwake();
   mpBars(); mpPaintScore(); mpFollow();
+  await mpAudioReady(c);
+  if (gen !== MP.gen || !MP.on || MP.stage !== "count") return;
+  MP.off = null; mpClockSync(c);
+  MP.lat = mpLat();
+  MP.a0 = c.currentTime + 0.3;
+  MP.start = MP.a0 * 1000 + MP.beats * MP.beatMs;                         // pierwsza miara utworu, w ms zegara audio
+  MP.t0 = MP.start + MP.off + MP.lat;                                     // to samo w czasie klawiszy
+  MP.clickK = 0; MP.clickN = MP.beats + Math.max(1, Math.ceil(MP.endT / MP.beatMs - 1e-6));
+  MP.ready = true;
   MP.timer = setInterval(mpTick, 25); mpTick();
 }
 function mpTick() {
-  if (!MP.on || MP.mode !== "tempo" || (MP.stage !== "count" && MP.stage !== "run")) { clearInterval(MP.timer); MP.timer = null; return; }
+  if (!MP.on || MP.mode !== "tempo" || !MP.ready || (MP.stage !== "count" && MP.stage !== "run")) { clearInterval(MP.timer); MP.timer = null; return; }
   const c = ac(), beatSec = MP.beatMs / 1000;
+  mpClockSync(c); MP.t0 = MP.start + MP.off + MP.lat;
   while (MP.clickK < MP.clickN && MP.a0 + MP.clickK * beatSec < c.currentTime + 0.25) { click(MP.a0 + MP.clickK * beatSec, MP.clickK % MP.beats === 0 ? 2 : 0); MP.clickK++; }
-  const now = performance.now(), rel = now - MP.t0, beat = Math.floor((now - MP.c0) / MP.beatMs);
+  const now = performance.now(), rel = now - MP.t0, beat = Math.floor((now - MP.off - MP.a0 * 1000) / MP.beatMs);
   if (beat !== MP.beat && beat >= 0) {
     MP.beat = beat;
     const host = mpHostEl();
@@ -321,11 +354,74 @@ function mpTick() {
   }
   if (MP.stage === "count" && rel >= -40) { MP.stage = "run"; MP.msg = "Graj!"; mpPanelUpdate(); }
   if (MP.stage !== "run") return;
+  const sh = mpLiveShift();
   let ci = MP.i, changed = false;
-  while (ci + 1 < MP.steps.length && MP.steps[ci + 1].T <= rel + 40) ci++;
-  while (MP.mi < MP.steps.length && rel > MP.steps[MP.mi].T + MP.matchW) { for (const n of MP.steps[MP.mi].notes) if (!n.s) { n.s = "miss"; changed = true; } MP.mi++; }
+  while (ci + 1 < MP.steps.length && MP.steps[ci + 1].T <= rel - sh + 40) ci++;
+  while (MP.mi < MP.steps.length && rel - sh > MP.steps[MP.mi].T + MP.matchW) { for (const n of MP.steps[MP.mi].notes) if (!n.s) { n.s = "miss"; changed = true; } MP.mi++; }
   if (ci !== MP.i || changed) { MP.i = ci; mpPaintScore(); mpPanelUpdate(); mpFollow(); }
-  if (rel > MP.endT + MP.beatMs) mpTempoFinish();
+  if (rel - sh > MP.endT + MP.beatMs) mpTempoFinish();
+}
+
+/* ---------- kalibracja: stukanie w klawisz razem z kliknięciami mierzy opóźnienie dźwięku na tym urządzeniu ---------- */
+const MP_CAL = {bpm: 75, warm: 4, n: 16};
+async function mpCalGo() {
+  if (!MP.on) return;
+  clearInterval(MP.timer); MP.timer = null;
+  if (metro.on) metroStop();
+  stopQueue();
+  const gen = ++MP.gen, c = ac(), beatMs = 60000 / MP_CAL.bpm;
+  Object.assign(MP, {stage: "cal", ready: false, beat: -1, msg: "Przygotuj się…", cls: "", cal: {taps: [], beatMs}});
+  if (!wake) keepAwake();
+  mpBars();
+  await mpAudioReady(c);
+  if (gen !== MP.gen || !MP.on || MP.stage !== "cal") return;
+  MP.off = null; mpClockSync(c);
+  MP.a0 = c.currentTime + 0.4; MP.clickK = 0; MP.ready = true;
+  MP.msg = "Posłuchaj 4 kliknięć, potem stukaj razem z nimi."; mpPanelUpdate();
+  MP.timer = setInterval(mpCalTick, 25); mpCalTick();
+}
+function mpCalTick() {
+  if (!MP.on || MP.stage !== "cal" || !MP.ready) { clearInterval(MP.timer); MP.timer = null; return; }
+  const c = ac(), C = MP.cal, bs = C.beatMs / 1000;
+  mpClockSync(c);
+  while (MP.clickK < MP_CAL.n && MP.a0 + MP.clickK * bs < c.currentTime + 0.25) { click(MP.a0 + MP.clickK * bs, MP.clickK % 4 === 0 ? 2 : 0); MP.clickK++; }
+  const rel = performance.now() - MP.off - MP.a0 * 1000, beat = Math.floor(rel / C.beatMs);
+  if (beat !== MP.beat && beat >= 0) {
+    MP.beat = beat;
+    const host = mpHostEl();
+    if (host) {
+      const cnt = host.querySelector("[data-mp-count]"); if (cnt) cnt.textContent = beat < MP_CAL.warm ? String(beat + 1) : "";
+      host.querySelectorAll("[data-mp-dots] i").forEach((d, k) => d.classList.toggle("on", k === beat % 4));
+    }
+    if (beat === MP_CAL.warm) { MP.msg = "Teraz stukaj razem z kliknięciami."; mpPanelUpdate(); }
+  }
+  if (rel > MP_CAL.n * C.beatMs + C.beatMs * 0.6) mpCalFinish();
+}
+function mpCalNote(ev) {
+  if (ev.type !== "on" || !MP.ready || !MP.cal) return;
+  const C = MP.cal, rel = ev.t - MP.off - MP.a0 * 1000, k = Math.round(rel / C.beatMs), d = rel - k * C.beatMs;
+  if (k < MP_CAL.warm || k >= MP_CAL.n || Math.abs(d) > C.beatMs * 0.45 || C.taps.some(x => x.k === k)) return;
+  C.taps.push({k, d}); mpPanelUpdate();
+}
+const mpMedian = (a) => { const L = a.slice().sort((x, y) => x - y); return L.length ? L[Math.floor(L.length / 2)] : 0; };
+function mpCalFinish() {
+  clearInterval(MP.timer); MP.timer = null;
+  const T = MP.cal ? MP.cal.taps : [], need = MP_CAL.n - MP_CAL.warm;
+  let msg;
+  if (T.length < 8) msg = "Za mało stuknięć – spróbuj jeszcze raz i stukaj przy każdym kliknięciu.";
+  else {
+    const med = mpMedian(T.map(x => x.d)), spread = mpMedian(T.map(x => Math.abs(x.d - med)));
+    if (spread > 70) msg = "Stuknięcia były zbyt nierówne, żeby zmierzyć opóźnienie. Spróbuj jeszcze raz.";
+    else {
+      const mk = T.reduce((a, x) => a + x.k, 0) / T.length, md = T.reduce((a, x) => a + x.d, 0) / T.length;
+      const vk = T.reduce((a, x) => a + (x.k - mk) ** 2, 0), slope = vk ? T.reduce((a, x) => a + (x.k - mk) * (x.d - md), 0) / vk : 0;
+      mpSetLat(med);
+      try { localStorage.setItem("ppp-midi-cal", JSON.stringify({lat: Math.round(med), spread: Math.round(spread), slope: Math.round(slope * 10) / 10, taps: T.length, d: todayKey()})); } catch (e) {}
+      msg = `Gotowe: opóźnienie ${Math.round(mpLat())} ms (${T.length} z ${need} stuknięć). Aplikacja je uwzględni.`
+        + (Math.abs(slope) > 4 ? ` Uwaga: odstęp między metronomem a klawiszami zmieniał się w trakcie (${Math.round(slope)} ms na klik).` : "");
+    }
+  }
+  mpTempoSetup(msg);
 }
 function mpLenJudge(n, endRel) {
   const played = (n.rel === undefined ? endRel : n.rel) - n.on;
@@ -334,22 +430,23 @@ function mpLenJudge(n, endRel) {
   return null;
 }
 function mpTempoNote(ev) {
-  if (MP.stage !== "count" && MP.stage !== "run") return;
-  const rel = ev.t - MP.t0;
+  if (!MP.ready || (MP.stage !== "count" && MP.stage !== "run")) return;
+  const rel = ev.t - MP.t0, sh = mpLiveShift();
   if (ev.type === "on") {
     // ten sam klawisz uderzony ponownie bez zgłoszonego puszczenia: poprzednia nuta kończy się teraz
     for (const st of MP.steps) for (const n of st.notes) if (n.p === ev.midi && n.on !== undefined && n.rel === undefined) { n.rel = rel; n.len = mpLenJudge(n, rel); }
     let best = null, bd = 0;
     for (const st of MP.steps) {
-      const d = rel - st.T;
+      const d = rel - sh - st.T;
       if (d < -MP.matchW) break;
       if (d > MP.matchW) continue;
       for (const n of st.notes) if (n.p === ev.midi && !n.s && (!best || Math.abs(d) < Math.abs(bd))) { best = n; bd = d; }
     }
     if (best) {
-      best.on = rel; best.off = bd; best.s = Math.abs(bd) <= MP.tol ? "ok" : bd < 0 ? "early" : "late";
+      best.on = rel; best.raw = bd + sh; best.off = bd; MP.offs.push(best.raw);
+      best.s = Math.abs(bd) <= MP.tol ? "ok" : bd < 0 ? "early" : "late";
       MP.lastOff = bd; MP.msg = best.s === "ok" ? "✓ równo" : best.s === "early" ? "za wcześnie" : "za późno"; MP.cls = best.s === "ok" ? "ok" : "";
-    } else if (rel > -MP.matchW) { MP.extra++; MP.msg = "✗ dodatkowy dźwięk: " + MIDI_NAMES[ev.midi % 12]; MP.cls = "bad"; }
+    } else if (rel - sh > -MP.matchW) { MP.extra++; MP.msg = "✗ dodatkowy dźwięk: " + MIDI_NAMES[ev.midi % 12]; MP.cls = "bad"; }
     else return;
     mpPaintScore(); mpPanelUpdate();
   } else {
@@ -366,8 +463,8 @@ function mpTempoFinish() {
   for (const n of all) if (!n.s) n.s = "miss";
   // stałe przesunięcie całego wykonania (opóźnienie głośnika, nawyk) nie jest błędem rytmu: odejmujemy medianę
   let shift = 0;
-  if (hit.length >= 6) { const o = hit.map(n => n.off).sort((a, b) => a - b); shift = Math.max(-250, Math.min(250, o[Math.floor(o.length / 2)])); }
-  for (const n of hit) { n.off -= shift; n.s = Math.abs(n.off) <= MP.tol ? "ok" : n.off < 0 ? "early" : "late"; if (n.rel === undefined) n.len = mpLenJudge(n, endRel); }
+  if (hit.length >= 6) shift = Math.max(-250, Math.min(250, mpMedian(hit.map(n => n.raw))));
+  for (const n of hit) { n.off = n.raw - shift; n.s = Math.abs(n.off) <= MP.tol ? "ok" : n.off < 0 ? "early" : "late"; if (n.rel === undefined) n.len = mpLenJudge(n, endRel); }
   if (hit.length >= 6) mpSetLat(mpLat() + shift * 0.7);
   const n = all.length, rOk = hit.filter(x => x.s === "ok").length, lOk = hit.filter(x => !x.len).length, perfect = hit.filter(x => x.s === "ok" && !x.len).length;
   const early = hit.filter(x => x.s === "early").length, late = hit.filter(x => x.s === "late").length, short = hit.filter(x => x.len === "short").length, long = hit.filter(x => x.len === "long").length;
@@ -398,8 +495,8 @@ function mpTempoFinish() {
 }
 function mpTempoSetup(msg) {
   if (!MP.on || MP.mode !== "tempo") return;
-  clearInterval(MP.timer); MP.timer = null;
-  for (const st of MP.steps) for (const n of st.notes) { delete n.s; delete n.len; delete n.on; delete n.off; delete n.rel; }
+  clearInterval(MP.timer); MP.timer = null; MP.gen++; MP.ready = false;
+  for (const st of MP.steps) for (const n of st.notes) { delete n.s; delete n.len; delete n.on; delete n.off; delete n.raw; delete n.rel; }
   Object.assign(MP, {stage: "setup", i: 0, msg: msg || "", cls: "", res: null, lastOff: null});
   mpBars(); mpPaintScore();
 }
@@ -407,7 +504,7 @@ function mpTempoSetup(msg) {
 /* ============================== ZDARZENIA ============================== */
 midiListen((ev) => {
   mpLivePaint();
-  if (MP.on) { if (MP.mode === "wait") { if (MP.stage === "run") mpWaitNote(ev); } else mpTempoNote(ev); }
+  if (MP.on) { if (MP.mode === "wait") { if (MP.stage === "run") mpWaitNote(ev); } else if (MP.stage === "cal") mpCalNote(ev); else mpTempoNote(ev); }
   else if (ev.type === "on" && isBeg() && !mpHidden() && Q.cur && Q.cur.open) clapTap();   // rytm można wystukać na klawiszu pianina
 });
 document.addEventListener("click", (e) => {
@@ -419,6 +516,7 @@ document.addEventListener("click", (e) => {
     case "mp-hand": if (MP.on) mpStart(MP.src, MP.mode, t.dataset.h === "all" ? null : +t.dataset.h); break;
     case "mp-tempo": MP.tempoIdx = +t.dataset.k; mpBars(); break;
     case "mp-go": ac(); mpTempoGo(); mpShow(); break;
+    case "mp-cal": ac(); mpCalGo(); break;
     case "mp-setup": mpTempoSetup(); break;
     case "mp-stop": mpStop(); break;
     case "mp-hide": mpStop(); mpSetHidden(true); mpBars(); mpCardExtra(); mpStagesRefresh();
@@ -427,7 +525,7 @@ document.addEventListener("click", (e) => {
   }
 });
 // w tle zegar i metronom stają – przerywamy przejście z metronomem
-document.addEventListener("visibilitychange", () => { if (document.hidden && MP.on && MP.mode === "tempo" && (MP.stage === "count" || MP.stage === "run")) mpTempoSetup("Przerwano."); });
+document.addEventListener("visibilitychange", () => { if (document.hidden && MP.on && MP.mode === "tempo" && ["count", "run", "cal"].includes(MP.stage)) mpTempoSetup("Przerwano."); });
 
 /* ============================== CEL: UTWÓR OPANOWANY ==============================
    Gdy opcja pianina jest włączona na urządzeniu, etap „opanowany” utworu z kursu przyznaje aplikacja, a nie przycisk:
