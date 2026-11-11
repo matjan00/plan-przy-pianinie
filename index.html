@@ -349,6 +349,8 @@ body.playing .pbar.plivebar{bottom:calc(148px + env(safe-area-inset-bottom,0px))
 .ptime-l{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-top:2px}
 .pbar .mini{background:var(--surface)}
 .minis.two{grid-template-columns:repeat(2,1fr)}
+.lvlhead{margin:12px 0 4px;font-size:.95rem;display:flex;align-items:baseline;gap:8px}
+.lvlhead:first-child{margin-top:0}
 .pgoal{font-size:.85rem;line-height:1.45;border-top:1px solid var(--line);padding-top:8px;margin:0}
 .pgoal.ok{color:var(--ok);font-weight:600}
 .pcal{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.82rem;line-height:1.4;border-top:1px solid var(--line);padding-top:8px}
@@ -393,6 +395,7 @@ body.playing .pbar.plivebar{bottom:calc(148px + env(safe-area-inset-bottom,0px))
 <script src="extra.js"></script>
 <script src="notes.js"></script>
 <script src="beginner.js"></script>
+<script src="grade.js"></script>
 <script src="midi.js"></script>
 <script src="midiplay.js"></script>
 <script>
@@ -992,7 +995,7 @@ const $view=()=>document.getElementById("view");
 function header(){
   const p=progress();
   if(ONBOARD){ document.getElementById("chip-grade").textContent="Witaj"; document.getElementById("chip-pct").textContent="wybierz program"; }
-  else if(isBeg()){ document.getElementById("chip-grade").textContent="Od zera · etap "+begEtap(); document.getElementById("chip-pct").textContent=pct(begProgress())+" kursu"; }
+  else if(isBeg()){ const ch=begChip(); document.getElementById("chip-grade").textContent=ch.grade; document.getElementById("chip-pct").textContent=ch.pct; }
   else { document.getElementById("chip-grade").textContent="Grade "+S.grade;
   document.getElementById("chip-pct").textContent=pct(p.total)+" do Grade "+(S.grade+1); }
   const d=new Date(); document.getElementById("today-label").textContent=d.toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"});
@@ -1213,7 +1216,7 @@ function finaleHtml(plan, p){
   if(streak>1) rows.push(["Dni z rzędu",String(streak)]);
   tempos.forEach(t=>rows.push([t.p.name,"♩ = "+t.bpm]));
   if(sr && sr.rating) rows.push(["Czytanie a vista",sr.rating+" na 5"]);
-  rows.push(isBeg()? ["Kurs od zera",pct(begProgress())] : ["Gotowość do Grade "+(S.grade+1),pct(p.total)]);
+  rows.push(isBeg()? [begLvlObj(begLvl()).name,pct(begProgress())] :["Gotowość do Grade "+(S.grade+1),pct(p.total)]);
   return `<div class="card stack finale">
     <h2>Sesja skończona</h2>
     <div class="keys" aria-hidden="true">${keyRow(plan,false)}</div>
@@ -1462,7 +1465,7 @@ const Q={type:null,cur:null,score:0,count:0,locked:false,host:null,inline:false,
 function quizStart(type, hostId, inline, opts){
   opts=opts||{};
   Q.type=type; Q.score=0; Q.count=0; Q.host=hostId; Q.inline=!!inline;
-  Q.seq=opts.seq||null; Q.onDone=opts.onDone||null; Q.level=opts.level||null;
+  Q.seq=opts.seq||null; Q.onDone=opts.onDone||null; Q.level=opts.level||null; Q.ear=opts.ear||null;
   Q.max=opts.max || (Q.seq? Q.seq.length : (type==="ear-clap"||type==="ear-play")? 5 : 10);
   quizNext();
 }
@@ -1478,7 +1481,7 @@ function quizNext(){
   if(EXTRA_QUIZ[Q.type]){ EXTRA_QUIZ[Q.type](host); return; }
   const t=Q.type; let q;
   if(t==="ear-int"||t==="ear-chord"){
-    const E=EAR[earLvl()];
+    const E=Q.ear||EAR[earLvl()];
     if(t==="ear-int"){ const semi=E.ints[Math.floor(Math.random()*E.ints.length)], root=55+Math.floor(Math.random()*12); q={answer:INT_NAMES[semi],opts:E.ints.map(s=>INT_NAMES[s]),play:()=>{const c=ac(),n=c.currentTime+0.05; tone(root,n); tone(root+semi,n+0.7); tone(root,n+1.5,1.6); tone(root+semi,n+1.5,1.6);}}; }
     else { const k=E.chords[Math.floor(Math.random()*E.chords.length)], root=52+Math.floor(Math.random()*10); q={answer:k,opts:E.chords,play:()=>{const c=ac(),n=c.currentTime+0.05; CHORD_SEMIS[k].forEach((s,i)=>tone(root+s,n+i*0.35)); CHORD_SEMIS[k].forEach(s=>tone(root+s,n+CHORD_SEMIS[k].length*0.35+0.3,1.8,0.16));}}; }
     host.innerHTML=`<div class="stack"><div class="row"><button class="btn primary" data-act="q-play">▶ Odtwórz</button><span class="small muted">Pytanie ${Q.count+1} z ${Q.max} · wynik ${Q.score}</span></div><div class="answers wide">${q.opts.map(o=>`<button data-act="q-ans" data-a="${esc(o)}">${o}</button>`).join("")}</div></div>`;

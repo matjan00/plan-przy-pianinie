@@ -4,11 +4,13 @@
    Stan kursu: S.beg = {done:{id:true}, piece:id|null, notes:[{ok}]}, etapy utworów w S.pieces (id "bp-…"). */
 
 const BEG_ETAPY = [
-  {n: 1, name: "Pierwsze kroki", desc: "Postawa, klawiatura, palce i puls. Pierwsza melodia ze słuchu i z nut."},
-  {n: 2, name: "Czytanie nut", desc: "Klucz wiolinowy i basowy, kroki i skoki, metrum 3/4, pauzy."},
-  {n: 3, name: "Dwie ręce", desc: "Ręce razem, akompaniament, dynamika, ósemki, pozycja G."},
-  {n: 4, name: "Pierwsze utwory", desc: "Kropka, gama z przekładaniem kciuka, akordy, pedał i samodzielna nauka utworu."}
+  {n: 1, lvl: "start", name: "Pierwsze kroki", desc: "Postawa, klawiatura, palce i puls. Pierwsza melodia ze słuchu i z nut."},
+  {n: 2, lvl: "start", name: "Czytanie nut", desc: "Klucz wiolinowy i basowy, kroki i skoki, metrum 3/4, pauzy."},
+  {n: 3, lvl: "start", name: "Dwie ręce", desc: "Ręce razem, akompaniament, dynamika, ósemki, pozycja G."},
+  {n: 4, lvl: "start", name: "Pierwsze utwory", desc: "Kropka, gama z przekładaniem kciuka, akordy, pedał i samodzielna nauka utworu."}
 ];
+/* Poziomy: kurs od zera, a po nim most do programu RCM (grade.js dopisuje Grade 1 i 2: etapy, lekcje i utwory). */
+const BEG_LVLS = [{id: "start", name: "Kurs od zera", chip: "Od zera"}];
 
 const H4 = "X:1\nM:4/4\nL:1/4\n";
 const BEG_LESSONS = [
@@ -347,7 +349,7 @@ const isBeg = () => S.mode === "beg";
 function begS() { if (!S.beg) S.beg = {done: {}, piece: null, notes: []}; return S.beg; }
 function begLessonIdx() { const B = begS(); const i = BEG_LESSONS.findIndex(l => !B.done[l.id]); return i < 0 ? BEG_LESSONS.length : i; }
 function begCurLesson() { return BEG_LESSONS[begLessonIdx()] || null; }
-function begEtap() { const l = begCurLesson(); return l ? l.etap : 4; }
+function begEtap() { const l = begCurLesson(); return l ? l.etap : BEG_ETAPY[BEG_ETAPY.length - 1].n; }
 function begDone(id) { return !!begS().done[id]; }
 function begUnlocked(p) { return begDone(p.need); }
 function begPiece() {
@@ -355,10 +357,36 @@ function begPiece() {
   if (B.piece) { const p = BEG_PIECES.find(x => x.id === B.piece); if (p && st(p.id) < 4) return p; }
   return BEG_PIECES.find(p => begUnlocked(p) && st(p.id) > 0 && st(p.id) < 4) || BEG_PIECES.find(p => begUnlocked(p) && st(p.id) < 4) || null;
 }
-function begProgress() {
-  const l = BEG_LESSONS.filter(x => begDone(x.id)).length / BEG_LESSONS.length;
-  const p = BEG_PIECES.filter(x => st(x.id) >= 4).length / BEG_PIECES.length;
-  return 0.7 * l + 0.3 * p;
+// poziom etapu, lekcji i utworu; bieżący poziom = poziom pierwszej niezaliczonej lekcji
+const begEtapObj = (n) => BEG_ETAPY.find(e => e.n === n) || BEG_ETAPY[0];
+const begLvlObj = (id) => BEG_LVLS.find(v => v.id === id) || BEG_LVLS[0];
+const begPieceLvl = (p) => p.lvl || "start";
+const begLvlLessons = (lvl) => BEG_LESSONS.filter(l => begEtapObj(l.etap).lvl === lvl);
+const begLvlPieces = (lvl) => BEG_PIECES.filter(p => begPieceLvl(p) === lvl);
+const begLvlEtapy = (lvl) => BEG_ETAPY.filter(e => e.lvl === lvl);
+function begLvl() { const l = begCurLesson(); return l ? begEtapObj(l.etap).lvl : BEG_LVLS[BEG_LVLS.length - 1].id; }
+// „Etap 2” w kursie od zera, „Grade 1 · etap 1” w kolejnych poziomach (etapy numerowane w obrębie poziomu)
+function begEtapLabel(n) {
+  const e = begEtapObj(n);
+  if (e.lvl === "start") return "Etap " + n;
+  return begLvlObj(e.lvl).name + " · etap " + (begLvlEtapy(e.lvl).indexOf(e) + 1);
+}
+// „lekcja 3 z 11” liczone w obrębie poziomu
+function begLessonNo(l) { const L = begLvlLessons(begEtapObj(l.etap).lvl); return `lekcja ${L.indexOf(l) + 1} z ${L.length}`; }
+function begProgress(lvl) {
+  lvl = lvl || begLvl();
+  const L = begLvlLessons(lvl), P = begLvlPieces(lvl);
+  const l = L.length ? L.filter(x => begDone(x.id)).length / L.length : 0;
+  const p = P.length ? P.filter(x => st(x.id) >= 4).length / P.length : 0;
+  if (lvl === "start") return 0.7 * l + 0.3 * p;
+  const t = typeof grTechShare === "function" ? grTechShare(lvl) : 0;
+  return 0.5 * l + 0.3 * p + 0.2 * t;
+}
+// napis w nagłówku: „Od zera · etap 2” / „37% kursu”, a w Grade 1: „Grade 1 · etap 1” / „12% Grade 1”
+function begChip() {
+  const lvl = begLvl(), E = begEtap();
+  if (lvl === "start") return {grade: "Od zera · etap " + E, pct: pct(begProgress(lvl)) + " kursu"};
+  return {grade: begEtapLabel(E), pct: pct(begProgress(lvl)) + " " + begLvlObj(lvl).name};
 }
 function begNotesAcc() { const L = (begS().notes || []).slice(-30); return L.length ? L.filter(x => x.ok).length / L.length : 0; }
 
@@ -375,6 +403,7 @@ const BEG_BLOCKS = {
   brepeat: {name: "Powtórka: to, co już umiesz", grp: "music", ab: "Po"}
 };
 function begGenPlan(key, minutes) {
+  if (begLvl() !== "start" && typeof grGenPlan === "function") return grGenPlan(key, minutes);
   const idx = S.sessions, L = begLessonIdx(), piece = begPiece();
   let w = {bwarm: 3, blesson: 7, bnotes: 3, brhythm: 3, bpiece: 6, brepeat: 4};
   if (!begDone("b5")) delete w.brhythm;
@@ -401,17 +430,17 @@ const WARM = {
 };
 function begBlockBody(b) {
   const E = begEtap();
+  if (typeof grBlockBody === "function" && /^g(tech|sight|ear)$/.test(b.type)) return grBlockBody(b);
   if (b.type === "bwarm") {
     return `<p class="small">Krótko i spokojnie – to rozgrzewka, nie trening siły. Ramiona luźne, palce zaokrąglone.</p>
-      <ol class="tips">${WARM[E].map(x => `<li>${x}</li>`).join("")}</ol>
+      <ol class="tips">${(WARM[E] || WARM[4]).map(x => `<li>${x}</li>`).join("")}</ol>
       ${mpSlot("free:warm")}
       ${metroInline(60, "bwarm")}`;
   }
   if (b.type === "blesson") {
     const l = begCurLesson();
     if (!l) return `<p>Wszystkie lekcje kursu za Tobą. Teraz utwory z książek i MuseScore.</p>`;
-    const i = BEG_LESSONS.indexOf(l);
-    return `<div><h3 style="font-size:1.15rem">${l.title}</h3><p class="meta">Etap ${l.etap}: ${BEG_ETAPY[l.etap - 1].name} · lekcja ${i + 1} z ${BEG_LESSONS.length}</p></div>
+    return `<div><h3 style="font-size:1.15rem">${l.title}</h3><p class="meta">${begEtapLabel(l.etap)}: ${begEtapObj(l.etap).name} · ${begLessonNo(l)}</p></div>
       <p class="small">${l.short}</p>
       <div class="box tip small"><b>Cel lekcji:</b> ${l.goal}</div>
       ${l.abc ? `<div class="abc" data-abc="${l.id}:0"></div><div class="row"><button class="btn sm" data-act="b-play" data-src="lesson:${l.id}:0">▶ Posłuchaj</button><button class="btn sm ghost" data-act="b-stop">Stop</button>${mpUi("lesson:" + l.id + ":0")}` : ""}
@@ -468,17 +497,37 @@ const BEG_STEP = [
 ];
 
 /* ============================== WIDOKI ============================== */
+// „po lekcji 7” w kursie od zera, „po lekcji 3 Grade 1” dalej
+function begNeedLabel(p) {
+  const l = BEG_LESSONS.find(x => x.id === p.need); if (!l) return "";
+  const lv = begEtapObj(l.etap).lvl, n = begLvlLessons(lv).indexOf(l) + 1;
+  return lv === "start" ? `po lekcji ${n}` : `po lekcji ${n} ${begLvlObj(lv).name}`;
+}
+// lista lekcji pogrupowana: poziom → etap; open = etap bieżący
+function begLessonGroups(btn) {
+  const E = begEtap(), cur = begLvl();
+  return BEG_LVLS.map(v => {
+    const ET = begLvlEtapy(v.id); if (!ET.length) return "";
+    const L = begLvlLessons(v.id), done = L.filter(l => begDone(l.id)).length;
+    return `${BEG_LVLS.length > 1 ? `<h4 class="lvlhead">${v.name} <span class="muted small">${done}/${L.length}</span></h4>` : ""}
+      ${ET.map(e => `<details ${e.n === E && v.id === cur ? "open" : ""}><summary>${begEtapLabel(e.n)}: ${e.name} <span class="muted small">(${BEG_LESSONS.filter(l => l.etap === e.n && begDone(l.id)).length}/${BEG_LESSONS.filter(l => l.etap === e.n).length})</span></summary>
+      ${btn(BEG_LESSONS.filter(l => l.etap === e.n))}</details>`).join("")}`;
+  }).join("");
+}
 function begViewProgress() {
-  const tot = begProgress(), E = begEtap();
+  const lvl = begLvl(), LV = begLvlObj(lvl), tot = begProgress(lvl), E = begEtap(), ET = begLvlEtapy(lvl);
+  const before = BEG_LVLS.slice(0, BEG_LVLS.findIndex(v => v.id === lvl));
   const days = []; for (let i = 13; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); const k = todayKey(d); const pl = S.plans[k]; const m = pl ? pl.blocks.filter(b => b.done).reduce((a, b) => a + b.min, 0) : 0; days.push({k, m, d}); }
   const max = Math.max(30, ...days.map(x => x.m)), week = days.slice(7).reduce((a, b) => a + b.m, 0), streak = streakDays();
   return `<section class="stack">
   <div class="card stack">
-    <h2>Kurs od zera</h2>
-    <div class="row" style="align-items:flex-end;gap:14px"><span class="big">${pct(tot)}</span><span class="muted">kursu za Tobą</span></div>
+    <h2>${LV.name}</h2>
+    <div class="row" style="align-items:flex-end;gap:14px"><span class="big">${pct(tot)}</span><span class="muted">${lvl === "start" ? "kursu" : LV.name} za Tobą</span></div>
     <div class="bar"><span style="width:${pct(tot)}"></span></div>
-    <div class="keys" aria-label="Etapy kursu">${BEG_ETAPY.map(e => `<div class="key t-mind ${e.n < E || begLessonIdx() >= BEG_LESSONS.length ? "done" : ""} ${e.n === E ? "now" : ""}" style="flex-grow:1"><b class="ab">${e.n}</b></div>`).join("")}</div>
-    <p class="small muted">Etap ${E}: ${BEG_ETAPY[E - 1].name}. ${BEG_ETAPY[E - 1].desc}</p>
+    <div class="keys" aria-label="Etapy: ${LV.name}">${ET.map((e, i) => `<div class="key t-mind ${e.n < E || begLessonIdx() >= BEG_LESSONS.length ? "done" : ""} ${e.n === E ? "now" : ""}" style="flex-grow:1"><b class="ab">${lvl === "start" ? e.n : i + 1}</b></div>`).join("")}</div>
+    <p class="small muted">${begEtapLabel(E)}: ${begEtapObj(E).name}. ${begEtapObj(E).desc}</p>
+    ${lvl !== "start" && typeof grLvlSummaryHtml === "function" ? grLvlSummaryHtml(lvl) : ""}
+    ${before.length ? `<p class="small muted" style="margin:0">${before.map(v => `${v.name}: ${pct(begProgress(v.id))}`).join(" · ")}</p>` : ""}
   </div>
   <div class="minis">
     <div class="mini"><div class="small muted">Ten tydzień</div><div class="v">${week} min</div></div>
@@ -493,19 +542,20 @@ function begViewProgress() {
   <div class="card stack">
     <h3>Lekcje</h3>
     <p class="small muted">Odhacz lekcję, gdy jej cel jest spełniony. Możesz też cofnąć odhaczenie.</p>
-    ${BEG_ETAPY.map(e => `<details ${e.n === E ? "open" : ""}><summary>Etap ${e.n}: ${e.name} <span class="muted small">(${BEG_LESSONS.filter(l => l.etap === e.n && begDone(l.id)).length}/${BEG_LESSONS.filter(l => l.etap === e.n).length})</span></summary>
-      <div class="stack" style="gap:6px;margin-top:8px">${BEG_LESSONS.filter(l => l.etap === e.n).map(l => `<button class="check t-mind" data-act="b-ltoggle" data-id="${l.id}" aria-pressed="${begDone(l.id)}" style="justify-content:flex-start;border-radius:12px;text-align:left"><span class="box">✓</span>${l.title}</button>`).join("")}</div></details>`).join("")}
+    ${begLessonGroups(L => `<div class="stack" style="gap:6px;margin-top:8px">${L.map(l => `<button class="check t-mind" data-act="b-ltoggle" data-id="${l.id}" aria-pressed="${begDone(l.id)}" style="justify-content:flex-start;border-radius:12px;text-align:left"><span class="box">✓</span>${l.title}</button>`).join("")}</div>`)}
   </div>
   <div class="card stack">
     <h3>Utwory</h3>
-    ${BEG_PIECES.map(p => `<div class="stack t-music" style="gap:4px"><div class="spread"><span>${p.name}${begUnlocked(p) ? "" : ` <span class="pill">po lekcji ${BEG_LESSONS.findIndex(l => l.id === p.need) + 1}</span>`}</span><span class="small muted">${STATUS[st(p.id)]}</span></div><div class="bar"><span style="width:${st(p.id) * 25}%"></span></div></div>`).join("")}
+    ${BEG_LVLS.map(v => { const P = begLvlPieces(v.id); if (!P.length) return "";
+      return `${BEG_LVLS.length > 1 ? `<h4 class="lvlhead">${v.name} <span class="muted small">${P.filter(p => st(p.id) >= 4).length}/${P.length} opanowanych</span></h4>` : ""}
+      ${P.map(p => `<div class="stack t-music" style="gap:4px"><div class="spread"><span>${p.name}${begUnlocked(p) ? "" : ` <span class="pill">${begNeedLabel(p)}</span>`}</span><span class="small muted">${STATUS[st(p.id)]}</span></div><div class="bar"><span style="width:${st(p.id) * 25}%"></span></div></div>`).join("")}`; }).join("")}
   </div>
   ${accountCard()}
   ${installCard()}
   <details class="card"><summary>Ustawienia</summary>
     <div class="stack" style="margin-top:10px">
       <label class="spread"><span>Forma zwracania się</span><select data-act="b-gender"><option value="m" ${S.g === "m" ? "selected" : ""}>grałeś, zalogowany</option><option value="f" ${S.g !== "m" ? "selected" : ""}>grałaś, zalogowana</option></select></label>
-      <p class="small muted">Gdy kurs od zera będzie za łatwy, możesz przejść na program RCM Grade 5–8 (dla zaawansowanych). Postęp w kursie zostaje zapisany.</p>
+      <p class="small muted">Po kursie od zera plan prowadzi dalej przez Grade 1 i 2 (program RCM). Program Grade 5–8 jest dla zaawansowanych – możesz się na niego przełączyć, a postęp w kursie zostaje zapisany.</p>
       <div><button class="btn sm ghost" data-act="b-mode" data-m="adv">Przełącz na program Grade 5–8</button></div>
       <button class="btn sm ghost" data-act="reset-ask">Zacznij od nowa…</button>
       <div id="reset-confirm"></div>
@@ -517,15 +567,18 @@ function begViewRep() {
   const E = begEtap(), cur = begPiece();
   return `<section class="stack">
     <h2>Utwory</h2>
-    <p class="small muted">Melodie w aplikacji odblokowują się po kolejnych lekcjach. Stuknij, żeby zobaczyć nuty i posłuchać.</p>
-    <div class="card pieces">${BEG_PIECES.map(p => {
+    <p class="small muted">Utwory w aplikacji odblokowują się po kolejnych lekcjach. Stuknij, żeby zobaczyć nuty i posłuchać.</p>
+    ${BEG_LVLS.slice().sort((a, b) => (b.id === begLvl()) - (a.id === begLvl())).map(v => { const P = begLvlPieces(v.id); if (!P.length) return "";
+      return `${BEG_LVLS.length > 1 ? `<div class="listhead"><span class="lt">♪</span><h3>${v.id === "start" ? "Melodie z kursu od zera" : v.name + " – utwory w aplikacji"}</h3><span class="small muted">${P.filter(p => st(p.id) >= 4).length}/${P.length}</span></div>` : ""}
+    <div class="card pieces">${P.map(p => {
       const s = st(p.id), open = begUnlocked(p), isAct = cur && cur.id === p.id;
       return `<details class="piece"${isAct ? " open" : ""}><summary><span class="pn">${p.name}</span>
         <span class="minikeys t-music" aria-hidden="true">${[1, 2, 3, 4].map(i => `<i class="${i <= s ? "on" : ""}"></i>`).join("")}</span>
-        ${isAct ? `<span class="pill own">w planie</span>` : open ? "" : `<span class="pill">po lekcji ${BEG_LESSONS.findIndex(l => l.id === p.need) + 1}</span>`}</summary>
+        ${isAct ? `<span class="pill own">w planie</span>` : open ? (p.list ? `<span class="pill">${p.list}</span>` : "") : `<span class="pill">${begNeedLabel(p)}</span>`}</summary>
         <div class="stack" style="gap:10px;padding:2px 0 6px">${begPieceHtml(p, false)}
         ${open && s < 4 && !isAct ? `<div><button class="btn sm" data-act="b-activate" data-id="${p.id}">Ucz się teraz – ustaw w planie</button></div>` : ""}</div></details>`;
     }).join("")}</div>
+    ${v.id !== "start" && typeof grRepHtml === "function" ? grRepHtml(v.id) : ""}`; }).join("")}
     <div class="listhead"><span class="lt">📖</span><h3>Z książek i z MuseScore</h3><span class="small muted">od etapu 3</span></div>
     <div class="card stack">
       ${BEG_BOOKS.map(b => `<div class="stack" style="gap:2px;${b.etap > E ? "opacity:.6" : ""}"><b>${b.name}</b><span class="small">${b.how}</span>${b.etap > E ? `<span class="small muted">Na razie za wcześnie – od etapu ${b.etap}.</span>` : ""}</div>`).join("")}
@@ -544,11 +597,11 @@ function begLearnHome() {
   return `<section class="stack">
     <h2>Nauka</h2>
     <div class="card stack">
-      <div class="spread"><h3>Kurs od zera</h3><span class="mono small">${BEG_LESSONS.filter(l => begDone(l.id)).length}/${BEG_LESSONS.length}</span></div>
+      <div class="spread"><h3>${BEG_LVLS.length > 1 ? "Lekcje" : "Kurs od zera"}</h3><span class="mono small">${BEG_LESSONS.filter(l => begDone(l.id)).length}/${BEG_LESSONS.length}</span></div>
       <p class="small muted">Lekcje po kolei: krótkie wyjaśnienie, nuty z odsłuchem, zadanie przy pianinie i pytania sprawdzające.</p>
-      ${BEG_ETAPY.map(e => `<details ${e.n === E ? "open" : ""}><summary>Etap ${e.n}: ${e.name} <span class="muted small">(${BEG_LESSONS.filter(l => l.etap === e.n && begDone(l.id)).length}/${BEG_LESSONS.filter(l => l.etap === e.n).length})</span></summary>
-        <div class="lessonlist">${BEG_LESSONS.filter(l => l.etap === e.n).map(l => `<button data-act="b-lesson" data-id="${l.id}"><span>${BEG_LESSONS.indexOf(l) + 1}. ${l.title}</span>${begDone(l.id) ? `<span class="ok">✓</span>` : `<span class="muted">›</span>`}</button>`).join("")}</div></details>`).join("")}
+      ${begLessonGroups(L => `<div class="lessonlist">${L.map(l => `<button data-act="b-lesson" data-id="${l.id}"><span>${begLvlLessons(begEtapObj(l.etap).lvl).indexOf(l) + 1}. ${l.title}</span>${begDone(l.id) ? `<span class="ok">✓</span>` : `<span class="muted">›</span>`}</button>`).join("")}</div>`)}
     </div>
+    ${typeof grTechCardsHtml === "function" ? grTechCardsHtml() : ""}
     ${listenCard()}
     ${E >= 4 ? `<div class="card stack"><h3>Kurs pedału</h3><p class="small muted">Rozwinięcie lekcji o pedale – dla chętnych.</p><div class="lessonlist">${PEDAL.slice(0, 4).map((l, i) => `<button data-act="pedal-open" data-id="${l.id}"><span>${i + 1}. ${l.title}</span>${S.pedal.done[l.id] ? `<span class="ok">✓</span>` : `<span class="muted">›</span>`}</button>`).join("")}</div></div>` : ""}
   </section>`;
@@ -562,8 +615,9 @@ function begLessonView(id) {
     <div><button class="btn sm ghost" data-act="learn-home">‹ Nauka</button></div>
     <article class="card stack lesson">
       <h2>${l.title}</h2>
-      <p class="meta">Etap ${l.etap}: ${BEG_ETAPY[l.etap - 1].name} · lekcja ${i + 1} z ${BEG_LESSONS.length}</p>
+      <p class="meta">${begEtapLabel(l.etap)}: ${begEtapObj(l.etap).name} · ${begLessonNo(l)}</p>
       ${l.body}
+      ${l.tech && typeof grTechListHtml === "function" ? grTechListHtml(l.tech) : ""}
       ${(l.abc || []).map((a, k) => `<div><div class="abc" data-abc="${id}:${k}"></div>${a.cap ? `<p class="small muted" style="margin:0">${a.cap}</p>` : ""}
         <div class="row" style="margin-top:6px"><button class="btn sm" data-act="b-play" data-src="lesson:${id}:${k}">▶ Posłuchaj</button><button class="btn sm ghost" data-act="b-stop">Stop</button>${mpUi("lesson:" + id + ":" + k)}</div>`).join("")}
       ${l.piano ? `<div class="box tip"><b>Przy pianinie:</b> ${l.piano}</div>${mpSlot("free:" + id)}` : ""}
@@ -662,16 +716,19 @@ function begLogAnswer(ok) { if (Q.type === "bnotes" || Q.type === "bkeys") { con
 /* ============================== ODSŁUCH ABC ============================== */
 // Prosty parser podzbioru ABC używanego w kursie: nuty, ,', akordy [..], długości (2, 3/2, /, /2), pauzy z, znaki ^ _ =, K: C/G/F.
 const ABC_PC = {C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11};
-const ABC_KEY = {C: {}, G: {F: 1}, F: {B: -1}, D: {F: 1, C: 1}};
+const ABC_KEY = {C: {}, G: {F: 1}, F: {B: -1}, D: {F: 1, C: 1}, Bb: {B: -1, E: -1},
+  Am: {}, Em: {F: 1}, Dm: {B: -1}, Gm: {B: -1, E: -1}};
+// czasy i długości wychodzą w ćwierćnutach (L: przelicza jednostkę), tempo w ćwierćnutach na minutę; (3 = triola
 function abcParse(src) {
-  const lines = src.split("\n"); let key = {}, bpm = 80; const voices = {};
+  const lines = src.split("\n"); let key = {}, bpm = 80, unit = 1; const voices = {};
   let cur = "1";
   for (const raw of lines) {
     let line = raw.trim(); if (!line || line.startsWith("%")) continue;
     const h = line.match(/^([A-Za-z]):(.*)$/);
     if (h && !line.startsWith("[V:")) {
       if (h[1] === "K") key = ABC_KEY[h[2].trim().split(/\s/)[0]] || {};
-      if (h[1] === "Q") { const m = h[2].match(/=(\d+)/); if (m) bpm = +m[1]; }
+      if (h[1] === "L") { const m = h[2].match(/(\d+)\s*\/\s*(\d+)/); if (m) unit = (+m[1] / +m[2]) * 4; }
+      if (h[1] === "Q") { const m = h[2].match(/(?:(\d+)\s*\/\s*(\d+)\s*)?=\s*(\d+)/); if (m) bpm = Math.round(+m[3] * (m[1] ? (+m[1] / +m[2]) * 4 : 1)); }
       if (h[1] === "V") cur = h[2].trim().split(/\s/)[0];
       continue;
     }
@@ -680,11 +737,13 @@ function abcParse(src) {
   }
   const out = [];
   for (const v in voices) {
-    let s = voices[v].replace(/![^!]*!/g, "").replace(/"[^"]*"/g, ""), t = 0, acc = {};
-    const re = /(\[[^\]]+\]|[\^_=]?[A-Ga-gz][,']*)(\d*)(\/?)(\d*)|(\|)/g; let m;
+    let s = voices[v].replace(/![^!]*!/g, "").replace(/"[^"]*"/g, ""), t = 0, acc = {}, tup = 0;
+    const re = /(\[[^\]]+\]|[\^_=]?[A-Ga-gz][,']*)(\d*)(\/?)(\d*)|(\|)|\((3)/g; let m;
     while ((m = re.exec(s))) {
       if (m[5]) { acc = {}; continue; }
+      if (m[6]) { tup = 3; continue; }
       let d = m[2] ? +m[2] : 1; if (m[3]) d = d / (m[4] ? +m[4] : 2);
+      d *= unit; if (tup > 0) { d *= 2 / 3; tup--; }
       const toks = m[1].startsWith("[") ? m[1].slice(1, -1).match(/[\^_=]?[A-Ga-g][,']*/g) || [] : [m[1]];
       if (toks[0] !== "z") for (const tk of toks) {
         const mm = tk.match(/([\^_=]?)([A-Ga-g])([,']*)/), L = mm[2].toUpperCase();
@@ -702,6 +761,7 @@ function abcParse(src) {
 function begAbc(src) {
   const [kind, id, k] = src.split(":");
   if (kind === "piece") { const p = BEG_PIECES.find(x => x.id === id); return p && p.abc; }
+  if ((kind === "tech" || kind === "sight") && typeof grAbc === "function") return grAbc(kind, id);
   const l = BEG_LESSONS.find(x => x.id === id); return l && l.abc && l.abc[+k] && l.abc[+k].src;
 }
 function begPlay(src) {
@@ -718,7 +778,8 @@ function abcWrap(src, per) {
     const vm = line.match(/^\[V:(\w+)\]\s*(.*)$/);
     if (vm) { if (!vs[vm[1]]) { vs[vm[1]] = ""; order.push(vm[1]); } vs[vm[1]] += " " + vm[2]; continue; }
     if (/^w:/.test(line)) return src;
-    if (/^([A-Za-z]:|%%)/.test(line) || !line.trim()) { head.push(line); continue; }
+    if (!line.trim()) continue;                       // pusta linia w ABC kończy utwór – nie może trafić przed nuty
+    if (/^([A-Za-z]:|%%)/.test(line)) { head.push(line); continue; }
     if (!vs[""]) { vs[""] = ""; order.push(""); } vs[""] += " " + line;
   }
   const bars = {}; let n = 0;
@@ -734,7 +795,13 @@ function abcWrap(src, per) {
 function begRender(el, src) { return renderAbcInto(el, abcWrap(src, (el.clientWidth || 340) < 420 ? 2 : 4)); }
 function begAfter() {
   document.querySelectorAll("[data-babc]").forEach(el => { const p = BEG_PIECES.find(x => x.id === el.dataset.babc); if (p && el.offsetParent !== null) begRender(el, p.abc); });
-  document.querySelectorAll("#view [data-abc]").forEach(el => { const [id, k] = el.dataset.abc.split(":"); if (!/^b\d/.test(id) || el.offsetParent === null) return; const L = LESSONS[id]; if (L && L.abc && L.abc[+k]) begRender(el, L.abc[+k].src); });
+  document.querySelectorAll("#view [data-abc]").forEach(el => {
+    const [id, k] = el.dataset.abc.split(":"); if (el.offsetParent === null) return;
+    const L = BEG_LESSONS.find(x => x.id === id);
+    if (L) { if (L.abc && L.abc[+k]) begRender(el, L.abc[+k].src); return; }
+    const g = typeof grAbcFor === "function" && grAbcFor(id);   // technika i czytanie a vista (grade.js)
+    if (g) begRender(el, g);
+  });
   if (typeof mpAfter === "function") mpAfter();
 }
 // nuty w zwiniętym <details> rysujemy dopiero po rozwinięciu (abcjs potrzebuje szerokości)

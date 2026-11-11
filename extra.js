@@ -385,7 +385,7 @@ const EXTRA_QUIZ = {};
 
 // powtarzanie rytmu
 EXTRA_QUIZ["ear-clap"] = function (host) {
-  const lv = earLvl(), cfg = EAR_EXTRA[lv];
+  const lv = earLvl(), cfg = Q.ear || EAR_EXTRA[lv];   // Q.ear: własne ustawienia (kurs Grade 1–2)
   const time = pick(lv >= 6 ? ["4/4", "3/4", "6/8"] : ["4/4", "3/4"]), mi = meterInfo(time);
   const srLevel = Math.min(8, Math.max(1, lv - 1));
   const bars = [];
@@ -444,14 +444,16 @@ function clapEval() {
 // powtarzanie melodii
 function keyTonicMidi(keyName) { const li = LETTERS.indexOf(keyName[0]); const K = SR_KEYS[keyName]; return 60 + NAT[li] + sigAlter(K.sig, li); }
 EXTRA_QUIZ["ear-play"] = function (host) {
-  const lv = earLvl(), cfg = EAR_EXTRA[lv], keyName = pick(cfg.keys), K = SR_KEYS[keyName];
+  const lv = earLvl(), cfg = Q.ear || EAR_EXTRA[lv], keyName = pick(cfg.keys), K = SR_KEYS[keyName];
   const piece = {K}, base = LETTERS.indexOf(keyName[0]) + 28;
-  let d = pick([0, 2, 4]); const degs = [d];
+  // cfg.five: jak na egzaminie RCM Level 1–2 – pięć pierwszych stopni gamy, start na tonice albo dominancie
+  const lo = cfg.five ? 0 : -3, hi = cfg.five ? 4 : 8;
+  let d = pick(cfg.five ? [0, 4] : [0, 2, 4]); const degs = [d];
   for (let i = 1; i < cfg.mel; i++) {
-    if (i === cfg.mel - 1 && lv <= 6) { d = Math.abs(d - 7) < Math.abs(d) ? 7 : 0; degs.push(d); break; }
+    if (i === cfg.mel - 1 && lv <= 6) { d = cfg.five ? 0 : Math.abs(d - 7) < Math.abs(d) ? 7 : 0; degs.push(d); break; }
     const r = Math.random(); const step = r < 0.7 ? 1 : r < 0.93 ? 2 : 0;
-    const dir = d >= 6 ? -1 : d <= -2 ? 1 : (Math.random() < 0.5 ? -1 : 1);
-    d = Math.max(-3, Math.min(8, d + dir * step)); degs.push(d);
+    const dir = d >= (cfg.five ? hi - 1 : 6) ? -1 : d <= lo + 1 ? 1 : (Math.random() < 0.5 ? -1 : 1);
+    d = Math.max(lo, Math.min(hi, d + dir * step)); degs.push(d);
   }
   const midis = degs.map(x => noteInfo(piece, base, x).midi);
   const tonic = keyTonicMidi(keyName), third = tonic + (K.minor ? 3 : 4);

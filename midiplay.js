@@ -101,7 +101,8 @@ function mpBuild(vo, hand) {
       const sel = mm && n ? `.abcjs-note.abcjs-mm${mm[1]}.abcjs-v${vi}.abcjs-n${n[1]}` : null;
       const k = Math.round(a.midiPitches[0].start * 20160);
       let st = map.get(k); if (!st) { st = {w: a.midiPitches[0].start, T: 0, notes: [], pitches: new Set(), hit: new Set(), err: 0, bar: mm ? +mm[1] + 1 : 0}; map.set(k, st); }
-      for (const m of a.midiPitches) { if (st.pitches.has(m.pitch)) continue; st.pitches.add(m.pitch); st.notes.push({p: m.pitch, d: m.duration, sel, bar: mm ? +mm[1] + 1 : 0}); }
+      const stac = (a.decoration || []).includes("staccato");   // nuty staccato mogą być krótkie
+      for (const m of a.midiPitches) { if (st.pitches.has(m.pitch)) continue; st.pitches.add(m.pitch); st.notes.push({p: m.pitch, d: m.duration, sel, bar: mm ? +mm[1] + 1 : 0, stac}); }
     }
   });
   let meter = null; try { meter = vo.getMeterFraction(); } catch (e) {}
@@ -274,7 +275,7 @@ function mpWaitNote(ev) {
 function mpWaitFinish() {
   const n = MP.steps.length, first = MP.steps.filter(s => !s.err).length, p = Math.round(first / n * 100);
   MP.stage = "done"; MP.res = {n, first, p};
-  if (MP.hand === null) {            // wynik zapisujemy tylko dla całości (obie ręce)
+  if (MP.hand === null && !MP.src.startsWith("sight:")) {            // wynik zapisujemy tylko dla całości (obie ręce); czytanie a vista jest za każdym razem nowe
     const B = begS(); if (!B.play) B.play = {};
     const r = B.play[MP.src] || {};
     r.best = Math.max(r.best || 0, p); r.n = (r.n || 0) + 1; r.d = todayKey(); B.play[MP.src] = r; save();
@@ -425,7 +426,7 @@ function mpCalFinish() {
 }
 function mpLenJudge(n, endRel) {
   const played = (n.rel === undefined ? endRel : n.rel) - n.on;
-  if (n.rel !== undefined && played < n.D * 0.5) return "short";
+  if (n.rel !== undefined && played < n.D * 0.5 && !n.stac) return "short";
   if (!n.last && played > n.D + MP.beatMs * 0.5) return "long";
   return null;
 }
@@ -483,7 +484,7 @@ function mpTempoFinish() {
   }
   res.text = tips.join(" ");
   MP.stage = "done"; MP.res = res; MP.msg = "";
-  if (MP.hand === null) {
+  if (MP.hand === null && !MP.src.startsWith("sight:")) {
     const B = begS(); if (!B.play) B.play = {};
     const r = B.play[MP.src] || {};
     if (r.tb === undefined || res.all > r.tb || (res.all === r.tb && MP.bpm > r.tbpm)) { r.tb = res.all; r.tbpm = MP.bpm; }
@@ -505,8 +506,19 @@ function mpTempoSetup(msg) {
 midiListen((ev) => {
   mpLivePaint();
   if (MP.on) { if (MP.mode === "wait") { if (MP.stage === "run") mpWaitNote(ev); } else if (MP.stage === "cal") mpCalNote(ev); else mpTempoNote(ev); }
-  else if (ev.type === "on" && isBeg() && !mpHidden() && Q.cur && Q.cur.open) clapTap();   // rytm można wystukać na klawiszu pianina
+  else if (ev.type === "on" && isBeg() && !mpHidden() && Q.cur) {
+    if (Q.cur.open) clapTap();   // rytm można wystukać na klawiszu pianina
+    else if (Q.cur.midis && Q.cur.ans && !Q.locked && document.getElementById("seqline")) mpMelodyKey(ev.midi);
+  }
 });
+// powtarzanie melodii (słuch) zagrane na pianinie: pierwszy dźwięk jest podany, więc jeśli zaczniesz od niego, nie liczy się podwójnie;
+// po ostatnim dźwięku aplikacja sama sprawdza odpowiedź
+function mpMelodyKey(m) {
+  const q = Q.cur;
+  if (!q.pno) { q.pno = true; if (m % 12 === q.midis[0] % 12 && q.ans.length === 1) return; }
+  q.ans.push(m); seqRender();
+  if (q.ans.length >= q.midis.length) melCheck();
+}
 document.addEventListener("click", (e) => {
   const t = e.target.closest && e.target.closest("[data-act]"); if (!t) return;
   switch (t.dataset.act) {
@@ -561,7 +573,27 @@ function mpRaiseStage(p, s) {
   return true;
 }
 // po przejściu całego utworu: czy cel osiągnięty i co jeszcze brakuje (tekst trafia do panelu z wynikiem)
+function mpMisses(res) {
+  const notes = Math.round(res.hit / res.n * 100), miss = [];
+  if (notes < MP_GOAL) miss.push(`nuty ${notes}%`);
+  if (res.rhythm < MP_GOAL) miss.push(`rytm ${res.rhythm}%`);
+  if (res.len < MP_GOAL) miss.push(`długość ${res.len}%`);
+  if (res.extra > Math.floor(res.n * 0.1)) miss.push(`dodatkowe dźwięki: ${res.extra}`);
+  return miss;
+}
+// gamy i trójdźwięki (grade.js): zaliczone, gdy z metronomem w tempie egzaminu każda kategoria ma co najmniej 90%
+function mpTechGoal(res) {
+  const id = MP.src.split(":")[1];
+  if (MP.hand !== null) return `<p class="pgoal">Do zaliczenia liczy się całe ćwiczenie – zagraj je bez wybierania ręki.</p>`;
+  if (MP.mode === "wait") return `<p class="pgoal"><b>Zaliczenie:</b> tryb „Z metronomem” w tempie ♩ = ${mpTempos()[2][1]}, co najmniej ${MP_GOAL}% w każdej kategorii.</p>`;
+  const miss = mpMisses(res);
+  if (miss.length) return `<p class="pgoal"><b>Cel: ${MP_GOAL}% w każdej kategorii.</b> Do poprawy: ${miss.join(", ")}.</p>`;
+  if (MP.tempoIdx < 2) return `<p class="pgoal ok">✓ ${MP_GOAL}% w każdej kategorii. Teraz w tempie egzaminu: ♩ = ${mpTempos()[2][1]}.</p>`;
+  grTechMark(id, true, true);
+  return `<p class="pgoal ok">✓ Zaliczone w tempie egzaminu. Ćwiczenie ma znak „gotowe”.</p>`;
+}
 function mpGoalAfter(res) {
+  if (MP.src && MP.src.startsWith("tech:") && typeof grTechMark === "function") return mpGoalOn() ? mpTechGoal(res) : "";
   const p = mpPieceOf(MP.src); if (!p || !mpGoalOn()) return "";
   if (MP.hand !== null) return `<p class="pgoal">Wynik jednej ręki nie liczy się do zaliczenia utworu – zagraj obiema rękami.</p>`;
   if (MP.mode === "wait") {
@@ -569,11 +601,7 @@ function mpGoalAfter(res) {
     mpRaiseStage(p, 2);
     return `<p class="pgoal ok">✓ Nuty opanowane (${res.p}%). Kolejny krok: tryb „Z metronomem”.</p>`;
   }
-  const notes = Math.round(res.hit / res.n * 100), miss = [];
-  if (notes < MP_GOAL) miss.push(`nuty ${notes}%`);
-  if (res.rhythm < MP_GOAL) miss.push(`rytm ${res.rhythm}%`);
-  if (res.len < MP_GOAL) miss.push(`długość ${res.len}%`);
-  if (res.extra > Math.floor(res.n * 0.1)) miss.push(`dodatkowe dźwięki: ${res.extra}`);
+  const miss = mpMisses(res);
   if (miss.length) return `<p class="pgoal"><b>Cel: ${MP_GOAL}% w każdej kategorii.</b> Do poprawy: ${miss.join(", ")}.</p>`;
   if (MP.tempoIdx < 2) {
     mpRaiseStage(p, 3);
