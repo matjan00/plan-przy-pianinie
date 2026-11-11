@@ -197,7 +197,7 @@ function renderAbcInto(el, abc, opts) {
   if (!el) return;
   if (!window.ABCJS) { el.innerHTML = `<p class="small muted">Nuty wczytają się po połączeniu z internetem.</p>`; return; }
   const staffwidth = Math.max(260, Math.min(700, (el.clientWidth || 340) - 24));
-  try { window.ABCJS.renderAbc(el, abc, Object.assign({responsive: "resize", staffwidth, foregroundColor: inkColor(), paddingleft: 0, paddingright: 0, add_classes: true}, opts || {})); }
+  try { return window.ABCJS.renderAbc(el, abc, Object.assign({responsive: "resize", staffwidth, foregroundColor: inkColor(), paddingleft: 0, paddingright: 0, add_classes: true}, opts || {}))[0]; }
   catch (e) { el.innerHTML = `<p class="small muted">Nie udało się narysować nut.</p>`; }
 }
 

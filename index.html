@@ -301,6 +301,58 @@ input[type=email],input[type=password]{font:inherit;color:inherit;background:var
 .mkb .cdot{fill:var(--muted)}
 #midicard summary .pill{margin-left:6px;font-weight:500}
 #midi-body p,#midi-body ul{margin:0}
+/* play with the piano (midiplay.js). Notes: blue = play now, green = right, amber = rhythm or length, red = missed or corrected */
+.abc svg .mp-cur{fill:var(--c-mind);stroke:var(--c-mind)}
+.abc svg .mp-ok{fill:var(--ok)}
+.abc svg .mp-warn{fill:var(--c-tech)}
+.abc svg .mp-fix{fill:var(--danger)}
+.abc svg .mp-cur.mp-bad{fill:var(--danger);stroke:var(--danger)}
+/* the piano bar under an exercise: a quiet dashed row until the piano is connected, then a panel */
+.pbar{display:flex;flex-direction:column;gap:10px;background:var(--sunk);border-radius:14px;padding:12px}
+.pbar p{margin:0}
+.pbar.plivebar{position:sticky;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:3;box-shadow:0 8px 24px -10px rgba(0,0,0,.4);border:1px solid var(--line)}
+body.playing .pbar.plivebar{bottom:calc(148px + env(safe-area-inset-bottom,0px))}
+.pbar .grow{flex:1;min-width:0}
+.pbar.pslim{flex-direction:row;align-items:center;gap:8px;background:transparent;border:1px dashed var(--line);padding:4px 4px 4px 12px;font-size:.85rem;color:var(--muted)}
+.pbar-head{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--muted)}
+.pbar-head b{font-family:var(--f-display);font-size:1rem;color:var(--ink)}
+.pkeys{display:inline-flex;gap:1px;flex:none}
+.pkeys i{width:5px;height:15px;background:#fff;border:1px solid #666;border-radius:0 0 2px 2px}
+.pkeys i:nth-child(2){background:var(--accent);border-color:var(--accent)}
+.pdot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.pdot.on{background:var(--ok)}
+.pclose{border:0;background:none;color:var(--muted);min-width:40px;min-height:40px;font-size:1.25rem;line-height:1;border-radius:10px}
+.pmodes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pmode{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;min-height:76px;touch-action:manipulation}
+.pmode:hover{border-color:var(--accent)}
+.pmode b{font-family:var(--f-display);font-size:1rem;line-height:1.2}
+.pmode > span{font-size:.8rem;line-height:1.35;color:var(--muted)}
+.pmode .pill{margin-top:3px;white-space:normal}
+.plive{font-family:var(--f-display);font-weight:700;font-size:1.05rem;color:var(--ink)}
+.pprog{height:6px;background:var(--surface)}
+.mp-msg{font-weight:500;min-height:3.1em}
+.mp-msg.one{min-height:1.55em;text-align:center}
+.mp-msg.ok{color:var(--ok)} .mp-msg.bad{color:var(--danger)}
+.ptempo{display:flex}
+.ptempo button{flex:1;display:flex;flex-direction:column;align-items:center;gap:0;padding:6px 4px;line-height:1.25}
+.ptempo small{font:500 .72rem var(--f-mono);opacity:.75}
+.pbeat{display:flex;align-items:center;justify-content:center;gap:14px;min-height:44px}
+.pcount{font-family:var(--f-display);font-size:2.4rem;font-weight:700;line-height:1;color:var(--accent)}
+.pcount:empty{display:none}
+.pbeat .dots i{background:var(--surface)} .pbeat .dots i.on{background:var(--accent)}
+/* timing strip: the middle band is "on the beat", the dot is the last note */
+.ptime{position:relative;height:18px;border-radius:99px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.ptime::before{content:"";position:absolute;top:0;bottom:0;left:calc(50% - var(--z));right:calc(50% - var(--z));background:var(--c-music-soft)}
+.ptime::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--muted)}
+.ptime i{position:absolute;top:2px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--ok);z-index:1;transition:left .08s}
+.ptime i.off{background:var(--c-tech)}
+.ptime-l{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-top:2px}
+.pbar .mini{background:var(--surface)}
+.minis.two{grid-template-columns:repeat(2,1fr)}
+.plegend{display:flex;gap:12px;flex-wrap:wrap;font-size:.75rem;color:var(--muted)}
+.plegend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.plegend i.ok{background:var(--ok)} .plegend i.warn{background:var(--c-tech)} .plegend i.fix{background:var(--danger)}
+@media (max-width:380px){.pmodes{grid-template-columns:1fr}.pmode{min-height:0}}
 </style>
 </head>
 <body>
@@ -338,6 +390,7 @@ input[type=email],input[type=password]{font:inherit;color:inherit;background:var
 <script src="notes.js"></script>
 <script src="beginner.js"></script>
 <script src="midi.js"></script>
+<script src="midiplay.js"></script>
 <script>
 "use strict";
 /* ============================== DANE ============================== */

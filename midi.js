@@ -188,7 +188,7 @@ function midiBodyHtml() {
         <div class="spread small"><span id="midi-ctest"></span><span class="pill own" id="midi-ped" hidden>pedał wciśnięty</span></div>
       </div>
       <p class="small muted">Kropka pod klawiaturą to środkowe C. Jeśli aplikacja pokazuje inny dźwięk niż ten, który grasz, sprawdź, czy w pianinie nie jest włączona transpozycja.</p>
-      <p class="small muted">Na razie to test połączenia. Sprawdzanie gry na żywo dojdzie w kolejnym kroku.</p>
+      <p class="small muted">${typeof isBeg === "function" && isBeg() ? "W kursie od zera pod nutami ćwiczeń i utworów jest teraz pasek <b>Zagraj z pianinem</b> z dwoma trybami: „Nuty czekają” (sprawdza klawisze) i „Z metronomem” (sprawdza też rytm i długość nut)." : "Sprawdzanie gry na żywo działa na razie tylko w kursie od zera."}</p>
       <div class="row"><button class="btn sm ghost" data-act="midi-off">Wyłącz połączenie</button></div>`;
   }
   return `<p class="small">Po podłączeniu pianina cyfrowego kablem USB aplikacja widzi, które klawisze naciskasz. To dodatek: wszystko w aplikacji działa też bez niego.</p>
@@ -197,10 +197,12 @@ function midiBodyHtml() {
 }
 function midiCardHtml() {
   return `<details class="card" id="midicard"><summary data-k="midi">Pianino przez USB <span id="midi-pill">${midiPill()}</span></summary>
-    <div class="stack" id="midi-body" style="margin-top:10px">${midiBodyHtml()}</div></details>`;
+    <div class="stack" id="midi-body" style="margin-top:10px">${midiBodyHtml()}</div>
+    <div id="midi-extra" style="margin-top:12px">${typeof mpCardExtraHtml === "function" ? mpCardExtraHtml() : ""}</div></details>`;
 }
 // przerysowanie samej karty (stan połączenia); naciśnięte klawisze maluje midiPaint
 function midiRefresh() {
+  if (typeof mpBars === "function") mpBars();        // paski pianina w kursie od zera (midiplay.js)
   const body = document.getElementById("midi-body"); if (!body) return;
   const ae = document.activeElement, act = ae && body.contains(ae) ? ae.dataset.act : null;
   body.innerHTML = midiBodyHtml();

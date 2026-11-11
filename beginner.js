@@ -404,6 +404,7 @@ function begBlockBody(b) {
   if (b.type === "bwarm") {
     return `<p class="small">Krótko i spokojnie – to rozgrzewka, nie trening siły. Ramiona luźne, palce zaokrąglone.</p>
       <ol class="tips">${WARM[E].map(x => `<li>${x}</li>`).join("")}</ol>
+      ${mpSlot("free:warm")}
       ${metroInline(60, "bwarm")}`;
   }
   if (b.type === "blesson") {
@@ -413,7 +414,7 @@ function begBlockBody(b) {
     return `<div><h3 style="font-size:1.15rem">${l.title}</h3><p class="meta">Etap ${l.etap}: ${BEG_ETAPY[l.etap - 1].name} · lekcja ${i + 1} z ${BEG_LESSONS.length}</p></div>
       <p class="small">${l.short}</p>
       <div class="box tip small"><b>Cel lekcji:</b> ${l.goal}</div>
-      ${l.abc ? `<div class="abc" data-abc="${l.id}:0"></div><div class="row"><button class="btn sm" data-act="b-play" data-src="lesson:${l.id}:0">▶ Posłuchaj</button><button class="btn sm ghost" data-act="b-stop">Stop</button></div>` : ""}
+      ${l.abc ? `<div class="abc" data-abc="${l.id}:0"></div><div class="row"><button class="btn sm" data-act="b-play" data-src="lesson:${l.id}:0">▶ Posłuchaj</button><button class="btn sm ghost" data-act="b-stop">Stop</button>${mpUi("lesson:" + l.id + ":0")}` : ""}
       <p class="small muted">Jedna lekcja może trwać kilka dni – to normalne. Odhacz ją, gdy cel lekcji jest spełniony.</p>
       <div class="row"><button class="btn sm primary" data-act="b-lesson" data-id="${l.id}">Otwórz lekcję</button>
       <button class="btn sm ghost" data-act="b-ldone" data-id="${l.id}">Cel osiągnięty ✓</button></div>`;
@@ -425,7 +426,7 @@ function begBlockBody(b) {
       <div id="bq-inline">${b.done ? `<p class="small muted">Zrobione na dziś.</p>` : `<button class="btn sm primary" data-act="b-quiz" data-q="${kb ? "bkeys" : "bnotes"}">Zacznij (10 pytań)</button>`}</div>`;
   }
   if (b.type === "brhythm") {
-    return `<p class="small">Posłuchaj krótkiego rytmu, a potem wystukaj go na dużym przycisku. Licz w myślach „raz-dwa-trzy-cztery”.</p>
+    return `<p class="small">Posłuchaj krótkiego rytmu, a potem wystukaj go na dużym przycisku${typeof mpReady === "function" && mpReady() && !mpHidden() ? " albo na dowolnym klawiszu pianina" : ""}. Licz w myślach „raz-dwa-trzy-cztery”.</p>
       <div id="bq-inline">${b.done ? `<p class="small muted">Zrobione na dziś.</p>` : `<button class="btn sm primary" data-act="b-quiz" data-q="ear-clap">Zacznij (4 rytmy)</button>`}</div>`;
   }
   if (b.type === "bpiece") {
@@ -436,18 +437,22 @@ function begBlockBody(b) {
   if (b.type === "brepeat") {
     const items = (b.items || []).map(id => BEG_PIECES.find(p => p.id === id)).filter(Boolean);
     return `<p class="small">Zagraj jeszcze raz utwory, które już znasz – tym razem z jednym celem: równe tempo, wyraźna melodia albo bez patrzenia na ręce.</p>
-      <ul class="tips">${items.map(p => `<li><b>${p.name}</b> <span class="muted small">· ${p.pos}</span> <button class="btn sm ghost" data-act="b-play" data-src="piece:${p.id}">▶</button></li>`).join("")}</ul>
+      <div class="pieces" style="padding:0">${items.map(p => `<details class="piece"><summary><span class="pn">${p.name}</span><span class="muted small">${p.pos}</span></summary>
+        <div class="stack" style="gap:10px;padding:2px 0 6px">${begPieceHtml(p, false)}</div></details>`).join("")}</div>
       ${S.my.length ? `<p class="small">Albo coś z Twoich utworów: ${S.my.slice(0, 3).map(m => esc(m.name)).join(", ")}.</p>` : ""}`;
   }
   return "";
 }
+// pasek pianina (midiplay.js) pod nutami: mpUi zamyka wiersz przycisków i dodaje pasek, mpSlot dodaje sam pasek
+function mpUi(src) { return typeof mpUiHtml === "function" ? mpUiHtml(src) : "</div>"; }
+function mpSlot(src) { return typeof mpBarSlot === "function" ? mpBarSlot(src) : ""; }
 function begPieceHtml(p, inPlan) {
   const s = st(p.id);
   return `<div class="stack" style="gap:8px"><div><h3 style="font-size:1.15rem">${p.name}</h3>
     <p class="meta">${p.by} · ${p.hands} · ${p.pos}</p></div>
     <div class="abc" data-babc="${p.id}"></div>
     <div class="row"><button class="btn sm" data-act="b-play" data-src="piece:${p.id}">▶ Posłuchaj</button><button class="btn sm ghost" data-act="b-stop">Stop</button>
-      ${ytLink(p.name.replace(/\s*\(.*\)/, "") + " easy piano tutorial", "YouTube")}</div>
+      ${ytLink(p.name.replace(/\s*\(.*\)/, "") + " easy piano tutorial", "YouTube")}${mpUi("piece:" + p.id)}
     ${inPlan ? `<p class="note"><b>Dziś:</b> ${BEG_STEP[s]}</p>` : ""}
     ${stageHtml(p)}
     <ul class="tips small">${p.tips.map(t => `<li>${t}</li>`).join("")}</ul>
@@ -560,8 +565,8 @@ function begLessonView(id) {
       <p class="meta">Etap ${l.etap}: ${BEG_ETAPY[l.etap - 1].name} · lekcja ${i + 1} z ${BEG_LESSONS.length}</p>
       ${l.body}
       ${(l.abc || []).map((a, k) => `<div><div class="abc" data-abc="${id}:${k}"></div>${a.cap ? `<p class="small muted" style="margin:0">${a.cap}</p>` : ""}
-        <div class="row" style="margin-top:6px"><button class="btn sm" data-act="b-play" data-src="lesson:${id}:${k}">▶ Posłuchaj</button><button class="btn sm ghost" data-act="b-stop">Stop</button></div></div>`).join("")}
-      ${l.piano ? `<div class="box tip"><b>Przy pianinie:</b> ${l.piano}</div>` : ""}
+        <div class="row" style="margin-top:6px"><button class="btn sm" data-act="b-play" data-src="lesson:${id}:${k}">▶ Posłuchaj</button><button class="btn sm ghost" data-act="b-stop">Stop</button>${mpUi("lesson:" + id + ":" + k)}</div>`).join("")}
+      ${l.piano ? `<div class="box tip"><b>Przy pianinie:</b> ${l.piano}</div>${mpSlot("free:" + id)}` : ""}
       <div class="box"><b>Cel lekcji:</b> ${l.goal}</div>
       ${l.check ? `<h4>Sprawdź się</h4>${l.check.map((c, qi) => `<div class="check-q"><span>${c.q}</span><div class="opts">${c.opts.map((o, oi) => `<button type="button" data-act="chk" data-id="${id}" data-q="${qi}" data-o="${oi}">${o}</button>`).join("")}</div><p class="small muted" id="why-${qi}" role="status" style="margin:0"></p></div>`).join("")}` : ""}
       ${unlocks.length ? `<p class="small">Po tej lekcji odblokujesz w Utworach: <b>${unlocks.map(p => p.name).join(", ")}</b>.</p>` : ""}
@@ -726,10 +731,11 @@ function abcWrap(src, per) {
   }
   return out;
 }
-function begRender(el, src) { renderAbcInto(el, abcWrap(src, (el.clientWidth || 340) < 420 ? 2 : 4)); }
+function begRender(el, src) { return renderAbcInto(el, abcWrap(src, (el.clientWidth || 340) < 420 ? 2 : 4)); }
 function begAfter() {
   document.querySelectorAll("[data-babc]").forEach(el => { const p = BEG_PIECES.find(x => x.id === el.dataset.babc); if (p && el.offsetParent !== null) begRender(el, p.abc); });
   document.querySelectorAll("#view [data-abc]").forEach(el => { const [id, k] = el.dataset.abc.split(":"); if (!/^b\d/.test(id) || el.offsetParent === null) return; const L = LESSONS[id]; if (L && L.abc && L.abc[+k]) begRender(el, L.abc[+k].src); });
+  if (typeof mpAfter === "function") mpAfter();
 }
 // nuty w zwiniętym <details> rysujemy dopiero po rozwinięciu (abcjs potrzebuje szerokości)
 document.addEventListener("toggle", (e) => { if (e.target.open && e.target.querySelector && e.target.querySelector("[data-babc],[data-abc]")) begAfter(); }, true);
