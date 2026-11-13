@@ -1033,7 +1033,7 @@ function render(){
   if(TAB==="learn") { v.innerHTML=viewLearn(); afterLearn(); }
   if(TAB==="today") afterToday();
   if(openD.size){ const seen2={}; v.querySelectorAll("details > summary").forEach(sm=>{ const t=sm.dataset.k||sm.textContent.trim(); seen2[t]=(seen2[t]||0)+1; if(openD.has(t+"#"+seen2[t])) sm.parentElement.open=true; }); }
-  if(isBeg()) begAfter();
+  if(isBeg()) begAfter(); else if(typeof mpAfter==="function") mpAfter();
   renderNowbar();
   if(fk){ const el=document.querySelector(fk); if(el && el!==document.activeElement) el.focus({preventScroll:true}); }
 }

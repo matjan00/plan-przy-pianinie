@@ -761,6 +761,7 @@ function abcParse(src) {
 function begAbc(src) {
   const [kind, id, k] = src.split(":");
   if (kind === "piece") { const p = BEG_PIECES.find(x => x.id === id); return p && p.abc; }
+  if (kind === "sight" && typeof SRGEN !== "undefined" && SRGEN[id]) return SRGEN[id].n === +k ? SRGEN[id].piece.abc : null;   // generator a vista (extra.js)
   if ((kind === "tech" || kind === "sight") && typeof grAbc === "function") return grAbc(kind, id);
   const l = BEG_LESSONS.find(x => x.id === id); return l && l.abc && l.abc[+k] && l.abc[+k].src;
 }

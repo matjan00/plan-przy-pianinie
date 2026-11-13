@@ -188,7 +188,7 @@ function midiBodyHtml() {
         <div class="spread small"><span id="midi-ctest"></span><span class="pill own" id="midi-ped" hidden>pedał wciśnięty</span></div>
       </div>
       <p class="small muted">Kropka pod klawiaturą to środkowe C. Jeśli aplikacja pokazuje inny dźwięk niż ten, który grasz, sprawdź, czy w pianinie nie jest włączona transpozycja.</p>
-      <p class="small muted">${typeof isBeg === "function" && isBeg() ? "W kursie od zera pod nutami ćwiczeń i utworów jest teraz pasek <b>Zagraj z pianinem</b> z dwoma trybami: „Nuty czekają” (sprawdza klawisze) i „Z metronomem” (sprawdza też rytm i długość nut)." : "Sprawdzanie gry na żywo działa na razie tylko w kursie od zera."}</p>
+      <p class="small muted">${typeof isBeg === "function" && isBeg() ? "W kursie od zera pod nutami ćwiczeń i utworów jest teraz pasek <b>Zagraj z pianinem</b> z dwoma trybami: „Nuty czekają” (sprawdza klawisze) i „Z metronomem” (sprawdza też rytm i długość nut)." : "Przy ćwiczeniu a vista z aplikacji (plan dnia i Narzędzia) jest pasek <b>Zagraj z pianinem</b>. W trybie „Z metronomem” aplikacja sama oceni pierwsze podejście (1–5) i na tej podstawie zrobi następne ćwiczenie trochę wolniejsze albo szybsze."}</p>
       <div class="row"><button class="btn sm ghost" data-act="midi-off">Wyłącz połączenie</button></div>`;
   }
   return `<p class="small">Po podłączeniu pianina cyfrowego kablem USB aplikacja widzi, które klawisze naciskasz. To dodatek: wszystko w aplikacji działa też bez niego.</p>

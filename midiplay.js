@@ -25,6 +25,11 @@ function mpLat() { try { const v = parseFloat(localStorage.getItem(MP_LAT)); ret
 function mpSetLat(v) { try { localStorage.setItem(MP_LAT, String(Math.round(Math.max(-150, Math.min(400, v))))); } catch (e) {} }
 const mpReady = () => MIDI.status === "on" && MIDI.inputs.length > 0;
 const mpRec = (src) => { const B = S.beg; return (B && B.play && B.play[src]) || null; };
+const mpSight = (src) => !!src && src.startsWith("sight:");
+// czytanie a vista z generatora działa w obu trybach aplikacji; reszta tylko w kursie od zera
+const mpAllowed = (src) => isBeg() || mpSight(src);
+// symbol miary metronomu: w 6/8 klika ćwierćnuta z kropką (tylko a vista), w pozostałych ćwierćnuta
+const mpSym = () => MP.den === 8 / 3 ? "♩." : MP.den === 8 ? "♪" : "♩";
 
 /* ============================== PASEK PIANINA ============================== */
 function mpBarSlot(src) { return `<div class="pbar" data-pbar="${src}" hidden></div>`; }
@@ -43,7 +48,7 @@ function mpModesHtml(src) {
   return `<div class="pbar-head">${MP_ICON}<b>Zagraj z pianinem</b><span class="grow"></span><span class="pdot on" aria-hidden="true"></span><span>połączone</span></div>
     <div class="pmodes">
       <button class="pmode" data-act="mp-start" data-src="${src}" data-mode="wait"><b>Nuty czekają</b><span>Bez tempa. Sprawdza, czy grasz właściwe klawisze.</span>${r && r.best !== undefined ? `<span class="pill own">najlepiej ${r.best}%</span>` : ""}</button>
-      <button class="pmode" data-act="mp-start" data-src="${src}" data-mode="tempo"><b>Z metronomem</b><span>Sprawdza też rytm i długość nut.</span>${r && r.tb !== undefined ? `<span class="pill own">najlepiej ${r.tb}% · ♩=${r.tbpm}</span>` : ""}</button>
+      <button class="pmode" data-act="mp-start" data-src="${src}" data-mode="tempo"><b>Z metronomem</b><span>${mpSight(src) ? "Sama oceni podejście i dobierze tempo następnego ćwiczenia." : "Sprawdza też rytm i długość nut."}</span>${r && r.tb !== undefined ? `<span class="pill own">najlepiej ${r.tb}% · ♩=${r.tbpm}</span>` : ""}</button>
     </div>`;
 }
 function mpLiveHtml() {
@@ -51,7 +56,7 @@ function mpLiveHtml() {
     ${midiKbSvg().replace(' id="midi-kb"', "")}`;
 }
 function mpBarKey(src) {
-  if (!MIDI.supported || mpHidden() || !isBeg()) return "none";
+  if (!MIDI.supported || mpHidden() || !mpAllowed(src)) return "none";
   if (MP.on && MP.src === src) return ["s", MP.mode, MP.stage, MP.hand, MP.nv, MP.tempoIdx].join("|");
   if (mpReady()) return "ready|" + JSON.stringify(mpRec(src));
   // bez połączenia jedno zaproszenie na widok wystarczy: przy zadaniu bez nut pokazujemy je tylko, gdy obok nie ma ćwiczenia z nutami
@@ -143,7 +148,7 @@ function mpShow() {
 
 /* ============================== START I STOP ============================== */
 function mpStart(src, mode, hand) {
-  if (!isBeg()) return;
+  if (!mpAllowed(src)) return;
   if (MP.on) mpStop();
   const abc = begAbc(src);
   MP.src = src;
@@ -160,6 +165,10 @@ function mpStart(src, mode, hand) {
   stopQueue();
   Object.assign(MP, {on: true, src, mode, hand, nv: built.nv, steps: built.steps, beats: built.beats, den: built.den, i: 0, wrong: 0, cls: "", res: null,
     extra: 0, lastOff: null, base: abcParse(abc).bpm});
+  if (mpSight(src) !== mpSight(MP.prevSrc)) MP.tempoIdx = 0;   // tempa a vista i utworów to różne listy
+  MP.prevSrc = src;
+  const sp = mpSight(src) && typeof sightPiece === "function" ? sightPiece(src) : null;
+  if (sp) { MP.base = sp.bpm; if (sp.mi.compound) { MP.beats = sp.mi.beats; MP.den = 8 / 3; } }   // 6/8: klik na ćwierćnutę z kropką
   if (mode === "wait") { MP.stage = "run"; MP.msg = "Zagraj niebieską nutę. Tempo dowolne – nuty czekają na Ciebie."; }
   else { MP.stage = "setup"; MP.msg = ""; }
   if (!wake) keepAwake();
@@ -176,7 +185,7 @@ function mpStop() {
 }
 // po każdym przerysowaniu widoku: nowe paski i nowe nuty; gdy ćwiczenia nie ma już na ekranie – koniec
 function mpAfter() {
-  if (MP.on && (!isBeg() || !mpHostEl() || !mpScoreEl())) mpStop();
+  if (MP.on && (!mpAllowed(MP.src) || !mpHostEl() || !mpScoreEl())) mpStop();
   mpBars();
   if (MP.on) mpPaintScore();
 }
@@ -186,7 +195,10 @@ function mpHandsHtml() {
   return MP.nv > 1 ? `<div><div class="seg" role="group" aria-label="Która ręka">${[["all", "Obie ręce"], ["0", "Prawa"], ["1", "Lewa"]].map(([h, lbl]) =>
     `<button data-act="mp-hand" data-h="${h}" aria-pressed="${h === (MP.hand === null ? "all" : String(MP.hand))}">${lbl}</button>`).join("")}</div></div>` : "";
 }
-function mpTempos() { const b = MP.base || 80, ev = (x) => Math.max(40, Math.round(x / 2) * 2); return [["Wolno", ev(b * 0.6)], ["Średnio", ev(b * 0.8)], ["W tempie", b]]; }
+function mpTempos() {
+  const b = MP.base || 80, ev = (x) => Math.max(40, Math.round(x / 2) * 2);
+  if (mpSight(MP.src)) return [["Twoje tempo", b], ["Wolniej", Math.max(30, Math.round(b * 0.85 / 2) * 2)]];
+  return [["Wolno", ev(b * 0.6)], ["Średnio", ev(b * 0.8)], ["W tempie", b]]; }
 const MP_LEGEND = `<p class="plegend"><span><i class="ok"></i>dobrze</span><span><i class="warn"></i>rytm lub długość</span><span><i class="fix"></i>pominięta</span></p>`;
 function mpSessionHtml() {
   const head = (name) => `<div class="pbar-head">${MP_ICON}<b>${name}</b><span class="grow"></span><span class="mono" data-mp-prog></span></div>`;
@@ -214,7 +226,8 @@ function mpSessionHtml() {
   if (MP.stage === "setup") {
     return `${head("Z metronomem")}${mpHandsHtml()}
       <div class="stack" style="gap:4px"><span class="small muted">Tempo</span>
-        <div class="seg ptempo" role="group" aria-label="Tempo">${mpTempos().map(([lbl, bpm], k) => `<button data-act="mp-tempo" data-k="${k}" aria-pressed="${k === MP.tempoIdx}">${lbl}<small>♩ = ${bpm}</small></button>`).join("")}</div></div>
+        <div class="seg ptempo" role="group" aria-label="Tempo">${mpTempos().map(([lbl, bpm], k) => `<button data-act="mp-tempo" data-k="${k}" aria-pressed="${k === MP.tempoIdx}">${lbl}<small>${mpSym()} = ${bpm}</small></button>`).join("")}</div></div>
+      ${mpSight(MP.src) ? `<p class="small muted" style="margin:0">„Twoje tempo” aplikacja ustala z wyników poprzednich ćwiczeń na tym poziomie. Ocenę 1–5 i nowe tempo daje pierwsze podejście do ćwiczenia.</p>` : ""}
       <p class="small muted" style="margin:0">${MP.msg ? `<b>${MP.msg}</b> ` : ""}Najpierw usłyszysz takt odliczania. Potem graj równo z metronomem – nuty nie czekają.</p>
       <div class="pcal"><span>Opóźnienie dźwięku: <b class="mono">${Math.round(mpLat())} ms</b><br><span class="muted">Grasz równo, a aplikacja mówi „za późno”? Zrób kalibrację.</span></span><button class="btn sm" data-act="mp-cal">Kalibruj</button></div>
       <div class="row"><button class="btn primary" data-act="mp-go">Start</button><button class="btn sm ghost" data-act="mp-stop">Zakończ</button></div>`;
@@ -229,7 +242,7 @@ function mpSessionHtml() {
       <div class="row"><button class="btn sm primary" data-act="mp-go">Jeszcze raz</button><button class="btn sm" data-act="mp-setup">Zmień tempo</button><button class="btn sm ghost" data-act="mp-stop">Zakończ</button></div>`;
   }
   const z = Math.round(MP.tol / MP.matchW * 50);
-  return `${head("Z metronomem · ♩ = " + MP.bpm)}${bar}
+  return `${head("Z metronomem · " + mpSym() + " = " + MP.bpm)}${bar}
     <div class="pbeat"><span class="pcount" data-mp-count></span><div class="dots" data-mp-dots>${Array.from({length: MP.beats}, (x, k) => `<i class="${k ? "" : "g"}"></i>`).join("")}</div></div>
     <div><div class="ptime" style="--z:${z}%"><i data-mp-dot hidden></i></div><div class="ptime-l" aria-hidden="true"><span>za wcześnie</span><span>równo</span><span>za późno</span></div></div>
     <p class="mp-msg one" data-mp-msg></p>
@@ -473,14 +486,14 @@ function mpTempoFinish() {
   const res = {n, hit: hit.length, rhythm: hit.length ? Math.round(rOk / hit.length * 100) : 0, len: hit.length ? Math.round(lOk / hit.length * 100) : 0, all: Math.round(perfect / n * 100), extra: MP.extra};
   const tips = [];
   if (!hit.length) tips.push("Nie usłyszałem żadnej nuty z tego ćwiczenia. Zacznij razem z pierwszą miarą po odliczaniu.");
-  else if (res.all === 100 && !MP.extra) tips.push(MP.tempoIdx < 2 ? "Bezbłędnie! Spróbuj w szybszym tempie." : "Bezbłędnie, w pełnym tempie!");
+  else if (res.all === 100 && !MP.extra) tips.push(mpSight(MP.src) ? "Bezbłędnie!" : MP.tempoIdx < 2 ? "Bezbłędnie! Spróbuj w szybszym tempie." : "Bezbłędnie, w pełnym tempie!");
   else {
     if (n - hit.length) tips.push(`Pominięte nuty: ${n - hit.length}.`);
     if (MP.extra) tips.push(`Dodatkowe dźwięki: ${MP.extra}.`);
     if (early + late) tips.push(early > late * 2 ? "Często grasz za wcześnie – poczekaj na klik." : late > early * 2 ? "Często grasz za późno – przygotuj palec wcześniej." : "Rytm się chwieje – licz na głos razem z metronomem.");
     if (short + long) tips.push(short >= long ? "Niektóre nuty puszczasz za wcześnie – trzymaj je przez pełną wartość." : "Niektóre nuty trzymasz za długo.");
     if (bars.length) tips.push(`Do powtórki: ${bars.length === 1 ? "takt" : "takty"} ${bars.slice(0, 8).join(", ")}${bars.length > 8 ? "…" : ""}.`);
-    if (n - hit.length > n / 3 && MP.tempoIdx > 0) tips.push("Wybierz wolniejsze tempo.");
+    if (n - hit.length > n / 3 && MP.tempoIdx > 0 && !mpSight(MP.src)) tips.push("Wybierz wolniejsze tempo.");
   }
   res.text = tips.join(" ");
   MP.stage = "done"; MP.res = res; MP.msg = "";
@@ -593,6 +606,7 @@ function mpTechGoal(res) {
   return `<p class="pgoal ok">✓ Zaliczone w tempie egzaminu. Ćwiczenie ma znak „gotowe”.</p>`;
 }
 function mpGoalAfter(res) {
+  if (mpSight(MP.src)) return typeof srLiveAfter === "function" ? srLiveAfter(MP.src, res, {mode: MP.mode, hand: MP.hand, bpm: MP.bpm}) : "";
   if (MP.src && MP.src.startsWith("tech:") && typeof grTechMark === "function") return mpGoalOn() ? mpTechGoal(res) : "";
   const p = mpPieceOf(MP.src); if (!p || !mpGoalOn()) return "";
   if (MP.hand !== null) return `<p class="pgoal">Wynik jednej ręki nie liczy się do zaliczenia utworu – zagraj obiema rękami.</p>`;
@@ -613,9 +627,9 @@ function mpGoalAfter(res) {
 
 /* przełącznik w karcie „Pianino przez USB” (Narzędzia): pokazuj albo ukryj opcję pianina w kursie */
 function mpCardExtraHtml() {
-  if (!MIDI.supported || !isBeg()) return "";
+  if (!MIDI.supported) return "";
   const h = mpHidden();
-  return `<div class="spread" style="border-top:1px solid var(--line);padding-top:10px"><span class="small">Opcja pianina przy ćwiczeniach i utworach</span>
+  return `<div class="spread" style="border-top:1px solid var(--line);padding-top:10px"><span class="small">${isBeg() ? "Opcja pianina przy ćwiczeniach i utworach" : "Opcja pianina przy czytaniu a vista"}</span>
     <div class="seg" role="group" aria-label="Opcja pianina w kursie"><button data-act="mp-show" data-v="1" aria-pressed="${!h}">Pokazuj</button><button data-act="mp-show" data-v="0" aria-pressed="${h}">Ukryj</button></div></div>`;
 }
 function mpCardExtra() { const el = document.getElementById("midi-extra"); if (el) el.innerHTML = mpCardExtraHtml(); }

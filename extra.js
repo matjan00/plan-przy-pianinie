@@ -234,14 +234,79 @@ function sightEvents(piece, withNotes, withClicks, countIn) {
 
 /* widżet generatora: ten sam w planie dnia, w Narzędziach i na egzaminie */
 const SRGEN = {};
-function genFor(hostId, level) { SRGEN[hostId] = {piece: genSight(level), level}; return SRGEN[hostId]; }
-function mountGen(hostId) {
-  const host = document.getElementById(hostId), g = SRGEN[hostId];
-  if (!host || !g) return;
+let SRGEN_N = 0;
+function genFor(hostId, level) { SRGEN[hostId] = {piece: srAdapt(genSight(level)), level, n: ++SRGEN_N}; return SRGEN[hostId]; }
+
+/* ---------- czytanie a vista z pianinem: ocena na żywo i tempo dobierane do wyników ----------
+   S.srLive[poziom] = {f, n, log}: f – tempo względem tempa poziomu (1 = tempo z SRG), ustalane po każdym pierwszym
+   podejściu „Z metronomem” do nowego ćwiczenia (midiplay.js woła srLiveAfter). Bez pianina nic się nie zmienia. */
+function srAdapt(piece) {
+  piece.nom = piece.bpm;
+  const r = S.srLive && S.srLive[piece.level];
+  if (r && r.f && r.f !== 1) { piece.bpm = Math.max(piece.mi.compound ? 30 : 40, Math.round(piece.nom * r.f / 2) * 2); piece.fit = true; piece.abc = toAbc(piece); }
+  else if (r) piece.fit = true;
+  return piece;
+}
+function sightPiece(src) {
+  const id = (src || "").split(":")[1];
+  if (SRGEN[id]) return SRGEN[id].piece;
+  if (id === "gsr" && typeof GR_SIGHT !== "undefined") return GR_SIGHT.piece;
+  return null;
+}
+const SR_LIVE_SEEN = new Set();
+// wynik podejścia: mniejszy z dwóch – trafione nuty i rytm; dużo dodatkowych dźwięków odejmuje 10
+function srLiveScore(res) {
+  const notes = res.n ? Math.round(res.hit / res.n * 100) : 0;
+  let q = Math.min(notes, res.rhythm);
+  if (res.extra > Math.max(1, res.n * 0.1)) q -= 10;
+  return Math.max(0, q);
+}
+const srLiveRate = (q) => q >= 95 ? 5 : q >= 85 ? 4 : q >= 70 ? 3 : q >= 50 ? 2 : 1;
+const srLiveStep = (q) => q >= 90 ? 1.05 : q >= 75 ? 1 : q >= 60 ? 0.95 : 0.9;
+function srRateButtons(sel, r) { document.querySelectorAll(sel).forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.r === r))); }
+function srAutoRate(id, r) {
+  if (id === "srgen-tools") {
+    const g = SRGEN["srgen-tools"]; if (!g) return "";
+    if (g.rated) return "Ocena tego ćwiczenia była już wpisana.";
+    g.rated = true; srRateButtons('[data-act="srgenrate"]', r);
+    if (g.level !== S.sr.level) return "Inny poziom niż Twój bieżący, więc nie liczy się do postępu.";
+    S.sr.log.push({l: S.sr.level, r, d: todayKey(), src: "gen", auto: 1}); return "Zapisana do postępu.";
+  }
+  if (id === "srgen-inline") {
+    const b = todayPlan().blocks.find(x => x.type === "sr"); if (!b) return "";
+    if (b.rating) return "W planie dnia jest już Twoja ocena – zostawiam ją.";
+    b.rating = r; S.sr.log.push({l: S.sr.level, r, d: todayKey(), src: "gen", auto: 1}); srRateButtons('[data-act="srrate"]', r);
+    return "Zapisana w planie dnia.";
+  }
+  return "";
+}
+function srLiveAfter(src, res, info) {
+  const p = sightPiece(src); if (!p) return "";
+  if (info.mode === "wait") return `<p class="pgoal">Ocenę i tempo następnego ćwiczenia ustala tryb „Z metronomem”.</p>`;
+  if (info.hand !== null) return `<p class="pgoal">Ocena liczy się tylko wtedy, gdy grasz obiema rękami.</p>`;
+  if (SR_LIVE_SEEN.has(src)) return `<p class="pgoal">To powtórka tego samego ćwiczenia, więc ocena i tempo się nie zmieniają, bo liczy się pierwsze podejście. Na kolejną ocenę weź nowe ćwiczenie.</p>`;
+  SR_LIVE_SEEN.add(src);
+  const q = srLiveScore(res), r = srLiveRate(q), nom = p.nom || p.bpm, sym = p.mi.compound ? "♩." : "♩";
+  if (!S.srLive) S.srLive = {};
+  const rec = S.srLive[p.level] || {f: 1, n: 0, log: []};
+  rec.f = Math.round(Math.max(0.5, Math.min(1.3, info.bpm / nom * srLiveStep(q))) * 1000) / 1000;
+  rec.n = (rec.n || 0) + 1;
+  rec.log = [...(rec.log || []), {d: todayKey(), bpm: info.bpm, q, r}].slice(-30);
+  S.srLive[p.level] = rec;
+  const saved = srAutoRate(src.split(":")[1], r);
+  save();
+  const next = Math.max(p.mi.compound ? 30 : 40, Math.round(nom * rec.f / 2) * 2);
+  const tmsg = next > info.bpm ? `Następne ćwiczenie będzie trochę szybsze: ${sym} = ${next}.`
+    : next < info.bpm ? `Następne ćwiczenie będzie trochę wolniejsze: ${sym} = ${next}.` : `Następne ćwiczenie w tym samym tempie: ${sym} = ${next}.`;
+  return `<p class="pgoal ${r >= 4 ? "ok" : ""}"><b>Ocena: ${r}/5</b> (wynik ${q}%, liczony z gorszego z dwóch: trafionych nut i rytmu). ${saved} ${tmsg}</p>`;
+}
+
+function genHtml(hostId) {
+  const g = SRGEN[hostId]; if (!g) return "";
   const p = g.piece;
-  host.innerHTML = `<div class="stack" style="gap:8px">
-    <p class="small"><b>${p.K.pl}</b> · metrum ${p.time} · tempo <span class="mono">${p.mi.compound ? "♩." : "♩"} = ${p.bpm}</span> · poziom ${p.level}</p>
-    <div class="abc" id="${hostId}-abc"></div>
+  return `<div class="stack" style="gap:8px">
+    <p class="small"><b>${p.K.pl}</b> · metrum ${p.time} · tempo <span class="mono">${p.mi.compound ? "♩." : "♩"} = ${p.bpm}</span>${p.fit ? ` <span class="muted">(dobrane do Twoich wyników)</span>` : ""} · poziom ${p.level}</p>
+    <div class="abc" id="${hostId}-abc" data-abc="${hostId}:${g.n}"></div>
     <p class="genstatus" id="${hostId}-status">Najpierw przegląd, potem zagraj raz, bez zatrzymywania. „Odsłuchaj” dopiero po swoim podejściu.</p>
     <div class="genrow">
       <button class="btn primary wide" data-act="sg-play" data-host="${hostId}">Graj z metronomem</button>
@@ -249,9 +314,21 @@ function mountGen(hostId) {
       <button class="btn sm" data-act="sg-listen" data-host="${hostId}">Odsłuchaj</button>
       <button class="btn sm ghost" data-act="sg-stop" data-host="${hostId}">Stop</button>
     </div>
+    ${typeof mpBarSlot === "function" ? mpBarSlot(`sight:${hostId}:${g.n}`) : ""}
   </div>`;
-  const narrow = host.clientWidth < 560;
-  renderAbcInto(document.getElementById(hostId + "-abc"), narrow ? toAbc(p, 2) : p.abc);
+}
+// nuty rysujemy tak samo jak sprawdzanie z pianinem (midiplay.js), żeby podświetlenia trafiały w te same nuty
+function genDraw(hostId) {
+  const g = SRGEN[hostId], el = document.getElementById(hostId + "-abc"); if (!g || !el) return;
+  if (typeof begRender === "function") begRender(el, g.piece.abc);
+  else renderAbcInto(el, (el.clientWidth || 340) < 560 ? toAbc(g.piece, 2) : g.piece.abc);
+  if (typeof mpAfter === "function") mpAfter();
+}
+function mountGen(hostId) {
+  const host = document.getElementById(hostId);
+  if (!host || !SRGEN[hostId]) return;
+  host.innerHTML = genHtml(hostId);
+  genDraw(hostId);
 }
 function genStatus(hostId, t, cd) {
   const el = document.getElementById(hostId + "-status"); if (!el) return;
@@ -280,19 +357,19 @@ function genListen(hostId) {
 }
 
 function srInlineHtml(b) {
-  const has = !!SRGEN["srgen-inline"];
-  if (has && b.gen) setTimeout(() => mountGen("srgen-inline"), 0);
+  const has = !!SRGEN["srgen-inline"], show = has && b.gen;
+  if (show) setTimeout(() => genDraw("srgen-inline"), 0);
   return `<div class="stack" style="gap:8px">
-    <div class="row"><button class="btn sm ${b.gen ? "" : "primary"}" data-act="srgen-inline">${b.gen && has ? "Nowe ćwiczenie" : "Wygeneruj ćwiczenie w aplikacji"}</button>
+    <div class="row"><button class="btn sm ${b.gen ? "" : "primary"}" data-act="srgen-inline">${show ? "Nowe ćwiczenie" : "Wygeneruj ćwiczenie w aplikacji"}</button>
     <span class="small muted">albo graj z książki</span></div>
-    <div id="srgen-inline"></div></div>`;
+    <div id="srgen-inline">${show ? genHtml("srgen-inline") : ""}</div></div>`;
 }
 function srGenCardHtml() {
   const lv = (SRGEN["srgen-tools"] && SRGEN["srgen-tools"].level) || S.sr.level;
   return `<div class="card stack" id="srgen-card">
     <div class="spread"><h3>Czytanie a vista – nowe ćwiczenia</h3>
       <select id="srgen-level" aria-label="Poziom">${[1, 2, 3, 4, 5, 6, 7, 8].map(l => `<option value="${l}" ${l === lv ? "selected" : ""}>Poziom ${l}</option>`).join("")}</select></div>
-    <p class="small muted">Każde ćwiczenie jest nowe i dopasowane do poziomu. Oceny z Twojego bieżącego poziomu (${S.sr.level}) liczą się do postępu.</p>
+    <p class="small muted">Każde ćwiczenie jest nowe i dopasowane do poziomu. Oceny z Twojego bieżącego poziomu (${S.sr.level}) liczą się do postępu.${typeof MIDI !== "undefined" && MIDI.supported ? " Z pianinem przez USB aplikacja sama oceni pierwsze podejście i dobierze tempo następnego ćwiczenia." : ""}</p>
     <div><button class="btn primary" data-act="srgen-tools">Nowe ćwiczenie</button></div>
     <div id="srgen-tools"></div>
     <div id="srgen-tools-rate" ${SRGEN["srgen-tools"] ? "" : "hidden"}><span class="small">Jak poszło? (1 = wiele przerw, 5 = płynnie)</span>

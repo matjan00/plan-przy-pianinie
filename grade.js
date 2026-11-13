@@ -664,7 +664,7 @@ function grGenPlan(key, minutes) {
 }
 // czytanie a vista: generator z extra.js; Grade 1 – poziom 2 (4 takty, C/G/F), Grade 2 – poziom 3 (8 taktów, także a- i d-moll)
 const GR_SIGHT = {piece: null, lv: 0, n: 0};
-function grSightNew(lv) { GR_SIGHT.piece = genSight(lv); GR_SIGHT.lv = lv; GR_SIGHT.n++; }
+function grSightNew(lv) { GR_SIGHT.piece = srAdapt(genSight(lv)); GR_SIGHT.lv = lv; GR_SIGHT.n++; }
 const grSightLv = (lvl) => (lvl === "g2" ? 3 : 2);
 function grAbcFor(id) {
   if (id === "gsr") return GR_SIGHT.piece && GR_SIGHT.piece.abc;
