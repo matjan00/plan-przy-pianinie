@@ -16,7 +16,11 @@
 const MP = {on: false, src: null, mode: null, stage: null, hand: null, nv: 1, steps: [], i: 0, wrong: 0, msg: "", cls: "",
   tempoIdx: 0, bpm: 0, beats: 4, den: 4, beatMs: 0, tol: 0, matchW: 0, endT: 0, a0: 0, c0: 0, t0: 0, clickK: 0, clickN: 0, beat: -1, mi: 0,
   extra: 0, lastOff: null, timer: null, res: null, gen: 0, ready: false, off: null, lat: 0, start: 0, offs: [], cal: null};
-const MP_HIDE = "ppp-midi-hide", MP_LAT = "ppp-midi-lat";
+const MP_HIDE = "ppp-midi-hide", MP_LAT = "ppp-midi-lat", MP_PREP = "ppp-midi-prep";
+// sekundy na przygotowanie po „Start” (przewinięcie do nut, ręce na klawiaturze), zanim ruszy takt odliczania
+const MP_PREPS = [0, 3, 5, 10];
+function mpPrep() { try { const v = parseInt(localStorage.getItem(MP_PREP), 10); return MP_PREPS.includes(v) ? v : 5; } catch (e) { return 5; } }
+function mpSetPrep(v) { try { localStorage.setItem(MP_PREP, String(v)); } catch (e) {} }
 
 function mpHidden() { try { return localStorage.getItem(MP_HIDE) === "1"; } catch (e) { return false; } }
 function mpSetHidden(on) { try { if (on) localStorage.setItem(MP_HIDE, "1"); else localStorage.removeItem(MP_HIDE); } catch (e) {} }
@@ -228,7 +232,9 @@ function mpSessionHtml() {
       <div class="stack" style="gap:4px"><span class="small muted">Tempo</span>
         <div class="seg ptempo" role="group" aria-label="Tempo">${mpTempos().map(([lbl, bpm], k) => `<button data-act="mp-tempo" data-k="${k}" aria-pressed="${k === MP.tempoIdx}">${lbl}<small>${mpSym()} = ${bpm}</small></button>`).join("")}</div></div>
       ${mpSight(MP.src) ? `<p class="small muted" style="margin:0">„Twoje tempo” aplikacja ustala z wyników poprzednich ćwiczeń na tym poziomie. Ocenę 1–5 i nowe tempo daje pierwsze podejście do ćwiczenia.</p>` : ""}
-      <p class="small muted" style="margin:0">${MP.msg ? `<b>${MP.msg}</b> ` : ""}Najpierw usłyszysz takt odliczania. Potem graj równo z metronomem – nuty nie czekają.</p>
+      <div class="stack" style="gap:4px"><span class="small muted">Czas na przygotowanie po „Start”</span>
+        <div class="seg" role="group" aria-label="Czas na przygotowanie">${MP_PREPS.map(v => `<button data-act="mp-prep" data-v="${v}" aria-pressed="${v === mpPrep()}">${v ? v + " s" : "bez"}</button>`).join("")}</div></div>
+      <p class="small muted" style="margin:0">${MP.msg ? `<b>${MP.msg}</b> ` : ""}Po „Start” nuty przesuną się na górę ekranu i masz chwilę, żeby położyć ręce na klawiaturze. Potem takt odliczania i graj równo z metronomem – nuty nie czekają.</p>
       <div class="pcal"><span>Opóźnienie dźwięku: <b class="mono">${Math.round(mpLat())} ms</b><br><span class="muted">Grasz równo, a aplikacja mówi „za późno”? Zrób kalibrację.</span></span><button class="btn sm" data-act="mp-cal">Kalibruj</button></div>
       <div class="row"><button class="btn primary" data-act="mp-go">Start</button><button class="btn sm ghost" data-act="mp-stop">Zakończ</button></div>`;
   }
@@ -240,6 +246,12 @@ function mpSessionHtml() {
       ${r.goal || ""}
       ${MP_LEGEND}
       <div class="row"><button class="btn sm primary" data-act="mp-go">Jeszcze raz</button><button class="btn sm" data-act="mp-setup">Zmień tempo</button><button class="btn sm ghost" data-act="mp-stop">Zakończ</button></div>`;
+  }
+  if (MP.stage === "prep") {
+    return `${head("Z metronomem · " + mpSym() + " = " + MP.bpm)}
+      <div class="pbeat"><span class="pcount" data-mp-count>${Math.max(1, Math.ceil((MP.prepEnd - performance.now()) / 1000))}</span></div>
+      <p class="mp-msg one">Przygotuj się. Potem jeden takt odliczania.</p>
+      <div class="row"><button class="btn sm primary" data-act="mp-now">Zacznij teraz</button><button class="btn sm" data-act="mp-setup">Stop</button></div>`;
   }
   const z = Math.round(MP.tol / MP.matchW * 50);
   return `${head("Z metronomem · " + mpSym() + " = " + MP.bpm)}${bar}
@@ -340,6 +352,24 @@ async function mpTempoGo() {
   for (const st of MP.steps) for (const n of st.notes) n.last = st.T + n.D >= MP.endT - 1;     // nuty kończące utwór można trzymać dłużej
   Object.assign(MP, {stage: "count", ready: false, i: 0, mi: 0, beat: -1, extra: 0, offs: [], lastOff: null, msg: "Odliczanie…", cls: "", res: null});
   if (!wake) keepAwake();
+  const prep = mpPrep();
+  if (prep) {
+    MP.stage = "prep"; MP.prepEnd = performance.now() + prep * 1000;
+    mpBars(); mpPaintScore();
+    const ok = await new Promise((res) => {
+      MP.prepGo = () => res(true);
+      MP.timer = setInterval(() => {
+        if (gen !== MP.gen || !MP.on || MP.stage !== "prep") { clearInterval(MP.timer); MP.timer = null; res(false); return; }
+        const left = Math.ceil((MP.prepEnd - performance.now()) / 1000);
+        if (left <= 0) { clearInterval(MP.timer); MP.timer = null; res(true); return; }
+        const host = mpHostEl(), cnt = host && host.querySelector("[data-mp-count]"); if (cnt) cnt.textContent = String(left);
+      }, 100);
+    });
+    MP.prepGo = null;
+    if (!ok || gen !== MP.gen || !MP.on || MP.stage !== "prep") return;
+    clearInterval(MP.timer); MP.timer = null;
+    MP.stage = "count";
+  }
   mpBars(); mpPaintScore(); mpFollow();
   await mpAudioReady(c);
   if (gen !== MP.gen || !MP.on || MP.stage !== "count") return;
@@ -541,6 +571,8 @@ document.addEventListener("click", (e) => {
     case "mp-hand": if (MP.on) mpStart(MP.src, MP.mode, t.dataset.h === "all" ? null : +t.dataset.h); break;
     case "mp-tempo": MP.tempoIdx = +t.dataset.k; mpBars(); break;
     case "mp-go": ac(); mpTempoGo(); mpShow(); break;
+    case "mp-now": if (MP.on && MP.stage === "prep" && MP.prepGo) { ac(); MP.prepGo(); } break;
+    case "mp-prep": mpSetPrep(+t.dataset.v); mpBars(); break;
     case "mp-cal": ac(); mpCalGo(); break;
     case "mp-setup": mpTempoSetup(); break;
     case "mp-stop": mpStop(); break;
@@ -550,7 +582,7 @@ document.addEventListener("click", (e) => {
   }
 });
 // w tle zegar i metronom stają – przerywamy przejście z metronomem
-document.addEventListener("visibilitychange", () => { if (document.hidden && MP.on && MP.mode === "tempo" && ["count", "run", "cal"].includes(MP.stage)) mpTempoSetup("Przerwano."); });
+document.addEventListener("visibilitychange", () => { if (document.hidden && MP.on && MP.mode === "tempo" && ["prep", "count", "run", "cal"].includes(MP.stage)) mpTempoSetup("Przerwano."); });
 
 /* ============================== CEL: UTWÓR OPANOWANY ==============================
    Gdy opcja pianina jest włączona na urządzeniu, etap „opanowany” utworu z kursu przyznaje aplikacja, a nie przycisk:

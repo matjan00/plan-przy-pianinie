@@ -976,8 +976,11 @@ document.addEventListener("click", (e) => {
   const act = t.dataset.act;
   switch (act) {
     case "srgen-inline": {
-      genFor("srgen-inline", S.sr.level);
-      const b = todayPlan().blocks.find(x => x.type === "sr"); if (b && !b.gen) { b.gen = true; saveLocal(); }
+      if (typeof MP !== "undefined" && MP.on && MP.src && MP.src.startsWith("sight:srgen-inline")) mpStop();
+      stopQueue(); genFor("srgen-inline", S.sr.level);
+      const b = todayPlan().blocks.find(x => x.type === "sr");
+      if (b && b.rating) { b.rating = null; b.sn = (b.sn || 1) + 1; save(); }   // nowe ćwiczenie po ocenie = kolejna sesja tego dnia
+      else if (b && !b.gen) { b.gen = true; saveLocal(); }
       render(); setTimeout(() => { const el = document.getElementById("srgen-inline"); el && el.scrollIntoView({block: "center"}); }, 50); break;
     }
     case "srgen-tools": {

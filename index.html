@@ -1135,6 +1135,7 @@ function blockBody(b){
     </ol>
     <div><span class="small">Jak poszło? (1 = wiele przerw, 5 = płynnie)</span>
     <div class="rate" role="group" aria-label="Ocena czytania a vista">${[1,2,3,4,5].map(r=>`<button data-act="srrate" data-r="${r}" aria-pressed="${b.rating===r}" aria-label="${r} na 5">${r}</button>`).join("")}</div></div>
+    ${b.rating?`<div class="row"><button class="btn sm" data-act="srnext">Kolejna sesja: ${b.gen?"nowe ćwiczenie":"następne z książki"}</button><span class="small muted">${(b.sn||1)>1?`Dziś ${b.sn}. sesja. `:""}Każda oceniona sesja liczy się do postępu.</span></div>`:(b.sn||1)>1?`<p class="small muted">Dziś ${b.sn}. sesja.</p>`:""}
     ${srCanLevelUp()?`<button class="btn primary" data-act="srup">Czytasz płynnie – przejdź na poziom ${S.sr.level+1}</button>`:`<p class="small muted">Na poziomie ${S.sr.level}: ${srLevelLog().length} z 20 sesji. Średnia z ostatnich 5 ocen musi wynosić co najmniej 4.</p>`}`;
   }
   if(b.type==="theory"){
@@ -1591,6 +1592,9 @@ document.addEventListener("click",(e)=>{
       if(first && b.gen){ S.sr.log.push({l:S.sr.level,r,d:todayKey(),src:"gen"}); }
       else if(first){ S.sr.log.push({l:S.sr.level,r,d:todayKey()}); const L=SR[b.level]||SR[8], key="sr"+b.level+":"+L.books[b.book%L.books.length]; S.srCounter[key]=(S.srCounter[key]||0)+1; } else { const last=S.sr.log[S.sr.log.length-1]; if(last) last.r=r; }
       if(!b.done) markBlock(b,true); else { save(); render(); } break; }
+    case "srnext": { const b=plan.blocks.find(x=>x.type==="sr"); if(!b||!b.rating) break; b.rating=null; b.sn=(b.sn||1)+1;
+      if(b.gen && typeof genFor==="function"){ if(typeof MP!=="undefined" && MP.on && MP.src && MP.src.startsWith("sight:srgen-inline")) mpStop(); stopQueue(); genFor("srgen-inline",S.sr.level); }
+      save(); render(); setTimeout(()=>{ const el=(b.gen&&document.getElementById("srgen-inline"))||document.querySelector('[data-act="srrate"]'); el&&el.scrollIntoView({block:"center",behavior:smooth()}); },50); break; }
     case "srup": withUndo("Czytanie a vista: poziom "+Math.min(8,S.sr.level+1),()=>{ S.sr.level=Math.min(8,S.sr.level+1); }); break;
     case "thdone": withUndo("Temat zaliczony",()=>{ S.th.done[t.dataset.id]=true; }); break;
     case "thtoggle": S.th.done[t.dataset.id]=!S.th.done[t.dataset.id]; save(); render(); break;
