@@ -90,25 +90,33 @@ function genSight(level) {
   for (let bi = 0; bi < L.bars; bi++) {
     const last = bi === L.bars - 1, chord = prog[bi];
     const rhythm = fillBar(level, mi, last);
+    const lhB = lhBar(lhStyle, level, mi, last ? "I" : chord, chordRoot, last);
+    // najwyższy dźwięk LR brzmiący w [p, p+dur) – PR musi być wyżej, żeby ręce nie grały tego samego dźwięku
+    const lhTopAt = (p, dur) => {
+      let t = -Infinity, q = 0;
+      lhB.forEach(e => { if (q < p + dur && q + e.dur > p && !e.rest) t = Math.max(t, lhBase + Math.max(...e.notes)); q += e.dur; });
+      return t;
+    };
     const bar = []; let pos = 0;
     rhythm.forEach((dur, ni) => {
       let deg;
+      const lo2 = Math.min(hi, Math.max(lo, lhTopAt(pos, dur) - rhBase + 1));
       const strong = pos === 0 || (!mi.compound && mi.beats === 4 && pos === 8) || (mi.compound && pos === mi.beat);
-      if (last) deg = Math.abs(prev - 7) < Math.abs(prev) && hi >= 7 ? 7 : 0;
+      if (last) deg = (Math.abs(prev - 7) < Math.abs(prev) || lo2 > 0) && hi >= 7 ? 7 : 0;
       else if (bi === L.bars - 2 && ni === rhythm.length - 1) {
-        const near = [1, -1, 4, 6, 8, -3].filter(d => d >= lo && d <= hi).sort((a, b) => Math.abs(a - prev) - Math.abs(b - prev));
-        deg = near.length ? near[0] : 1;
+        const near = [1, -1, 4, 6, 8, -3].filter(d => d >= lo2 && d <= hi).sort((a, b) => Math.abs(a - prev) - Math.abs(b - prev));
+        deg = near.length ? near[0] : Math.max(lo2, 1);
       }
       else if (strong) {
         const r = melRoot(chord), tones = [];
-        for (let d = lo; d <= hi; d++) if ([r, r + 2, r + 4].map(mod7).includes(mod7(d))) tones.push(d);
+        for (let d = lo2; d <= hi; d++) if ([r, r + 2, r + 4].map(mod7).includes(mod7(d))) tones.push(d);
         tones.sort((a, b) => Math.abs(a - prev) - Math.abs(b - prev));
-        deg = tones[Math.random() < 0.7 ? 0 : Math.min(1, tones.length - 1)];
+        deg = tones.length ? tones[Math.random() < 0.7 ? 0 : Math.min(1, tones.length - 1)] : lo2;
       } else {
         const r = Math.random();
         let step = r < 0.62 ? 1 : r < 0.84 ? 2 : r < 0.92 ? 0 : (level >= 4 ? pick([3, 4]) : 2);
-        let dir = prev >= hi - 1 ? -1 : prev <= lo + 1 ? 1 : (Math.random() < 0.5 ? -1 : 1);
-        deg = Math.max(lo, Math.min(hi, prev + dir * step));
+        let dir = prev >= hi - 1 ? -1 : prev <= lo2 + 1 ? 1 : (Math.random() < 0.5 ? -1 : 1);
+        deg = Math.max(lo2, Math.min(hi, prev + dir * step));
       }
       const isRest = L.rest && !last && bi > 0 && ni > 0 && dur === 4 && Math.random() < 0.08;
       bar.push(isRest ? {dur, rest: true} : {dur, notes: [deg]});
@@ -116,7 +124,7 @@ function genSight(level) {
       pos += dur;
     });
     rh.push(bar);
-    lh.push(lhBar(lhStyle, level, mi, last ? "I" : chord, chordRoot, last));
+    lh.push(lhB);
   }
   const bpm = mi.compound ? Math.round(L.bpm * 0.7) : L.bpm;
   const piece = {level, time, keyName, K, mi, rhBase, lhBase, rh, lh, bpm};
