@@ -991,6 +991,7 @@ function todayPlan(){
   const k=todayKey();
   if(!S.plans[k] || !!S.plans[k].beg!==isBeg()){ S.plans[k]=genPlan(k,S.minutes); saveLocal(); }
   else if(jzOn(k) && !S.plans[k].blocks.some(b=>b.type==="jazz")){ S.plans[k].blocks.push({type:"jazz", min:20, done:false}); saveLocal(); }
+  else if(!jzOn(k) && S.plans[k].blocks.some(b=>b.type==="jazz" && !b.done)){ S.plans[k].blocks=S.plans[k].blocks.filter(b=>b.type!=="jazz" || b.done); saveLocal(); }   // poza terminem modułu (np. po zmianie startu)
   return S.plans[k];
 }
 function markBlock(b, done){

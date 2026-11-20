@@ -1,5 +1,5 @@
 "use strict";
-/* Jazzy Christmas – sezonowy moduł jazzowy (20.11.2026 – 15.01.2027), tylko w trybie zaawansowanym.
+/* Jazzy Christmas – sezonowy moduł jazzowy (21.11.2026 – 15.01.2027), tylko w trybie zaawansowanym.
    W planie dnia dodatkowy blok 20 minut (ponad wybraną długość sesji), szczegóły w zakładce „Jazz”.
    Po 15 stycznia blok znika, a zakładka trafia do archiwum (karta w zakładce Nauka).
 
@@ -10,7 +10,7 @@
    Stan: S.jazz = {pick:{unit:songId}, songs:{songId:etap 0–4}, lesson:{unit:true}, drill:{unit:{best,n}}, heard:{id:true},
    play:{src:wynik z pianina}, arr:{…}}. */
 
-const JZ_START = "2026-11-20", JZ_END = "2027-01-15";
+const JZ_START = "2026-11-21", JZ_END = "2027-01-15";
 const JH = (m, q, k) => `X:1\nM:${m}\nL:1/8\nQ:1/4=${q}\nK:${k}\n%%staves {RH LH}\nV:RH clef=treble\nV:LH clef=bass\n`;
 
 /* ============================== UTWORY ============================== */
@@ -36,7 +36,21 @@ const JZ_SONGS = [
 {id: "jz-santa", kind: "ms", title: "Santa Claus Is Coming to Town", by: "J. F. Coots (1934) · arr. Phillip Fullerton", url: JZ_MS + "user/7333711/scores/7280831", pg: 2, lvl: "łatwa", chords: true, feel: "swing", swing: true,
  note: "Prosta wersja w F-dur z akordami (C, C7, F, Fm) nad nutami. Twoje zadanie: zrób z niej jazz – graj swingowo, a w lewej ręce zamień F na Fmaj7, C7 zostaw, przed F wstaw Gm7–C7."},
 {id: "jz-winter", kind: "ms", title: "Winter Wonderland", by: "F. Bernard (1934) · swing arrangement, Retro Piano Guy", url: JZ_MS + "user/2891181/scores/4812699", pg: 3, lvl: "średnia", chords: true, feel: "swing", swing: true,
- note: "Prawdziwa aranżacja swingowa (Cmaj7, Dm7, G7 nad nutami) – prawdziwy swing, trudność średnia: daj sobie na nią cały temat."},
+ note: "Prawdziwa aranżacja swingowa z symbolami akordów nad nutami – trudność średnia, daj sobie na nią cały temat.",
+ an: [
+  "<b>C-dur, ♩ = 130, swing.</b> To zapis wykonania Roberta Turnera – trudność średnia. Zacznij od ♩ = 80–90.",
+  "<b>Lewa ręka gra walking bass:</b> ćwierćnuty po dźwiękach akordu z chromatycznymi przejściami (np. Dis przed E). Tak samo gra kontrabas w podkładzie aplikacji.",
+  "<b>Takty 6–8: Dm7 – Em7 – Dm7 – G7 – C.</b> To rozbudowane II–V–I: między II (Dm7) a V (G7) wstawiony jest III stopień (Em7).",
+  "<b>Takt 9: As7 → G.</b> As7 leży pół tonu nad G i prowadzi do niego chromatycznie. To <i>podstawienie trytonowe</i>: As7 zamiast D7 (dominanty dominanty).",
+  "<b>Akordy z lekcji:</b> Cmaj7 na początku, Dm7 i Em7 (m7), G7 i C7 (7). Podpisz każdy po polsku nad taktem.",
+  "<b>Bridge (♩ = 140):</b> zwykle idzie do E-dur, ale Robert Turner gra go w Es-dur – zaznacz to w nutach i nazwij nowe akordy.",
+  "<b>Prawa ręka</b> gra melodię z akordami pod spodem i z triolami – triola ósemkowa to zapisany swing (długa–krótka)."],
+ steps: [
+  "Lewa ręka sama: walking bass takt po takcie, równe ćwierćnuty, lekko oderwane. Licz na 4.",
+  "Prawa ręka sama: najpierw tylko górna linia melodii, potem dodaj akordy pod nią.",
+  "Podpisz akordy po polsku nad każdym taktem (Cmaj7, Dm7, Em7, G7, As7).",
+  "Razem wolno (♩ = 80), potem z podkładem z zakładki Podkład.",
+  "Tempo docelowe ♩ = 110–130, akcent na 2 i 4."],},
 {id: "jz-jbrock", kind: "ms", title: "Jingle Bell Rock", by: "J. Beal, J. Boothe (1957) · arr. Toby Kolos", url: JZ_MS + "user/29305734/scores/6442705", pg: 2, lvl: "łatwa", chords: true, feel: "swing", swing: true,
  note: "W nutach jest „Swing” i akordy Gmaj7, G6, Am, D7 – świetne do ćwiczenia symboli z lekcji."},
 
@@ -71,7 +85,19 @@ const JZ_SONGS = [
   "Razem wolno, potem z podkładem swing.",
   "Graj melodię staccato w ósemkach i legato w ćwierćnutach – tak brzmi big band."]},
 {id: "jz-letitsnow", kind: "ms", title: "Let It Snow! Let It Snow! Let It Snow!", by: "J. Styne (1945) · wersja Dean Martin, Faber (oficjalna)", url: JZ_MS + "official_author/scores/6920763", pg: 3, lvl: "średnia", off: true, feel: "swing", swing: true,
- note: "Pełno II–V–I – szukaj par m7 → 7 przed akordami maj7."},
+ note: "Swingowa wersja w D-dur, melodia w akordach w prawej ręce, w lewej linia basu.",
+ an: [
+  "<b>D-dur, ♩ = 136.</b> Takty 1–4 to intro z triolami ósemkowymi – to zapisany swing (triola = długa–krótka). Od taktu 5 stoi „Swing”: ósemki grasz tak samo, chociaż są zapisane równo.",
+  "<b>Prawa ręka gra melodię w akordach</b> – melodia na górze, 2–3 dźwięki pod nią. Tak brzmi sekcja dęta big bandu (<i>block chords</i>).",
+  "<b>Lewa ręka gra linię basu</b> – podstawy akordów i przejścia między nimi. Nad nutami nie ma symboli akordów: odczytaj akord z basu i dźwięków prawej ręki i dopisz go ołówkiem nad taktem.",
+  "<b>II–V–I w D-dur: Em7 – A7 – Dmaj7.</b> To najważniejsza progresja utworu – szukaj jej zwłaszcza na końcach fraz.",
+  "<b>Bridge</b> (środkowa część) przechodzi do A-dur przez <b>E7</b> – dominantę dominanty (V/V).",
+  "<b>Takty 11–12:</b> staccato i akcenty na „i” – to <i>kicks</i>, uderzenia całego zespołu. Graj je krótko i zdecydowanie."],
+ steps: [
+  "Wypisz akordy nad taktami (z basu i prawej ręki) – to Twoje ćwiczenie z rozpoznawania akordów.",
+  "Prawa ręka: najpierw sama górna linia, potem pełne akordy; palce blisko klawiszy.",
+  "Druga wersja do ćwiczenia: prawa jak w nutach, lewa – shell voicings z akordów, które wypisałaś (zamiast basu z nut).",
+  "Razem wolno (♩ = 90), potem z podkładem; tempo docelowe ♩ = 120–136."],},
 {id: "jz-betlejem", kind: "ms", title: "Dzisiaj w Betlejem", by: "kolęda polska · opr. josoj", url: JZ_MS + "user/832276/scores/1494691", pg: 1, lvl: "łatwa", folk: true, feel: "swing", swing: true,
  note: "Na MuseScore nie ma jazzowej wersji tej kolędy na fortepian solo – to proste opracowanie, z którego robisz jazz sama (patrz niżej)."},
 
@@ -96,7 +122,18 @@ const JZ_SONGS = [
 {id: "jz-xmasbaby", kind: "ms", title: "Merry Christmas, Baby", by: "L. Baxter, J. Moore (1947) · wersja jazzowa, arr. Brent Edstrom (Hal Leonard)", url: JZ_MS + "user/39593079/scores/16084576", pg: 4, lvl: "średnia", off: true, feel: "blues", swing: true,
  note: "Wolny blues – dużo blue notes i trioli."},
 {id: "jz-jbblues", kind: "ms", title: "Jingle Bells Boogie", by: "J. Pierpont · arr. sandridavide6", url: JZ_MS + "user/39952632/scores/8088462", pg: 3, lvl: "średnia", feel: "blues", swing: true,
- note: "Lewa ręka gra bas boogie-woogie ósemkami, prawa – akordy i melodię. Ocena 4,9."},
+ note: "Lewa ręka gra bas boogie-woogie ósemkami, prawa – akordy i melodię. Ocena 4,9.",
+ an: [
+  "<b>C-dur, alla breve: 𝅗𝅥 = 110</b> – licz na 2 (półnuty), nie na 4. To szybkie tempo; zacznij od 𝅗𝅥 = 60–70.",
+  "<b>Takty 1–4:</b> intro w akordach z krótkimi przednutkami – „ześlizg” z dźwięku o pół tonu niżej, typowy dla bluesa i boogie.",
+  "<b>Od taktu 5 lewa ręka gra bas boogie-woogie</b> ósemkami: chromatycznie od C przez Cis i D do E, potem w górę po dźwiękach akordu (G, A, B) i z powrotem. Ta sama figura przechodzi potem na inne akordy.",
+  "<b>B (nasze B) w lewej ręce to mała septyma C7</b> – dlatego całość brzmi bluesowo, a nie jak kolęda.",
+  "<b>Melodia „Jingle Bells” wchodzi pod koniec taktu 8</b> (przedtakt G). Przednutki Dis → E w prawej ręce to blue note z lekcji: mała tercja ześlizguje się na wielką."],
+ steps: [
+  "Lewa ręka sama, aż „sama chodzi” – najpierw takty 5–8 w kółko, wolno i równo.",
+  "Prawa sama: melodia z przednutkami, lekko i krótko.",
+  "Razem bardzo wolno; trudne miejsca po 2 takty.",
+  "Lewą rękę możesz ćwiczyć z podkładem bluesa w C (zakładka Podkład) – zespół trzyma puls."],},
 
 {id: "jz-cicha", kind: "app", title: "Cicha noc", by: "F. X. Gruber (1818) · ballada jazzowa z aplikacji", key: "C-dur", feel: "ballad", swing: true,
  abc: JH("3/4", 84, "C") +
@@ -121,7 +158,23 @@ const JZ_SONGS = [
 {id: "jz-merrylittle", kind: "ms", title: "Have Yourself a Merry Little Christmas", by: "H. Martin, R. Blane (1944) · wersja jazzowa, arr. Brent Edstrom (Hal Leonard)", url: JZ_MS + "official_scores/scores/6950850", pg: 4, lvl: "średnia", off: true, feel: "ballad", swing: true,
  note: "Ballada z bogatą harmonią – rozszerzenia i reharmonizacja jak w lekcji."},
 {id: "jz-lulajze", kind: "ms", title: "Lulajże Jezuniu", by: "kolęda polska · opr. cro_pandas", url: JZ_MS + "user/2251896/scores/1512306", pg: 1, lvl: "łatwa", folk: true, feel: "ballad", swing: true,
- note: "Na MuseScore nie ma jazzowej wersji tej kolędy na fortepian solo – to proste opracowanie w 3/4, z którego robisz balladę jazzową sama (patrz niżej)."},
+ note: "Proste opracowanie w 3/4 – jazzową balladę robisz z niego sama, według akordów poniżej.",
+ bpm: 66,
+ chart: [[{n: "Cmaj7", at: 0}], [{n: "Fmaj7", at: 0}], [{n: "Dm7", at: 0}], [{n: "G9", at: 0}], [{n: "Em7", at: 0}], [{n: "A7", at: 0}], [{n: "Dm7", at: 0}, {n: "G7", at: 1}], [{n: "G7sus4", at: 0}, {n: "Cmaj7", at: 1}],
+  [{n: "Em7", at: 0}, {n: "Am7", at: 2}], [{n: "Fmaj7", at: 0}], [{n: "Dm7", at: 0}], [{n: "Dm7", at: 0}, {n: "G7", at: 1}], [{n: "Em7", at: 0}], [{n: "A7", at: 0}], [{n: "Dm7", at: 0}, {n: "G7", at: 1}], [{n: "G7sus4", at: 0}, {n: "C6/9", at: 1}]],
+ an: [
+  "<b>C-dur, 3/4, ♩ = 80.</b> W nutach melodia jest w prawej ręce, a lewa gra ósemkami rozłożone akordy. Symboli akordów nie ma – jazzowa harmonia jest poniżej, takt po takcie.",
+  "<b>Takty 1–8:</b> Cmaj7 | Fmaj7 | Dm7 | G9 | Em7 | A7 | Dm7 → G7 | G7sus4 → Cmaj7. <b>Takty 9–16:</b> Em7 → Am7 | Fmaj7 | Dm7 | Dm7 → G7 | Em7 | A7 | Dm7 → G7 | G7sus4 → C6/9. Podpisz je ołówkiem nad nutami.",
+  "<b>Takt 2:</b> melodia G–F–E nad Fmaj7 to nona, pryma i septyma wielka – rozszerzenia z lekcji.",
+  "<b>Takty 4 i 12:</b> G9 – melodia A nad G to nona.",
+  "<b>Takty 6 i 14: A7</b> to dominanta wtrącona do Dm7 – Cis w lewej ręce ciągnie do D.",
+  "<b>Końce fraz (takty 8 i 16): G7sus4 → C.</b> W G7sus4 zamiast tercji H jest kwarta C; melodia F → E rozwiązuje się razem z akordem. Ostatni akord C6/9 (C–E–A–D) brzmi miękko, jak u Billa Evansa."],
+ steps: [
+  "Melodia z nut prawą ręką, wolno i śpiewnie.",
+  "Lewa ręka zamiast ósemek z nut: bas na „raz”, tercja i septyma na „dwa” według akordów powyżej (np. Dm7: D, potem F + C).",
+  "Pedał na każdym basie, zmieniany synkopowo.",
+  "Z podkładem: zakładka Podkład gra te akordy w tempie ballady – zagraj z nim samą melodię, potem obie ręce.",
+  "Na koniec jedna własna zmiana: przed jednym z akordów docelowych wstaw dominantę wtrąconą albo II–V."],},
 
 {id: "jz-bossa", kind: "app", title: "Zimowa bossa", by: "temat bossa nova z aplikacji · a-moll", key: "a-moll", feel: "bossa", swing: false,
  abc: JH("4/4", 112, "Am") +
@@ -142,16 +195,39 @@ const JZ_SONGS = [
 {id: "jz-wsrod", kind: "ms", title: "Wśród nocnej ciszy", by: "kolęda polska · wersja nowoczesna, arr. Jakub Korbanek", url: JZ_MS + "user/2639561/scores/1374086", pg: 1, lvl: "łatwa", folk: true, feel: "bossa", swing: false,
  note: "Opracowanie z nowoczesną harmonią i synkopowanym akompaniamentem – dobry materiał do zagrania jako bossa (równe ósemki, bas podstawa–kwinta)."},
 {id: "jz-silentbossa", kind: "ms", title: "Silent Night, Bossa Night", by: "F. X. Gruber · bossa nova, arr. L. McKinlay (Easy Piano, oficjalna)", url: JZ_MS + "user/97106398/scores/18075718", pg: 2, lvl: "łatwa", off: true, feel: "bossa", swing: false,
- note: "Cicha noc jako bossa nova – porównaj z Twoją balladą z 4. tematu."},
-{id: "jz-feliz", kind: "ms", title: "Feliz Navidad", by: "J. Feliciano (1970) · wersja jazzowa, arr. Brent Edstrom (Hal Leonard)", url: JZ_MS + "official_scores/scores/6930106", pg: 3, lvl: "średnia", off: true, feel: "bossa", swing: false,
- note: "Latynoski rytm i jazzowa harmonia – równe ósemki, synkopy."},
+ note: "Cicha noc jako bossa nova – ta sama melodia co w lekcji z 4. tematu, inny rytm.",
+ an: [
+  "<b>F-dur.</b> Lewa ręka przez cały utwór gra ten sam groove bossa novy (ćwierćnuta z kropką i ósemka). Ma być spokojny i nigdy się nie spieszyć.",
+  "<b>Prawa ręka gra akordy 3–4-dźwiękowe z melodią na górze</b> – seksty i septymy (np. F6, Fmaj7). Niektóre brzmią dysonansowo, bo dwa dźwięki leżą o sekundę od siebie. To zamierzony jazzowy kolor.",
+  "<b>Rytm jest inny niż w kolędzie</b> – melodia ma synkopy. Licz ósemkami: „1 i 2 i 3 i 4 i”.",
+  "<b>Nazwij każdy akord prawej ręki</b> (podstawa z lewej ręki + dźwięki z prawej) – to ćwiczenie akordów z tego tematu na prawdziwym utworze.",
+  "To łatwiejszy z dwóch utworów tematu – uczysz się go w pierwszej połowie, potem bierzesz Feliz Navidad."],
+ steps: [
+  "Lewa ręka sama, z podkładem bossa nova z zakładki Podkład.",
+  "Prawa ręka: zmiany akordów bardzo wolno, każdy chwyt nazwij.",
+  "Razem ♩ = 70–80, potem w tempie.",
+  "W drugiej połowie tematu wracaj do niego na powtórkę co 2–3 dni."],},
+{id: "jz-feliz", kind: "ms", title: "Feliz Navidad", by: "J. Feliciano (1970) · wersja jazzowa, arr. Brent Edstrom (Hal Leonard)", url: JZ_MS + "official_scores/scores/6930106", pg: 3, lvl: "średnia", off: true, chords: true, feel: "bossa", swing: false,
+ note: "Jazzowa bossa nova z akordami nad nutami – trudniejsza z dwóch utworów tematu.",
+ an: [
+  "<b>D-dur, „Moderate Bossa Nova”, 𝅗𝅥 = 125</b> – licz na 2. Ósemki równe.",
+  "<b>Intro (takty 1–4): D6/9 – C13 – E♭6/9 – A7♯5.</b> Cały chwyt przesuwa się o ton w dół (C) i o pół tonu w górę (Es) od toniki. A7♯5 to dominanta z podwyższoną kwintą (Eis) – mocno ciągnie do D.",
+  "<b>Takty 5–8: Dmaj13 – C9♯11 – E♭maj13 – A13</b> – ten sam pomysł z bogatszymi akordami. 13 = seksta o oktawę wyżej, ♯11 = zwiększona kwarta.",
+  "<b>Zwrotka (od taktu 9): Em7 – A13 – Dmaj7</b> to II–V–I w D-dur; potem G13 – IV stopień grany jak dominanta, typowe dla bluesa i soulu.",
+  "<b>Takt 14: A7 → A7♭9 → D.</b> Nona mała (B nad A) to dominanta alterowana – ostrzejsze napięcie przed toniką.",
+  "<b>Lewa ręka:</b> bas bossa (podstawa i kwinta, z synkopą przywiązaną), jak w lekcji."],
+ steps: [
+  "Najpierw intro: każdy akord osobno, nazwij jego dźwięki.",
+  "Lewa ręka sama, licząc na 2.",
+  "Prawa ręka: zwrotka od taktu 9, akordy wolno.",
+  "Razem wolno (𝅗𝅥 = 70), potem z podkładem z zakładki Podkład; cel 𝅗𝅥 = 100–125."],},
 {id: "jz-bog", kind: "ms", title: "Bóg się rodzi", by: "kolęda polska · wersja nowoczesna, arr. Jakub Korbanek", url: JZ_MS + "user/2639561/scores/867841", pg: 1, lvl: "łatwa", folk: true, feel: "swing", swing: true,
  note: "Polonez z nowoczesnym akompaniamentem. Spróbuj go zagrać w 4/4 ze swingiem – to klasyczny jazzowy trik na kolędy."},
 ];
 
 /* ============================== TEMATY ============================== */
 const JZ_UNITS = [
-{id: "u1", from: "2026-11-20", to: "2026-11-29", title: "Swing i akordy septymowe", short: "Ósemki „długa–krótka”, akcent na 2 i 4, symbole akordów maj7, m7, 7.",
+{id: "u1", from: "2026-11-21", to: "2026-11-30", title: "Swing i akordy septymowe", short: "Ósemki „długa–krótka”, akcent na 2 i 4, symbole akordów maj7, m7, 7.",
  songs: ["jz-winter"],
  lesson: `<p>Jazz różni się od muzyki klasycznej trzema rzeczami, które usłyszysz od pierwszego taktu: <b>rytmem (swing)</b>, <b>harmonią (akordy z septymą)</b> i <b>swobodą (improwizacja)</b>. W tym temacie zaczynamy od dwóch pierwszych.</p>
 <h4>Swing</h4>
@@ -168,7 +244,7 @@ const JZ_UNITS = [
 </ul>
 <p>Jak budować? Trójdźwięk i jeszcze jedna tercja w górę. Durowy + tercja wielka = maj7, durowy + tercja mała = 7, mollowy + tercja mała = m7.</p>
 <h4>Na Twoim utworze</h4>
-<p>W nutach „Winter Wonderland” nad pięciolinią są symbole akordów (np. Cmaj7, Dm7, G7). Zanim zaczniesz grać, podpisz ołówkiem pod każdym symbolem nazwę po polsku i rodzaj akordu: maj7, m7 czy 7. Tam, gdzie po m7 przychodzi 7, a potem maj7, masz II–V–I – o nim jest 2. temat.</p>`,
+<p>W nutach „Winter Wonderland” nad pięciolinią są symbole akordów (np. Cmaj7, Dm7, G7). Zanim zaczniesz grać, podpisz ołówkiem pod każdym symbolem nazwę po polsku i rodzaj akordu: maj7, m7 czy 7. Tam, gdzie po m7 przychodzi 7, a potem maj7, masz II–V–I – o nim jest 2. temat. Lewa ręka gra tam <b>walking bass</b> (ćwierćnuty po dźwiękach akordu) – szczegóły takt po takcie w zakładce <b>Utwór</b>.</p>`,
  abc: [{src: JH("4/4", 80, "C") + `[V:RH] "Cmaj7"[CEGB]4 "C7"[CEG_B]4 | "Cm7"[C_EG_B]4 "C6"[CEGA]4 | "Fmaj7"[FAce]4 "Gm7"[G_Bdf]4 |]\n[V:LH] C,8 | C,8 | F,4 G,4 |]`, cap: "Cztery rodzaje akordów na C oraz Fmaj7 i Gm7. Zagraj każdy i posłuchaj różnicy."},
        {src: JH("4/4", 90, "C") + `[V:RH] "^zapis"C D E F G A B c | [M:12/8]"^tak brzmi"C2D E2F G2A B2c |]\n[V:LH] z8 | [M:12/8]z12 |]`, cap: "Pierwszy takt: tak się zapisuje. Drugi: tak brzmi swing – długa–krótka, jak triola (tu zapisane w 12/8)."}],
  check: [
@@ -177,12 +253,12 @@ const JZ_UNITS = [
   {q: "Z jakich dźwięków składa się Fmaj7?", opts: ["F–A–C–E", "F–A–C–Es", "F–As–C–Es"], ok: 0, why: "Durowy trójdźwięk F + septyma wielka E."},
   {q: "Akord „Bb7” w symbolach jazzowych to po polsku…", opts: ["H7 (H–Dis–Fis–A)", "B7 (B–D–F–As)", "b-moll"], ok: 1, why: "W symbolach międzynarodowych Bb = nasze B, a B = nasze H."}],
  drill: {mode: "full", hint: "Pełny akord w zasadniczej postaci lub w przewrocie, jedną albo dwiema rękami.",
-  items: ["Cmaj7", "C7", "Cm7", "C6", "Fmaj7", "F7", "Gm7", "Am7", "Bbmaj7", "D7", "Cm7", "F6"]},
- band: {feel: "swing", bpm: 100, chart: [["Fmaj7"], ["Gm7", "C7"], ["Fmaj7"], ["Cm7", "F7"], ["Bbmaj7"], ["Bbmaj7", "Am7"], ["Gm7", "C7"], ["Gm7", "C7"]]},
- improv: `<b>Swing na trzech dźwiękach.</b> Włącz podkład tego tematu (zakładka Podkład). Prawą ręką graj tylko F, A i C (dźwięki akordu F) – dowolne kombinacje, ale <b>zawsze ósemkami swingowymi</b> i z akcentem na „i”. Potem grajcie z podkładem „pytanie–odpowiedź”: 2 takty grasz, 2 takty pauzujesz.`,
+  items: ["Cmaj7", "G7", "Dm7", "Em7", "C7", "Ab7", "Fmaj7", "Am7", "D7", "C6", "Ebmaj7", "Bb7"]},
+ band: {feel: "swing", bpm: 104, chart: [["Cmaj7"], ["Cmaj7"], ["G7"], ["G7"], ["Dm7"], ["Em7", "Dm7"], ["G7"], ["Ab7", "G7"]]},
+ improv: `<b>Swing na trzech dźwiękach.</b> Włącz podkład tego tematu (zakładka Podkład). Prawą ręką graj tylko C, E i G (dźwięki akordu C) – dowolne kombinacje, ale <b>zawsze ósemkami swingowymi</b> i z akcentem na „i”. Potem grajcie z podkładem „pytanie–odpowiedź”: 2 takty grasz, 2 takty pauzujesz.`,
  listen: ["jl-peterson", "jl-ella"]},
 
-{id: "u2", from: "2026-11-30", to: "2026-12-09", title: "Shell voicings i II–V–I", short: "Lewa ręka po jazzowemu: podstawa + tercja albo septyma. Najważniejsza progresja jazzu.",
+{id: "u2", from: "2026-12-01", to: "2026-12-10", title: "Shell voicings i II–V–I", short: "Lewa ręka po jazzowemu: podstawa + tercja albo septyma. Najważniejsza progresja jazzu.",
  songs: ["jz-letitsnow"],
  lesson: `<h4>Mniej znaczy więcej</h4>
 <p>Pianista jazzowy rzadko gra lewą ręką pełne, czterodźwiękowe akordy – brzmią ciężko i zabierają miejsce melodii. Wystarczą <b>najważniejsze dźwięki</b>:</p>
@@ -192,50 +268,53 @@ const JZ_UNITS = [
 <p>To najważniejsza progresja w jazzie – setki standardów to łańcuchy II–V–I. W F-dur: <b>Gm7 – C7 – Fmaj7</b> (II, V, I stopień). Podstawy idą o kwintę w dół: G → C → F. Znasz to z kadencji: II stopień zastępuje subdominantę, potem dominanta i tonika.</p>
 <p><b>Sztuczka:</b> graj II w postaci 1–7, V w postaci 1–3, I znowu 1–7. Wtedy septyma jednego akordu schodzi o pół tonu na tercję następnego (F → E), a ręka prawie stoi. To <i>prowadzenie głosów</i> – dlatego jazz brzmi płynnie.</p>
 <h4>Dominanty wtrącone</h4>
-<p>W „We Wish You a Merry Christmas” widać to idealnie: <b>D7 → Gm7 → C7 → F</b>. D7 jest dominantą dla G, C7 – dla F. Każdy akord „popycha” następny w kole kwintowym. Takie akordy nazywamy dominantami wtrąconymi (np. D7 = V/II).</p>`,
- abc: [{src: JH("4/4", 80, "C") + `[V:RH] z8 | z8 | z8 |]\n[V:LH] "Gm7"[G,,F,]2 "C7"[C,E,]2 "Fmaj7"[F,,E,]4 | "Dm7"[D,C]2 "G7"[G,,B,,]2 "Cmaj7"[C,B,]4 | "Cm7"[C,_B,]2 "F7"[F,A,]2 "Bbmaj7"[_B,,A,]4 |]`, cap: "II–V–I w F, C i B (Bb) – shell voicings. Zobacz, że jeden dźwięk przesuwa się o pół tonu, a drugi skacze o kwintę."}],
+<p>Akord septymowy może „pożyczyć” napięcie z innej tonacji i poprowadzić do dowolnego akordu, nie tylko do toniki. W „Let It Snow” (D-dur) środkowa część idzie do A-dur przez <b>E7 → A</b>: E7 jest dominantą dla A, czyli dominantą dominanty (V/V). Takie akordy nazywamy dominantami wtrąconymi.</p>
+<h4>Na Twoim utworze</h4>
+<p>„Let It Snow” jest w D-dur, więc najważniejsze II–V–I to <b>Em7 – A7 – Dmaj7</b>. W nutach Fabera lewa ręka gra linię basu, a prawa melodię w akordach – symboli akordów nie ma. Twoje zadanie: odczytaj akordy z nut, podpisz je, a potem zagraj lewą ręką shell voicings zamiast basu.</p>`,
+ abc: [{src: JH("4/4", 80, "C") + `[V:RH] z8 | z8 | z8 | z8 |]\n[V:LH] "Gm7"[G,,F,]2 "C7"[C,E,]2 "Fmaj7"[F,,E,]4 | "Dm7"[D,C]2 "G7"[G,,B,,]2 "Cmaj7"[C,B,]4 | "Cm7"[C,_B,]2 "F7"[F,A,]2 "Bbmaj7"[_B,,A,]4 | "Em7"[E,D]2 "A7"[A,,^C,]2 "Dmaj7"[D,^C]4 |]`, cap: "II–V–I w F, C, B (Bb) i D (jak w „Let It Snow”) – shell voicings. Zobacz, że jeden dźwięk przesuwa się o pół tonu, a drugi skacze o kwintę."}],
  check: [
   {q: "Shell voicing Gm7 w postaci 1–7 to…", opts: ["G + B", "G + F", "G + D"], ok: 1, why: "Podstawa G i septyma mała F."},
   {q: "II–V–I w C-dur to…", opts: ["Dm7 – G7 – Cmaj7", "Em7 – A7 – Dmaj7", "G7 – Dm7 – Cmaj7"], ok: 0, why: "II stopień d, V stopień G, I stopień C."},
   {q: "Dlaczego pomijamy kwintę?", opts: ["Bo jest dysonansem", "Bo nie mówi, jaki to akord – robią to tercja i septyma", "Bo jest za wysoko"], ok: 1, why: "Tercja i septyma określają rodzaj akordu; kwinta jest taka sama w maj7, 7 i m7."},
-  {q: "D7 przed Gm7 to…", opts: ["dominanta wtrącona (V/II)", "subdominanta", "akord zmniejszony"], ok: 0, why: "D7 jest dominantą dla G – „pożycza” napięcie z tonacji G."}],
+  {q: "E7 przed A-dur w „Let It Snow” (D-dur) to…", opts: ["dominanta wtrącona (V/V)", "subdominanta", "akord zmniejszony"], ok: 0, why: "E7 jest dominantą dla A – a A jest dominantą D-dur."}],
  drill: {mode: "shell", seq: true, hint: "Lewa ręka: podstawa na dole + septyma albo tercja. II w postaci 1–7, V w 1–3, I w 1–7.",
-  items: ["Gm7", "C7", "Fmaj7", "Dm7", "G7", "Cmaj7", "Cm7", "F7", "Bbmaj7", "Am7", "D7", "Gmaj7", "Fm7", "Bb7", "Ebmaj7"]},
- band: {feel: "swing", bpm: 104, chart: [["Gm7"], ["C7"], ["Fmaj7"], ["Fmaj7"], ["Dm7"], ["G7"], ["Cmaj7"], ["Cmaj7"]]},
- improv: `<b>Guide tones w prawej ręce.</b> Włącz podkład II–V–I (zakładka Podkład, „Ćwiczenie tematu”). Prawą ręką graj tylko <b>tercje i septymy</b> akordów: przy Gm7 – B i F, przy C7 – E i B, przy Fmaj7 – A i E. Dowolny rytm, ale szukaj najbliższego dźwięku przy każdej zmianie akordu. Usłyszysz, że sama melodia z tych dźwięków „opowiada” harmonię.`,
+  items: ["Em7", "A7", "Dmaj7", "Bm7", "E7", "Amaj7", "Gm7", "C7", "Fmaj7", "Dm7", "G7", "Cmaj7", "Am7", "D7", "Gmaj7"]},
+ band: {feel: "swing", bpm: 112, chart: [["Em7"], ["A7"], ["Dmaj7"], ["Dmaj7"], ["Bm7"], ["E7"], ["Amaj7"], ["A7"]]},
+ improv: `<b>Guide tones w prawej ręce.</b> Włącz podkład II–V–I (zakładka Podkład, „Ćwiczenie tematu”). Prawą ręką graj tylko <b>tercje i septymy</b> akordów: przy Em7 – G i D, przy A7 – Cis i G, przy Dmaj7 – Fis i Cis. Dowolny rytm, ale szukaj najbliższego dźwięku przy każdej zmianie akordu. Usłyszysz, że sama melodia z tych dźwięków „opowiada” harmonię.`,
  listen: ["jl-tannenbaum", "jl-nkc"]},
 
-{id: "u3", from: "2026-12-10", to: "2026-12-19", title: "Blues i skala bluesowa", short: "Forma 12 taktów, blue notes, rytm Charleston w lewej i pierwsza improwizacja.",
+{id: "u3", from: "2026-12-11", to: "2026-12-20", title: "Blues i skala bluesowa", short: "Forma 12 taktów, blue notes, rytm Charleston w lewej i pierwsza improwizacja.",
  songs: ["jz-jbblues"],
  lesson: `<h4>Forma 12 taktów</h4>
-<p>Blues to najprostsza i najważniejsza forma jazzu. Ma <b>12 taktów</b> i trzy akordy, wszystkie z septymą małą. W F:</p>
-<p class="mono">| F7 | F7 | F7 | F7 |<br>| B♭7 | B♭7 | F7 | F7 |<br>| C7 | B♭7 | F7 | C7 |</p>
-<p>Jazzmani dodają do tego II–V i inne kolory – taką wersję gra podkład w zakładce Podkład (B♭7 już w 2. takcie, Cm7–F7, D7, Gm7–C7). Forma się powtarza; każde przejście 12 taktów to <b>chorus</b>.</p>
+<p>Blues to najprostsza i najważniejsza forma jazzu. Ma <b>12 taktów</b> i trzy akordy, wszystkie z septymą małą. W C (tonacja Twojego „Jingle Bells Boogie”):</p>
+<p class="mono">| C7 | C7 | C7 | C7 |<br>| F7 | F7 | C7 | C7 |<br>| G7 | F7 | C7 | G7 |</p>
+<p>Jazzmani dodają do tego II–V i inne kolory – taką wersję gra podkład w zakładce Podkład (F7 już w 2. takcie, Gm7–C7, A7, Dm7–G7). Forma się powtarza; każde przejście 12 taktów to <b>chorus</b>.</p>
 <h4>Skala bluesowa</h4>
-<p>F-bluesowa: <b>F – As – B – H – C – Es – F</b>. To gama pentatoniczna molowa z dodanym dźwiękiem H (zwiększona kwarta, „blue note”). Najciekawsze jest to, że As (tercja mała) gramy nad durowym F7 – ten zgrzyt jest zamierzony. Często As „ześlizguje się” na A (tercję wielką) – posłuchaj tego w nagraniu Charlesa Browna.</p>
+<p>C-bluesowa: <b>C – Es – F – Fis – G – B – C</b>. To gama pentatoniczna molowa z dodanym dźwiękiem Fis (zwiększona kwarta, „blue note”). Najciekawsze jest to, że Es (tercja mała) gramy nad durowym C7 – ten zgrzyt jest zamierzony. Często Es „ześlizguje się” na E (tercję wielką) – w „Jingle Bells Boogie” zobaczysz to jako przednutkę Dis przed E.</p>
 <h4>Rytm Charleston</h4>
 <p>Lewa ręka gra akord na <b>„raz”</b> i na <b>„i” po dwójce</b>, potem pauza do końca taktu. Krótko, lekko. Zostawiasz miejsce melodii – pauza to też muzyka.</p>
 <h4>Boogie-woogie</h4>
-<p>W „Jingle Bells Boogie” lewa ręka gra ósemkami <b>bas boogie-woogie</b> – figurę po dźwiękach akordu, powtarzaną w każdym takcie i przenoszoną na kolejne akordy bluesa. To najstarszy fortepianowy styl bluesa. Ćwicz lewą rękę osobno, aż „sama chodzi”, a dopiero potem dokładaj prawą.</p>
+<p>W „Jingle Bells Boogie” lewa ręka gra ósemkami <b>bas boogie-woogie</b>: od C chromatycznie przez Cis i D do E, potem w górę po dźwiękach C7 z sekstą (G, A, B) i z powrotem. Tę samą figurę przenosi się na kolejne akordy bluesa (od F przy F7). To najstarszy fortepianowy styl bluesa. Ćwicz lewą rękę osobno, aż „sama chodzi”, a dopiero potem dokładaj prawą.</p>
 <h4>Improwizacja – zasady na start</h4>
-<ul><li><b>Mało dźwięków.</b> Zacznij od trzech: F, As, B. Rytm jest ważniejszy niż nuty.</li>
+<ul><li><b>Mało dźwięków.</b> Zacznij od trzech: C, Es, F. Rytm jest ważniejszy niż nuty.</li>
 <li><b>Motyw i powtórzenie.</b> Wymyśl krótki motyw (2–4 dźwięki) i powtarzaj go, zmieniając rytm.</li>
 <li><b>Pytanie–odpowiedź.</b> 2 takty grasz, 2 takty słuchasz.</li>
-<li><b>Kończ na dźwięku akordu</b> (F, A, C, Es nad F7). „Błędny” dźwięk naprawisz, przesuwając go o pół tonu.</li></ul>`,
- abc: [{src: JH("4/4", 80, "F") + `[V:RH] "^skala F-bluesowa"F _A B =B c _e f2 | f _e c =B B _A F2 |]\n[V:LH] z8 | z8 |]`, cap: "Skala bluesowa od F w górę i w dół. H (B bez bemola) to blue note."},
-       {src: JH("4/4", 90, "F") + `[V:RH] z8 | z8 |]\n[V:LH] "F7"[F,,_E,]3 [F,,_E,] z4 | "Bb7"[B,,D,]3 [B,,D,] z4 |]`, cap: "Rytm Charleston w lewej ręce: „raz” i „i” po dwójce."}],
+<li><b>Kończ na dźwięku akordu</b> (C, E, G, B nad C7). „Błędny” dźwięk naprawisz, przesuwając go o pół tonu.</li></ul>`,
+ abc: [{src: JH("4/4", 80, "C") + `[V:RH] "^skala C-bluesowa"C _E F ^F G _B c2 | c _B G ^F F _E C2 |]\n[V:LH] z8 | z8 |]`, cap: "Skala bluesowa od C w górę i w dół. Fis to blue note."},
+       {src: JH("4/4", 90, "C") + `[V:RH] z8 | z8 |]\n[V:LH] "C7"[C,_B,]3 [C,_B,] z4 | "F7"[F,,_E,]3 [F,,_E,] z4 |]`, cap: "Rytm Charleston w lewej ręce: „raz” i „i” po dwójce."},
+       {src: JH("4/4", 100, "C") + `[V:RH] z8 | z8 |]\n[V:LH] "C7"C,, ^C,, D,, E,, G,, A,, _B,, A,, | G,, E,, G,, ^F,, E,, D,, ^C,, D,, |]`, cap: "Przykładowa figura basu boogie-woogie na C7 (tak samo zbudowana jak w Twoich nutach)."}],
  check: [
   {q: "Ile taktów ma blues?", opts: ["8", "12", "16"], ok: 1, why: "12 taktów – trzy linie po cztery takty."},
-  {q: "Skala bluesowa od F to…", opts: ["F–G–A–B–C–D–E", "F–As–B–H–C–Es", "F–A–C–Es"], ok: 1, why: "Pentatonika molowa F + blue note H."},
+  {q: "Skala bluesowa od C to…", opts: ["C–D–E–F–G–A–H", "C–Es–F–Fis–G–B", "C–E–G–B"], ok: 1, why: "Pentatonika molowa C + blue note Fis."},
   {q: "Rytm Charleston to akord na…", opts: ["1 i 3", "„raz” i „i” po dwójce", "każdą ósemkę"], ok: 1, why: "Krótko na 1, potem na „i” przed trzecią miarą."},
   {q: "Zagrałaś „zły” dźwięk w improwizacji. Co robisz?", opts: ["Przerywasz i zaczynasz od nowa", "Przesuwasz go o pół tonu na dźwięk akordu", "Udajesz, że nic się nie stało, i grasz głośniej"], ok: 1, why: "Dysonans rozwiązany o pół tonu brzmi jak zamierzony ozdobnik."}],
  drill: {mode: "shell", seq: true, hint: "Forma bluesa po kolei, shell voicings w lewej ręce. Mierzę czas całego chorusa.",
-  items: ["F7", "Bb7", "F7", "Cm7", "F7", "Bb7", "Bb7", "F7", "D7", "Gm7", "C7", "F7", "D7", "Gm7", "C7"]},
- band: {feel: "swing", bpm: 100, chart: [["F7"], ["Bb7"], ["F7"], ["Cm7", "F7"], ["Bb7"], ["Bb7"], ["F7"], ["D7"], ["Gm7"], ["C7"], ["F7", "D7"], ["Gm7", "C7"]]},
- improv: `<b>Pierwszy chorus.</b> Włącz podkład bluesa (12 taktów w pętli). 1. chorus: tylko <b>F, As, B</b> – krótkie motywy i pauzy. 2. chorus: cała skala bluesowa. 3. chorus: jeden riff powtarzany przez cały chorus (np. C–Es–F). Lewą ręką możesz grać Charleston albo nic – zespół gra harmonię.`,
+  items: ["C7", "F7", "C7", "Gm7", "C7", "F7", "F7", "C7", "A7", "Dm7", "G7", "C7", "A7", "Dm7", "G7"]},
+ band: {feel: "swing", bpm: 120, chart: [["C7"], ["F7"], ["C7"], ["Gm7", "C7"], ["F7"], ["F7"], ["C7"], ["A7"], ["Dm7"], ["G7"], ["C7", "A7"], ["Dm7", "G7"]]},
+ improv: `<b>Pierwszy chorus.</b> Włącz podkład bluesa (12 taktów w pętli). 1. chorus: tylko <b>C, Es, F</b> – krótkie motywy i pauzy. 2. chorus: cała skala bluesowa od C. 3. chorus: jeden riff powtarzany przez cały chorus (np. G–B–C). Lewą ręką możesz też grać bas boogie z Twoich nut.`,
  listen: ["jl-charlesbrown", "jl-chuckberry"]},
 
-{id: "u4", from: "2026-12-20", to: "2026-12-31", title: "Ballada, rozszerzenia i reharmonizacja", short: "Guide tones w lewej, nony i tercdecymy, jak zamienić proste akordy na jazzowe.",
+{id: "u4", from: "2026-12-21", to: "2026-12-30", title: "Ballada, rozszerzenia i reharmonizacja", short: "Guide tones w lewej, nony i tercdecymy, jak zamienić proste akordy na jazzowe.",
  songs: ["jz-lulajze"],
  lesson: `<h4>Rozszerzenia: 9, 11, 13</h4>
 <p>Nad septymą możemy dokładać kolejne tercje: <b>9</b> (nona, = sekunda o oktawę wyżej), <b>11</b> (undecyma, = kwarta) i <b>13</b> (tercdecyma, = seksta). Cmaj9 = C–E–G–H–D. Te dźwięki nie są „błędne” – to kolory. Często są w samej melodii: pierwsze nuty „Cichej nocy” (G–A–G) nad Cmaj7 to kwinta, 13 i kwinta.</p>
@@ -245,7 +324,7 @@ const JZ_UNITS = [
 <ul><li><b>Krewniak zamiast toniki:</b> C → Am7 albo Em7 (mają te same dźwięki co melodia).</li>
 <li><b>II–V przed celem:</b> chcesz dojść do F? Zagraj przed nim Gm7–C7.</li>
 <li><b>Dominanta wtrącona:</b> przed Dm7 wstaw A7 (V/II), przed Em7 – H7 (B7).</li></ul>
-<p>Drugi przykład poniżej to „Cicha noc”: ta sama melodia najpierw z akordami z kolędnika, potem po jazzowemu. Te same sztuczki zastosujesz w „Lulajże Jezuniu”.</p>
+<p>Drugi przykład poniżej to „Cicha noc”: ta sama melodia najpierw z akordami z kolędnika, potem po jazzowemu. Te same sztuczki zastosujesz w „Lulajże Jezuniu”: w zakładce <b>Utwór</b> masz jazzowe akordy do Twoich nut takt po takcie (Cmaj7, Fmaj7, Dm7, G9, A7, G7sus4, C6/9), a w zakładce <b>Podkład</b> zespół gra je w tempie ballady.</p>
 <h4>Ballada i pedał</h4>
 <p>Tempo wolne, ósemki lekko swingowe, dużo powietrza. Pedał zmieniaj na każdym basie, synkopowo – tak jak w kursie pedału.</p>`,
  abc: [{src: JH("3/4", 70, "C") + `[V:RH] "Cmaj7"[EGB]6 | "Cmaj9"[EGBd]6 | "Dm9"[FAce]6 | "G13"[FBe]6 |]\n[V:LH] C,6 | C,6 | D,6 | G,,6 |]`, cap: "Cmaj7, Cmaj9, Dm9, G13 – posłuchaj, jak rozszerzenia „otwierają” brzmienie."},
@@ -256,35 +335,41 @@ const JZ_UNITS = [
   {q: "Chcesz dojść do Fmaj7. Co wstawiasz przed nim?", opts: ["Gm7–C7", "Em7–A7", "Bbmaj7"], ok: 0, why: "II–V w F-dur."},
   {q: "A7 przed Dm7 to…", opts: ["dominanta wtrącona", "subdominanta", "akord zawieszony"], ok: 0, why: "A7 jest dominantą dla d-moll (V/II w C-dur)."}],
  drill: {mode: "guide", seq: true, hint: "Lewa ręka: tylko tercja i septyma (bas możesz dodać). Szukaj najbliższego chwytu.",
-  items: ["Dm7", "G7", "Cmaj7", "A7", "Dm7", "G7", "Cmaj7", "Gm7", "C7", "Fmaj7", "Em7", "A7"]},
+  items: ["Cmaj7", "Fmaj7", "Dm7", "G7", "Em7", "A7", "Dm7", "G7", "Cmaj7", "Am7", "Fmaj7", "G7"]},
  band: {feel: "ballad", bpm: 76, chart: [["Cmaj7"], ["Am7"], ["Dm7"], ["G7"]]},
- improv: `<b>Wypełnienia (fills).</b> Włącz podkład ballady (zakładka Podkład). Zagraj długą nutę, jak na końcu frazy kolędy: prawa ręka trzyma ją, a potem dogrywa krótki motyw z dźwięków akordu – jak pianista, który akompaniuje śpiewakowi i odpowiada mu w pauzach. Spróbuj użyć rozszerzeń: nad Cmaj7 D (9), nad Am7 H (9), nad G7 E (13).`,
+ improv: `<b>Wypełnienia (fills).</b> Włącz podkład „Lulajże Jezuniu” (zakładka Podkład). W długich nutach na końcach fraz (takty 4, 8, 12, 16) prawa ręka trzyma nutę, a potem dogrywa krótki motyw z dźwięków akordu – jak pianista, który akompaniuje śpiewakowi i odpowiada mu w pauzach. Spróbuj użyć rozszerzeń: nad Cmaj7 D (9), nad Am7 H (9), nad G7 E (13).`,
  listen: ["jl-ctih", "jl-silentnight"]},
 
-{id: "u5", from: "2027-01-01", to: "2027-01-08", title: "Bossa nova i II–V w molu", short: "Równe ósemki i synkopy, bas bossa, akord półzmniejszony.",
- songs: ["jz-silentbossa", "jz-feliz"],
+{id: "u5", from: "2026-12-31", to: "2027-01-10", title: "Bossa nova i bogate akordy", short: "Równe ósemki i synkopy, bas bossa, rozszerzenia 13 i ♯11, dominanta alterowana. Dwa utwory.",
+ songs: ["jz-silentbossa", "jz-feliz"], all: true,
  lesson: `<h4>Bossa nova</h4>
 <p>Bossa nova („nowa fala”) narodziła się w Brazylii pod koniec lat 50. – Antônio Carlos Jobim, João Gilberto, potem Stan Getz. To połączenie samby i jazzowej harmonii.</p>
 <ul><li><b>Ósemki równe</b> – nie swingujemy!</li>
 <li><b>Synkopy:</b> melodia często zaczyna się na „i” i jest przywiązana do następnej miary. Licz ósemkami: „1 i 2 i 3 i 4 i”.</li>
 <li><b>Bas:</b> podstawa na „raz”, kwinta na „i” po dwójce (przywiązana), podstawa na „i” po czwórce.</li>
 <li><b>Dynamika:</b> cicho, miękko, bez akcentów – „szept”, nie śpiew na scenie.</li></ul>
-<h4>II–V–I w molu</h4>
-<p>W a-moll II stopień to H, ale akord na H w a-moll ma kwintę zmniejszoną: <b>Hm7♭5</b> = H–D–F–A (akord półzmniejszony, znak ø). V stopień to <b>E7</b> = E–Gis–H–D – Gis to podwyższony 7. stopień z gamy harmonicznej. I – <b>Am7</b>.</p>
-<p>Brzmi bardziej melancholijnie niż durowe II–V–I. Usłyszysz to w podkładzie bossa nova (zakładka Podkład): Hm7♭5 – E7 – Am7.</p>`,
- abc: [{src: JH("4/4", 80, "Am") + `[V:RH] "Bm7b5"[DFA]4 "E7"[D^GB]4 | "Am7"[CEG]8 |]\n[V:LH] B,,8 | E,,4 A,,4 |]`, cap: "II–V–I w a-moll: Hm7♭5 – E7 – Am7."},
+<h4>Dwa utwory, dwa poziomy</h4>
+<p>W tym temacie uczysz się obu utworów: przez pierwsze 5 dni <b>„Silent Night, Bossa Night”</b> (F-dur, łatwiejszy), potem <b>„Feliz Navidad”</b> (D-dur, jazzowa aranżacja Brenta Edstroma), wracając do „Silent Night” na powtórki.</p>
+<h4>Akordy z kolorem: 6, 9, 13, ♯11</h4>
+<p>W „Silent Night, Bossa Night” prawa ręka gra akordy z sekstą i septymą (F6, Fmaj7), a w „Feliz Navidad” są jeszcze bogatsze: <b>D6/9</b> (D–Fis–H–E), <b>C13</b>, <b>Dmaj13</b>, <b>C9♯11</b>. Liczby mówią, które dźwięki dodać ponad septymę: 9 = sekunda, 11 = kwarta (♯11 – zwiększona), 13 = seksta, wszystkie o oktawę wyżej.</p>
+<h4>Dominanta alterowana</h4>
+<p>Przed toniką Edstrom zaostrza dominantę: <b>A7♯5</b> (kwinta podwyższona – Eis) w intro i <b>A7♭9</b> (nona mała – B) w zwrotce. To wciąż A7, tylko z ostrzejszym dźwiękiem, który jeszcze mocniej ciągnie do D.</p>
+<h4>Przesuwanie akordów</h4>
+<p>Intro „Feliz Navidad”: <b>D6/9 – C13 – E♭6/9 – A7♯5</b>. Cały chwyt zjeżdża o ton w dół (C) i wjeżdża pół tonu nad tonikę (Es), a A7♯5 sprowadza wszystko z powrotem do D. To częsty jazzowy trik: ten sam kształt dłoni, przesunięty po klawiaturze.</p>`,
+ abc: [{src: JH("4/4", 80, "C") + `[V:RH] "D6/9"[^FBe]4 "C13"[E_Ba]4 | "Eb6/9"[Gcf]4 "A7#5"[G^c=f]4 | "D6/9"[^FBe]8 |]\n[V:LH] D,8 | _E,4 A,,4 | D,8 |]`, cap: "Akordy z intro „Feliz Navidad” (uproszczone chwyty): D6/9 – C13 – E♭6/9 – A7♯5 – D6/9."},
        {src: JH("4/4", 90, "Am") + `[V:RH] z8 | z8 |]\n[V:LH] "Am7"A,,3 E,,- E,,3 A,, | "Dm7"D,,3 A,,- A,,3 D,, |]`, cap: "Bas bossa nova: podstawa, kwinta przywiązana, podstawa na „i”."}],
  check: [
   {q: "Ósemki w bossie gramy…", opts: ["swingowo", "równo", "punktowane"], ok: 1, why: "Bossa to styl z równymi ósemkami."},
-  {q: "Hm7♭5 to…", opts: ["H–D–F–A", "H–Dis–Fis–A", "H–D–Fis–A"], ok: 0, why: "Mollowy z kwintą zmniejszoną (F) i septymą małą (A)."},
-  {q: "Skąd się bierze Gis w E7 (a-moll)?", opts: ["Z gamy harmonicznej a-moll", "Z gamy C-dur", "To błąd w nutach"], ok: 0, why: "Podwyższony 7. stopień – jak w gamie harmonicznej."}],
- drill: {mode: "full", seq: true, hint: "Pełne akordy, dowolny przewrót. Najpierw II–V–I w a-moll, potem w d-moll i C-dur.",
-  items: ["Bm7b5", "E7", "Am7", "Em7b5", "A7", "Dm7", "Dm7", "G7", "Cmaj7"]},
- band: {feel: "bossa", bpm: 112, chart: [["Am7"], ["Am7"], ["Bm7b5", "E7"], ["Am7"], ["Dm7"], ["G7"], ["Cmaj7"], ["Fmaj7"]]},
- improv: `<b>Melodia z gamy.</b> Włącz podkład bossa. Nad Am7 i Dm7 graj w prawej ręce gamę a-moll naturalną (białe klawisze od A), ale <b>w rytmie bossy</b>: zaczynaj frazy na „i”, przywiązuj nuty do następnej miary. Gdy przyjdzie E7, zagraj Gis – usłyszysz, jak ciągnie do A.`,
+  {q: "A7♭9 to A7 z dodanym dźwiękiem…", opts: ["B (nona mała)", "H (nona wielka)", "Fis (seksta)"], ok: 0, why: "♭9 = nona mała: pół tonu nad podstawą, o oktawę wyżej."},
+  {q: "Em7 – A13 – Dmaj7 w „Feliz Navidad” to…", opts: ["II–V–I w D-dur", "I–IV–V w e-moll", "12-taktowy blues"], ok: 0, why: "E – II stopień, A – V stopień, D – tonika."},
+  {q: "D6/9 to…", opts: ["D–Fis–H–E", "D–Fis–A–C", "D–F–A–C"], ok: 0, why: "Durowy akord z sekstą (H) i noną (E), zwykle bez kwinty."}],
+ drill: {mode: "full", seq: true, hint: "Pełne akordy, dowolny przewrót. Najpierw akordy z „Silent Night” (F-dur), potem z „Feliz Navidad” (D-dur).",
+  items: ["Fmaj7", "F6", "Gm7", "C7", "Bbmaj7", "Dm7", "Em7", "A7", "Dmaj7", "D6", "G7", "Bm7"]},
+ band: {feel: "bossa", bpm: 112, chart: [["Em7"], ["A13"], ["Dmaj7", "G13"], ["Dmaj7"], ["Em7"], ["A7", "A7b9"], ["Dmaj7"], ["Dmaj7"]]},
+ improv: `<b>Melodia z gamy.</b> Włącz podkład bossa (akordy zwrotki „Feliz Navidad”). Graj w prawej ręce gamę D-dur, ale <b>w rytmie bossy</b>: zaczynaj frazy na „i”, przywiązuj nuty do następnej miary. Gdy przyjdzie A7♭9, zagraj B i rozwiąż je na A – usłyszysz, jak ciągnie do D.`,
  listen: ["jl-ipanema", "jl-xmasbossa"]},
 
-{id: "u6", from: "2027-01-09", to: "2027-01-15", title: "Twoja aranżacja i nagranie", short: "Intro, temat, solo, zakończenie – składasz całość i nagrywasz się na koniec modułu.",
+{id: "u6", from: "2027-01-11", to: "2027-01-15", title: "Twoja aranżacja i nagranie", short: "Intro, temat, solo, zakończenie – składasz całość i nagrywasz się na koniec modułu.",
  songs: ["jz-winter", "jz-letitsnow", "jz-jbblues", "jz-lulajze", "jz-silentbossa", "jz-feliz"],
  lesson: `<h4>Forma jazzowego wykonania</h4>
 <p>Jazzowy utwór rzadko gra się raz od początku do końca. Typowo: <b>intro → temat → solo → temat → zakończenie</b>.</p>
@@ -345,7 +430,12 @@ const jzArchived = () => todayKey() > JZ_END;
 const jzSongById = (id) => JZ_SONGS.find(s => s.id === id) || null;
 function jzUnitFor(key) { return JZ_UNITS.find(u => key >= u.from && key <= u.to) || (key < JZ_START ? JZ_UNITS[0] : JZ_UNITS[JZ_UNITS.length - 1]); }
 function jzDaysBetween(a, b) { return Math.round((new Date(b + "T12:00") - new Date(a + "T12:00")) / 86400000); }
-function jzSong(u) { const id = jzS().pick[u.id]; return jzSongById(id && u.songs.includes(id) ? id : u.songs[0]); }
+function jzSong(u, key) {
+  const id = jzS().pick[u.id];
+  if (id && u.songs.includes(id)) return jzSongById(id);
+  if (u.all) { const k = key || todayKey(), len = jzDaysBetween(u.from, u.to) + 1, d = Math.max(0, Math.min(len - 1, jzDaysBetween(u.from, k))); return jzSongById(u.songs[Math.min(u.songs.length - 1, Math.floor(d / Math.ceil(len / u.songs.length)))]); }
+  return jzSongById(u.songs[0]);
+}
 const jzStage = (id) => jzS().songs[id] || 0;
 const JZ_STAGES = ["nie zaczęty", "rozczytuję", "razem wolno", "w tempie ze swingiem", "gotowe"];
 const jzStageName = (s, song) => s === 3 && song && !song.swing ? "w tempie" : JZ_STAGES[s];
@@ -619,7 +709,9 @@ function jzChartFromAbc(abc) {
   });
   return out;
 }
-function jzSongChart(s) { return s && s.abc ? jzChartFromAbc(s.abc) : null; }
+function jzSongChart(s) { return s ? (s.chart || (s.abc ? jzChartFromAbc(s.abc) : null)) : null; }
+const jzSongBpm = (s) => s.bpm || (jzNotes(s.id) ? Math.round(Math.min(jzNotes(s.id).bpm, 110) * 0.8) : 90);
+const jzBandFeel = (s) => s.feel === "blues" ? "swing" : s.feel;
 
 /* odsłuch utworu z aplikacji: fortepian (obie ręce), ze swingiem albo prosto; opcjonalnie z basem i perkusją */
 const JZ_PLAY = {on: false, id: null, mode: null};
@@ -717,7 +809,7 @@ function jzDayInfo(key) {
   return {u, d, len, idx: JZ_UNITS.indexOf(u)};
 }
 function jzTodayTasks(key) {
-  const {u, d} = jzDayInfo(key), s = jzSong(u), J = jzS(), st = jzStage(s.id);
+  const {u, d} = jzDayInfo(key), s = jzSong(u, key), J = jzS(), st = jzStage(s.id);
   const firstListen = u.listen.find(id => !J.heard[id]);
   const t = [];
   if (!J.lesson[u.id]) t.push({min: 5, sec: "lesson", txt: `<b>Teoria:</b> lekcja „${esc(u.title)}”.`, btn: "Otwórz lekcję"});
@@ -725,7 +817,9 @@ function jzTodayTasks(key) {
   const hint = st === 0 ? (s.kind === "app" ? "posłuchaj w aplikacji" : "posłuchaj odsłuchu na MuseScore") + " i rozczytaj pierwsze 4 takty, każdą ręką osobno." : st === 1 ? "rozczytuj dalej po 4 takty; lewa ręka z nazwami akordów na głos." : st === 2 ? "razem wolno, potem z podkładem zespołu w wolnym tempie." : st === 3 ? (s.swing ? "w tempie ze swingiem, z podkładem; dopracuj akcenty na 2 i 4." : "w tempie, z podkładem; synkopy równo.") : "zagraj z pamięci z podkładem i dodaj coś od siebie (wypełnienie, inne zakończenie).";
   t.push({min: 10, sec: "song", txt: `<b>${esc(s.title)}:</b> ${hint}`, btn: "Otwórz utwór"});
   const rot = d % 3;
-  if (u.id === "u6") t.push({min: 5, sec: "arr", txt: `<b>Aranżacja:</b> zaplanuj albo przećwicz intro, solo i zakończenie.`, btn: "Moja aranżacja"});
+  const back = u.all ? u.songs.map(jzSongById).find(x => x.id !== s.id && jzStage(x.id) > 0 && u.songs.indexOf(x.id) < u.songs.indexOf(s.id)) : null;
+  if (back && rot === 0) t.push({min: 5, sec: "song", txt: `<b>Powtórka:</b> ${esc(back.title)} – zagraj całość raz, w tempie.`, btn: "Otwórz utwór"});
+  else if (u.id === "u6") t.push({min: 5, sec: "arr", txt: `<b>Aranżacja:</b> zaplanuj albo przećwicz intro, solo i zakończenie.`, btn: "Moja aranżacja"});
   else if ((rot === 1 || d === 0) && firstListen) { const L = JZ_LISTEN[firstListen]; t.push({min: 5, sec: "listen", txt: `<b>Słuchanie:</b> ${esc(L.who)} – „${esc(L.title)}”.`, btn: "Słuchaj"}); }
   else if (rot === 2 && s.kind === "app" && s.swing && st < 3) t.push({min: 5, sec: "song", txt: `<b>Swing:</b> posłuchaj porównania „prosto → swing” i zagraj pierwsze 2 takty na oba sposoby.`, btn: "Porównaj"});
   else t.push({min: 5, sec: "band", txt: `<b>Improwizacja:</b> ${u.improv.replace(/<[^>]+>/g, "").split(".")[0]}.`, btn: "Podkład"});
@@ -745,28 +839,18 @@ function jzStageHtml(s) {
     ${st > 0 ? `<button class="btn sm ghost" data-act="jz-stage" data-id="${s.id}" data-s="${st - 1}">Cofnij etap</button>` : ""}</div></div>`;
 }
 function jzMsHtml(s, u) {
-  const gen = {swing: ["Znajdź akordy maj7, m7 i 7 w symbolach nad nutami i nazwij je po polsku (pamiętaj: Bb = B, B = H).", "Znajdź choć jedno II–V–I (np. Gm7–C7–F).", "Graj ósemki swingowo, nawet jeśli w nutach są równe."],
-    blues: ["Policz takty – czy znajdziesz formę 12-taktową?", "Znajdź w melodii blue notes (mała tercja albo zwiększona kwarta).", "Lewa ręka: jeśli aranżacja jest trudna, zamień ją na shell voicings z symboli akordów."],
-    ballad: ["Znajdź rozszerzenia (9, 11, 13) w symbolach akordów.", "Zobacz, gdzie przed akordem docelowym stoi II–V albo dominanta wtrącona.", "Lewa ręka: bas na „raz”, tercja i septyma na „dwa”, jak w lekcji."],
-    waltz: ["3/4, ale ósemki swingowe – kołysanie na cały takt.", "Znajdź II–V–I i akordy maj7.", "Lewa ręka może grać akord na 2. miarę zamiast na 1."],
-    bossa: ["Ósemki równe! Policz synkopy ósemkami przed zagraniem.", "Znajdź akordy m7♭5 i 7 – to II–V w molu.", "Lewa ręka: bas podstawa–kwinta, jak w lekcji."]}[s.feel] || [];
-  // kolędy bez jazzowej wersji na MuseScore: robisz jazz sama
-  const folk = {swing: ["Graj melodię z nut, ale ósemki swingowo i z akcentem na 2 i 4.", "Lewa ręka: zamiast akordów z nut graj shell voicings – tonika jako maj7 (lub 6), dominanta jako 7, akord równoległy moll jako m7.", "Przed powrotem do toniki wstaw II–V (np. w C-dur: Dm7–G7 → Cmaj7).", "Na koniec zagraj całość z podkładem swing z zakładki Podkład."],
-    ballad: ["Melodia z nut, wolno i śpiewnie, ósemki lekko swingowe.", "Lewa ręka jak w lekcji: bas na „raz”, tercja i septyma na „dwa”.", "Reharmonizuj jedno miejsce: przed akordem docelowym wstaw dominantę wtrąconą albo II–V.", "Zakończ akordem z rozszerzeniem (maj9 albo 6/9)."],
-    bossa: ["Zagraj melodię w 4/4 z równymi ósemkami i przesuń niektóre nuty na „i” przed miarą (synkopa).", "Lewa ręka: bas bossa (podstawa – kwinta) z lekcji.", "Akordy durowe zamień na maj7, mollowe na m7."]}[s.feel] || [];
+  const list = (h, arr, tag) => arr && arr.length ? `<details ${tag === "ul" ? "open" : ""}><summary>${h}</summary><${tag} class="tips small" style="margin-top:6px">${arr.map(x => `<li>${x}</li>`).join("")}</${tag}></details>` : "";
+  const ch = jzSongChart(s);
   return `<div class="stack" style="gap:8px">
     <div class="extlinks"><a class="btn sm primary" href="${s.url}" target="_blank" rel="noopener">Otwórz nuty na MuseScore</a>
     <a href="https://open.spotify.com/search/${encodeURIComponent(s.title)}" target="_blank" rel="noopener">posłuchaj na Spotify</a></div>
     <p class="small" style="margin:0">${s.pg} ${s.pg === 1 ? "strona" : s.pg < 5 ? "strony" : "stron"} · trudność ${s.lvl}${s.chords ? " · symbole akordów nad nutami" : ""}${s.off ? " · nuty oficjalne – pełna wersja w ramach subskrypcji MuseScore" : ""}</p>
     ${s.note ? `<p class="small" style="margin:0">${s.note}</p>` : ""}
-    ${s.folk ? `<h4 style="margin:4px 0 0">Jak zrobić z niej jazz</h4><ol class="tips small">${folk.map(x => `<li>${x}</li>`).join("")}</ol>` : `<h4 style="margin:4px 0 0">Teoria na tym utworze</h4><ul class="tips small">${gen.map(x => `<li>${x}</li>`).join("")}</ul>${s.chords ? "" : `<p class="small muted" style="margin:0">Jeśli lewa ręka z nut jest za trudna, graj prawą z nut, a lewą shell voicings.</p>`}`}</div>`;
+    ${list("Teoria na tym utworze", s.an, "ul")}
+    ${list("Jak ćwiczyć", s.steps, "ol")}
+    ${ch ? `<details><summary>Podkład zespołu do tego utworu</summary><div style="margin-top:6px">${jzBandHtml(ch, jzBandFeel(s), jzSongBpm(s), "song:" + s.id, "Zespół gra akordy tego utworu w pętli – Ty grasz melodię z nut, a lewą ręką bas i guide tones albo nic.")}</div></details>` : ""}</div>`;
 }
-function jzSongHtml(u) {
-  const s = jzSong(u), J = jzS();
-  const alts = u.songs.map(jzSongById).filter(Boolean);
-  const head = `<div class="spread" style="align-items:flex-start"><div><h3>${esc(s.title)}</h3><p class="meta">${esc(s.by)}${s.key ? " · " + s.key : ""} · ${JZ_FEEL_NAME[s.feel] || s.feel}</p></div>
-    ${alts.length > 1 ? `<button class="btn sm ghost" data-act="jz-swap" aria-expanded="${JZV.swap}">Zamień utwór</button>` : ""}</div>
-    ${JZV.swap ? `<div class="lessonlist jzswap">${alts.map(a => `<button data-act="jz-pick" data-u="${u.id}" data-id="${a.id}" aria-pressed="${a.id === s.id}"><span>${esc(a.title)} <span class="muted small">· ${a.kind === "app" ? "nuty w aplikacji, sprawdzanie z pianinem" : "MuseScore"}${jzStage(a.id) ? " · " + jzStageName(jzStage(a.id), a) : ""}</span></span>${a.id === s.id ? `<span class="ok">✓</span>` : `<span class="muted">›</span>`}</button>`).join("")}</div>` : ""}`;
+function jzSongCard(s, u, head) {
   if (s.kind !== "app") return `<div class="card stack">${head}${jzMsHtml(s, u)}${jzStageHtml(s)}</div>`;
   const src = "jazz:" + s.id + ":0";
   return `<div class="card stack">${head}
@@ -777,8 +861,23 @@ function jzSongHtml(u) {
     ${s.swing ? `<p class="small muted" style="margin:0">Ósemki graj swingowo (długa–krótka). Pasek pianina w trybie „Z metronomem” też sprawdza swing.</p>` : `<p class="small muted" style="margin:0">Ósemki równe – bez swingu.</p>`}
     <details open><summary>Teoria na tym utworze</summary><ul class="tips small" style="margin-top:6px">${s.an.map(x => `<li>${x}</li>`).join("")}</ul></details>
     <details><summary>Jak ćwiczyć</summary><ol class="tips small" style="margin-top:6px">${s.steps.map(x => `<li>${x}</li>`).join("")}</ol></details>
-    <details><summary>Podkład zespołu do tego utworu</summary><div style="margin-top:6px">${jzBandHtml(jzSongChart(s), s.feel === "blues" ? "swing" : s.feel, Math.round(jzNotes(s.id) ? Math.min(jzNotes(s.id).bpm, 110) * 0.8 : 90), "song:" + s.id, "Zespół gra akordy tego utworu w pętli – Ty grasz melodię z lewą ręką albo samą melodię.")}</div></details>
+    <details><summary>Podkład zespołu do tego utworu</summary><div style="margin-top:6px">${jzBandHtml(jzSongChart(s), jzBandFeel(s), jzSongBpm(s), "song:" + s.id, "Zespół gra akordy tego utworu w pętli – Ty grasz melodię z lewą ręką albo samą melodię.")}</div></details>
     ${jzStageHtml(s)}</div>`;
+}
+const jzSongHead = (s, extra) => `<div class="spread" style="align-items:flex-start"><div><h3>${esc(s.title)}</h3><p class="meta">${esc(s.by)}${s.key ? " · " + s.key : ""} · ${JZ_FEEL_NAME[s.feel] || s.feel}</p></div>${extra || ""}</div>`;
+function jzSongHtml(u) {
+  const s = jzSong(u);
+  const alts = u.songs.map(jzSongById).filter(Boolean);
+  // temat z kilkoma utworami do nauczenia: wszystkie karty po kolei, dzisiejszy oznaczony
+  if (u.all) {
+    const len = jzDaysBetween(u.from, u.to) + 1, per = Math.ceil(len / alts.length);
+    const dt = (k, add) => { const d = new Date(k + "T12:00"); d.setDate(d.getDate() + add); return d.toLocaleDateString("pl-PL", {day: "numeric", month: "long"}); };
+    return `<div class="card stack"><p class="small" style="margin:0">W tym temacie uczysz się <b>wszystkich ${alts.length} utworów</b>: ${alts.map((a, i) => `<b>${esc(a.title)}</b> (${dt(u.from, i * per)} – ${dt(u.from, Math.min(len - 1, (i + 1) * per - 1))})`).join(", potem ")}. Wcześniejszy utwór wraca w planie na powtórki.</p></div>
+      ${alts.map(a => jzSongCard(a, u, jzSongHead(a, a.id === s.id ? `<span class="pill own">dziś</span>` : `<button class="btn sm ghost" data-act="jz-pick" data-u="${u.id}" data-id="${a.id}">Ćwiczę dziś ten</button>`))).join("")}`;
+  }
+  const head = jzSongHead(s, alts.length > 1 ? `<button class="btn sm ghost" data-act="jz-swap" aria-expanded="${JZV.swap}">Zamień utwór</button>` : "") +
+    (JZV.swap ? `<div class="lessonlist jzswap">${alts.map(a => `<button data-act="jz-pick" data-u="${u.id}" data-id="${a.id}" aria-pressed="${a.id === s.id}"><span>${esc(a.title)} <span class="muted small">· ${a.kind === "app" ? "nuty w aplikacji, sprawdzanie z pianinem" : "MuseScore"}${jzStage(a.id) ? " · " + jzStageName(jzStage(a.id), a) : ""}</span></span>${a.id === s.id ? `<span class="ok">✓</span>` : `<span class="muted">›</span>`}</button>`).join("")}</div>` : "");
+  return jzSongCard(s, u, head);
 }
 const JZ_BPM = {};
 function jzBandHtml(chart, feel, bpm, src, txt) {
@@ -833,8 +932,8 @@ function jzHome() {
   const total = jzDaysBetween(JZ_START, JZ_END) + 1, done = Math.min(total, Math.max(0, jzDaysBetween(JZ_START, key) + 1));
   return `<section class="stack">
     <div class="card stack jzhead">
-      <div class="spread"><h2>Jazzy Christmas</h2><span class="pill">${on ? "dzień " + done + " z " + total : jzArchived() ? "archiwum" : "od 20 listopada"}</span></div>
-      <p class="small muted" style="margin:0">20 listopada – 15 stycznia · 20 minut dziennie ponad plan · swing, akordy jazzowe, blues, ballada, bossa nova i Twoja aranżacja.</p>
+      <div class="spread"><h2>Jazzy Christmas</h2><span class="pill">${on ? "dzień " + done + " z " + total : jzArchived() ? "archiwum" : "od 21 listopada"}</span></div>
+      <p class="small muted" style="margin:0">21 listopada – 15 stycznia · 20 minut dziennie ponad plan · swing, akordy jazzowe, blues, ballada, bossa nova i Twoja aranżacja.</p>
       <div class="bar t-music"><span style="width:${Math.round(done / total * 100)}%"></span></div>
       ${jzArchived() ? `<p class="small">Moduł zakończony. Wszystko zostaje tutaj – lekcje, utwory, podkłady i ćwiczenia akordów działają dalej.</p>` : ""}
     </div>
@@ -859,7 +958,7 @@ function jzUnitView() {
   if (sec === "drill") body = jzDrillHtml(u);
   if (sec === "band") { const s = jzSong(u), ch = jzSongChart(s);
     body = `<div class="card stack"><h3>Improwizacja</h3><p class="small">${u.improv}</p>${jzBandHtml(u.band.chart, u.band.feel, u.band.bpm, "unit:" + u.id, "Ćwiczenie tematu – krótka pętla akordów.")}</div>
-    ${ch ? `<div class="card stack"><h3>Podkład: ${esc(s.title)}</h3>${jzBandHtml(ch, s.feel === "blues" ? "swing" : s.feel, Math.round(Math.min(jzNotes(s.id) ? jzNotes(s.id).bpm : 100, 110) * 0.8), "song:" + s.id, "")}</div>` : ""}`; }
+    ${ch ? `<div class="card stack"><h3>Podkład: ${esc(s.title)}</h3>${jzBandHtml(ch, jzBandFeel(s), jzSongBpm(s), "song:" + s.id, "")}</div>` : ""}`; }
   if (sec === "listen") body = jzListenHtml(u);
   if (sec === "arr") body = jzArrHtml();
   const prev = JZ_UNITS[i - 1], next = JZ_UNITS[i + 1];
@@ -882,8 +981,8 @@ function jzAfter() {
   jzBandUi(); jzPlayUi();
 }
 function jzArchiveCard() {
-  if (isBeg() || todayKey() < JZ_START) return "";
-  return `<div class="card stack"><div class="spread"><h3>${jzArchived() ? "Archiwum: " : ""}Jazzy Christmas</h3><span class="small muted">20.11 – 15.01</span></div>
+  if (isBeg()) return "";
+  return `<div class="card stack"><div class="spread"><h3>${jzArchived() ? "Archiwum: " : ""}Jazzy Christmas</h3><span class="small muted">${todayKey() < JZ_START ? "start 21 listopada" : "21.11 – 15.01"}</span></div>
     <p class="small muted" style="margin:0">Moduł jazzowy: swing, akordy septymowe, blues, ballada, bossa nova – lekcje, utwory, podkłady i ćwiczenia akordów.</p>
     <div><button class="btn sm primary" data-act="goto" data-tab="jazz">Otwórz</button></div></div>`;
 }
