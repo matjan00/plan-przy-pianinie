@@ -763,6 +763,7 @@ function begAbc(src) {
   if (kind === "piece") { const p = BEG_PIECES.find(x => x.id === id); return p && p.abc; }
   if (kind === "sight" && typeof SRGEN !== "undefined" && SRGEN[id]) return SRGEN[id].n === +k ? SRGEN[id].piece.abc : null;   // generator a vista (extra.js)
   if ((kind === "tech" || kind === "sight") && typeof grAbc === "function") return grAbc(kind, id);
+  if (kind === "jazz" && typeof jzAbcById === "function") return jzAbcById(id, k);
   const l = BEG_LESSONS.find(x => x.id === id); return l && l.abc && l.abc[+k] && l.abc[+k].src;
 }
 function begPlay(src) {

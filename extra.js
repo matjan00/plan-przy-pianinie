@@ -759,6 +759,7 @@ function learnHome() {
       ${Object.keys(THEORY).map(lv => `<details ${+lv === S.th.level ? "open" : ""}><summary>Level ${lv} <span class="muted small">(${THEORY[lv].filter(t => S.th.done[t[0]]).length}/${THEORY[lv].length})</span></summary>
         <div class="lessonlist">${THEORY[lv].map(t => `<button data-act="lesson" data-id="${t[0]}"><span>${t[1]}</span>${S.th.done[t[0]] ? `<span class="ok">✓</span>` : `<span class="muted">›</span>`}</button>`).join("")}</div></details>`).join("")}
     </div>
+    ${typeof jzArchiveCard === "function" ? jzArchiveCard() : ""}
     ${listenCard()}
     <div class="card stack">
       <div class="spread"><h3>Kurs pedału</h3><span class="mono small">${pd}/${PEDAL.length}</span></div>
@@ -837,6 +838,7 @@ function checkAnswer(btn) {
   const id = btn.dataset.id, qi = +btn.dataset.q, oi = +btn.dataset.o;
   let c;
   if (id.startsWith("pedal:")) { const l = PEDAL.find(x => x.id === id.slice(6)); c = l.check[qi]; }
+  else if (id.startsWith("jz:")) c = jzCheck(id.slice(3), qi);
   else c = LESSONS[id].check[qi];
   const wrap = btn.closest(".check-q"), ok = oi === c.ok;
   wrap.querySelectorAll("button").forEach((b, i) => { b.classList.remove("right", "wrong"); if (!ok && i === c.ok) b.classList.add("right"); });
