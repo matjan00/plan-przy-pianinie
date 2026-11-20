@@ -15,6 +15,7 @@ const JH = (m, q, k) => `X:1\nM:${m}\nL:1/8\nQ:1/4=${q}\nK:${k}\n%%staves {RH LH
 
 /* ============================== UTWORY ============================== */
 // kind "app": nuty w aplikacji; kind "ms": nuty z MuseScore (q – fraza wyszukiwania). swing: ósemki grane nierówno.
+const JZ_MS = "https://musescore.com/";
 const JZ_SONGS = [
 {id: "jz-jingle", kind: "app", title: "Jingle Bells", by: "J. Pierpont (1857) · aranżacja jazzowa z aplikacji", key: "F-dur", feel: "swing", swing: true,
  abc: JH("4/4", 120, "F") +
@@ -32,9 +33,12 @@ const JZ_SONGS = [
   "Lewa ręka sama: same akordy, każdy na „raz”. Nazwij głośno każdy akord.",
   "Razem wolno (♩ = 70–80), potem z podkładem zespołu – kontrabas i perkusja trzymają puls za Ciebie.",
   "W tempie ♩ = 110–120: lekko, z akcentem na 2 i 4."]},
-{id: "jz-santa", kind: "ms", title: "Santa Claus Is Coming to Town", by: "J. F. Coots (1934) · nuty z MuseScore", q: "Santa Claus Is Coming to Town easy jazz piano", feel: "swing", swing: true},
-{id: "jz-winter", kind: "ms", title: "Winter Wonderland", by: "F. Bernard (1934) · nuty z MuseScore", q: "Winter Wonderland easy jazz piano", feel: "swing", swing: true},
-{id: "jz-jbrock", kind: "ms", title: "Jingle Bell Rock", by: "J. Beal, J. Boothe (1957) · nuty z MuseScore", q: "Jingle Bell Rock easy piano", feel: "swing", swing: true},
+{id: "jz-santa", kind: "ms", title: "Santa Claus Is Coming to Town", by: "J. F. Coots (1934) · arr. Phillip Fullerton", url: JZ_MS + "user/7333711/scores/7280831", pg: 2, lvl: "łatwa", chords: true, feel: "swing", swing: true,
+ note: "Prosta wersja w F-dur z akordami (C, C7, F, Fm) nad nutami. Twoje zadanie: zrób z niej jazz – graj swingowo, a w lewej ręce zamień F na Fmaj7, C7 zostaw, przed F wstaw Gm7–C7."},
+{id: "jz-winter", kind: "ms", title: "Winter Wonderland", by: "F. Bernard (1934) · swing arrangement, Retro Piano Guy", url: JZ_MS + "user/2891181/scores/4812699", pg: 3, lvl: "średnia", chords: true, feel: "swing", swing: true,
+ note: "Prawdziwa aranżacja swingowa (Cmaj7, Dm7, G7 nad nutami) – trudniejsza od Jingle Bells, dobra na drugi tydzień tematu."},
+{id: "jz-jbrock", kind: "ms", title: "Jingle Bell Rock", by: "J. Beal, J. Boothe (1957) · arr. Toby Kolos", url: JZ_MS + "user/29305734/scores/6442705", pg: 2, lvl: "łatwa", chords: true, feel: "swing", swing: true,
+ note: "W nutach jest „Swing” i akordy Gmaj7, G6, Am, D7 – świetne do ćwiczenia symboli z lekcji."},
 
 {id: "jz-wewish", kind: "app", title: "We Wish You a Merry Christmas", by: "kolęda angielska · jazz waltz z aplikacji", key: "F-dur", feel: "waltz", swing: true,
  abc: JH("3/4", 120, "F") +
@@ -66,8 +70,10 @@ const JZ_SONGS = [
   "Prawa ręka: grupy ósemek „fa la la la” swingowo.",
   "Razem wolno, potem z podkładem swing.",
   "Graj melodię staccato w ósemkach i legato w ćwierćnutach – tak brzmi big band."]},
-{id: "jz-letitsnow", kind: "ms", title: "Let It Snow! Let It Snow! Let It Snow!", by: "J. Styne (1945) · nuty z MuseScore", q: "Let It Snow easy jazz piano", feel: "swing", swing: true},
-{id: "jz-betlejem", kind: "ms", title: "Dzisiaj w Betlejem", by: "kolęda polska · nuty z MuseScore", q: "Dzisiaj w Betlejem jazz piano", feel: "swing", swing: true},
+{id: "jz-letitsnow", kind: "ms", title: "Let It Snow! Let It Snow! Let It Snow!", by: "J. Styne (1945) · wersja Dean Martin, Faber (oficjalna)", url: JZ_MS + "official_author/scores/6920763", pg: 3, lvl: "średnia", off: true, feel: "swing", swing: true,
+ note: "Pełno II–V–I – szukaj par m7 → 7 przed akordami maj7."},
+{id: "jz-betlejem", kind: "ms", title: "Dzisiaj w Betlejem", by: "kolęda polska · opr. josoj", url: JZ_MS + "user/832276/scores/1494691", pg: 1, lvl: "łatwa", folk: true, feel: "swing", swing: true,
+ note: "Na MuseScore nie ma jazzowej wersji tej kolędy na fortepian solo – to proste opracowanie, z którego robisz jazz sama (patrz niżej)."},
 
 {id: "jz-blues", kind: "app", title: "Śnieżny blues", by: "temat bluesowy z aplikacji (12 taktów)", key: "F-dur", feel: "blues", swing: true,
  abc: JH("4/4", 100, "F") +
@@ -85,9 +91,12 @@ const JZ_SONGS = [
   "Prawa ręka: riff z taktu 1 (F–As–A–C) – swingowo, lekko zaakcentuj A.",
   "Razem wolno, potem z podkładem blues. Graj temat 2 razy pod rząd.",
   "Po temacie: jeden chorus improwizacji (patrz zadanie w zakładce Podkład) i jeszcze raz temat."]},
-{id: "jz-rudolph", kind: "ms", title: "Run Rudolph Run", by: "J. Marks, M. Brodie (1958) · 12-taktowy blues · MuseScore", q: "Run Rudolph Run piano", feel: "blues", swing: true},
-{id: "jz-xmasbaby", kind: "ms", title: "Merry Christmas Baby", by: "L. Baxter, J. Moore (1947) · wolny blues · MuseScore", q: "Merry Christmas Baby piano", feel: "blues", swing: true},
-{id: "jz-jbblues", kind: "ms", title: "Jingle Bells Blues", by: "różne aranżacje · nuty z MuseScore", q: "Jingle Bells blues piano", feel: "blues", swing: true},
+{id: "jz-rudolph", kind: "ms", title: "Run Rudolph Run", by: "J. Marks, M. Brodie (1958) · wersja boogie-woogie, arr. Brent Edstrom (Hal Leonard)", url: JZ_MS + "user/39593079/scores/16108855", pg: 3, lvl: "średnia", off: true, feel: "blues", swing: true,
+ note: "12-taktowy blues z lewą ręką boogie-woogie."},
+{id: "jz-xmasbaby", kind: "ms", title: "Merry Christmas, Baby", by: "L. Baxter, J. Moore (1947) · wersja jazzowa, arr. Brent Edstrom (Hal Leonard)", url: JZ_MS + "user/39593079/scores/16084576", pg: 4, lvl: "średnia", off: true, feel: "blues", swing: true,
+ note: "Wolny blues – dużo blue notes i trioli."},
+{id: "jz-jbblues", kind: "ms", title: "Jingle Bells Boogie", by: "J. Pierpont · arr. sandridavide6", url: JZ_MS + "user/39952632/scores/8088462", pg: 3, lvl: "średnia", feel: "blues", swing: true,
+ note: "Lewa ręka gra bas boogie-woogie ósemkami, prawa – akordy i melodię. Ocena 4,9."},
 
 {id: "jz-cicha", kind: "app", title: "Cicha noc", by: "F. X. Gruber (1818) · ballada jazzowa z aplikacji", key: "C-dur", feel: "ballad", swing: true,
  abc: JH("3/4", 84, "C") +
@@ -107,9 +116,12 @@ const JZ_SONGS = [
   "Pedał: zmieniaj go na każdym basie (jak w kursie pedału – synkopowo).",
   "Prawa ręka śpiewnie, lekko swingowo w ósemkach (takty 1, 3, 10, 14).",
   "Razem, z podkładem ballady (♩ = 70–84)."]},
-{id: "jz-ctih", kind: "ms", title: "Christmas Time Is Here", by: "V. Guaraldi (1965) · jazz waltz · MuseScore", q: "Christmas Time Is Here piano", feel: "waltz", swing: true},
-{id: "jz-merrylittle", kind: "ms", title: "Have Yourself a Merry Little Christmas", by: "H. Martin, R. Blane (1944) · ballada · MuseScore", q: "Have Yourself a Merry Little Christmas easy jazz piano", feel: "ballad", swing: true},
-{id: "jz-lulajze", kind: "ms", title: "Lulajże Jezuniu", by: "kolęda polska · nuty z MuseScore", q: "Lulajże Jezuniu jazz piano", feel: "ballad", swing: true},
+{id: "jz-ctih", kind: "ms", title: "Christmas Time Is Here", by: "V. Guaraldi (1965) · for Jazz Piano, arr. Elijah Hemingway", url: JZ_MS + "user/36736188/scores/8688171", pg: 4, lvl: "łatwa–średnia", chords: true, feel: "waltz", swing: true,
+ note: "Jazz waltz z „Charlie Brown Christmas” – pełno akordów maj7 i m9. Najpopularniejsza wersja jazzowa na MuseScore."},
+{id: "jz-merrylittle", kind: "ms", title: "Have Yourself a Merry Little Christmas", by: "H. Martin, R. Blane (1944) · wersja jazzowa, arr. Brent Edstrom (Hal Leonard)", url: JZ_MS + "official_scores/scores/6950850", pg: 4, lvl: "średnia", off: true, feel: "ballad", swing: true,
+ note: "Ballada z bogatą harmonią – rozszerzenia i reharmonizacja jak w lekcji."},
+{id: "jz-lulajze", kind: "ms", title: "Lulajże Jezuniu", by: "kolęda polska · opr. cro_pandas", url: JZ_MS + "user/2251896/scores/1512306", pg: 1, lvl: "łatwa", folk: true, feel: "ballad", swing: true,
+ note: "Na MuseScore nie ma jazzowej wersji tej kolędy na fortepian solo – to proste opracowanie w 3/4, z którego robisz balladę jazzową sama (patrz niżej)."},
 
 {id: "jz-bossa", kind: "app", title: "Zimowa bossa", by: "temat bossa nova z aplikacji · a-moll", key: "a-moll", feel: "bossa", swing: false,
  abc: JH("4/4", 112, "Am") +
@@ -127,9 +139,14 @@ const JZ_SONGS = [
   "Prawa ręka: wystukaj rytm każdego taktu, zanim zagrasz – synkopy liczy się ósemkami.",
   "Razem bardzo wolno (♩ = 70), potem z podkładem bossa.",
   "Graj miękko, mp – bossa jest cicha i elegancka."]},
-{id: "jz-wsrod", kind: "ms", title: "Wśród nocnej ciszy", by: "kolęda polska · nuty z MuseScore", q: "Wśród nocnej ciszy jazz piano", feel: "bossa", swing: false},
-{id: "jz-jbbossa", kind: "ms", title: "Jingle Bells (bossa nova)", by: "różne aranżacje · nuty z MuseScore", q: "Jingle Bells bossa nova piano", feel: "bossa", swing: false},
-{id: "jz-bog", kind: "ms", title: "Bóg się rodzi", by: "kolęda polska · nuty z MuseScore", q: "Bóg się rodzi jazz piano", feel: "swing", swing: true}
+{id: "jz-wsrod", kind: "ms", title: "Wśród nocnej ciszy", by: "kolęda polska · wersja nowoczesna, arr. Jakub Korbanek", url: JZ_MS + "user/2639561/scores/1374086", pg: 1, lvl: "łatwa", folk: true, feel: "bossa", swing: false,
+ note: "Opracowanie z nowoczesną harmonią i synkopowanym akompaniamentem – dobry materiał do zagrania jako bossa (równe ósemki, bas podstawa–kwinta)."},
+{id: "jz-silentbossa", kind: "ms", title: "Silent Night, Bossa Night", by: "F. X. Gruber · bossa nova, arr. L. McKinlay (Easy Piano, oficjalna)", url: JZ_MS + "user/97106398/scores/18075718", pg: 2, lvl: "łatwa", off: true, feel: "bossa", swing: false,
+ note: "Cicha noc jako bossa nova – porównaj z Twoją balladą z 4. tematu."},
+{id: "jz-feliz", kind: "ms", title: "Feliz Navidad", by: "J. Feliciano (1970) · wersja jazzowa, arr. Brent Edstrom (Hal Leonard)", url: JZ_MS + "official_scores/scores/6930106", pg: 3, lvl: "średnia", off: true, feel: "bossa", swing: false,
+ note: "Latynoski rytm i jazzowa harmonia – równe ósemki, synkopy."},
+{id: "jz-bog", kind: "ms", title: "Bóg się rodzi", by: "kolęda polska · wersja nowoczesna, arr. Jakub Korbanek", url: JZ_MS + "user/2639561/scores/867841", pg: 1, lvl: "łatwa", folk: true, feel: "swing", swing: true,
+ note: "Polonez z nowoczesnym akompaniamentem. Spróbuj go zagrać w 4/4 ze swingiem – to klasyczny jazzowy trik na kolędy."},
 ];
 
 /* ============================== TEMATY ============================== */
@@ -243,7 +260,7 @@ const JZ_UNITS = [
  listen: ["jl-ctih", "jl-silentnight"]},
 
 {id: "u5", from: "2027-01-01", to: "2027-01-08", title: "Bossa nova i II–V w molu", short: "Równe ósemki i synkopy, bas bossa, akord półzmniejszony.",
- songs: ["jz-bossa", "jz-wsrod", "jz-jbbossa", "jz-bog"],
+ songs: ["jz-bossa", "jz-silentbossa", "jz-feliz", "jz-wsrod", "jz-bog"],
  lesson: `<h4>Bossa nova</h4>
 <p>Bossa nova („nowa fala”) narodziła się w Brazylii pod koniec lat 50. – Antônio Carlos Jobim, João Gilberto, potem Stan Getz. To połączenie samby i jazzowej harmonii.</p>
 <ul><li><b>Ósemki równe</b> – nie swingujemy!</li>
@@ -731,11 +748,16 @@ function jzMsHtml(s, u) {
     ballad: ["Znajdź rozszerzenia (9, 11, 13) w symbolach akordów.", "Zobacz, gdzie przed akordem docelowym stoi II–V albo dominanta wtrącona.", "Lewa ręka: bas na „raz”, tercja i septyma na „dwa”, jak w lekcji."],
     waltz: ["3/4, ale ósemki swingowe – kołysanie na cały takt.", "Znajdź II–V–I i akordy maj7.", "Lewa ręka może grać akord na 2. miarę zamiast na 1."],
     bossa: ["Ósemki równe! Policz synkopy ósemkami przed zagraniem.", "Znajdź akordy m7♭5 i 7 – to II–V w molu.", "Lewa ręka: bas podstawa–kwinta, jak w lekcji."]}[s.feel] || [];
+  // kolędy bez jazzowej wersji na MuseScore: robisz jazz sama
+  const folk = {swing: ["Graj melodię z nut, ale ósemki swingowo i z akcentem na 2 i 4.", "Lewa ręka: zamiast akordów z nut graj shell voicings – tonika jako maj7 (lub 6), dominanta jako 7, akord równoległy moll jako m7.", "Przed powrotem do toniki wstaw II–V (np. w C-dur: Dm7–G7 → Cmaj7).", "Na koniec zagraj całość z podkładem swing z zakładki Podkład."],
+    ballad: ["Melodia z nut, wolno i śpiewnie, ósemki lekko swingowe.", "Lewa ręka jak w „Cichej nocy”: bas na „raz”, tercja i septyma na „dwa”.", "Reharmonizuj jedno miejsce: przed akordem docelowym wstaw dominantę wtrąconą albo II–V.", "Zakończ akordem z rozszerzeniem (maj9 albo 6/9)."],
+    bossa: ["Zagraj melodię w 4/4 z równymi ósemkami i przesuń niektóre nuty na „i” przed miarą (synkopa).", "Lewa ręka: bas bossa (podstawa – kwinta) z lekcji.", "Akordy durowe zamień na maj7, mollowe na m7."]}[s.feel] || [];
   return `<div class="stack" style="gap:8px">
-    <div class="extlinks"><span class="pill">MuseScore</span><a class="btn sm primary" href="https://musescore.com/sheetmusic?text=${encodeURIComponent(s.q)}" target="_blank" rel="noopener">Szukaj nut na MuseScore</a>
+    <div class="extlinks"><a class="btn sm primary" href="${s.url}" target="_blank" rel="noopener">Otwórz nuty na MuseScore</a>
     <a href="https://open.spotify.com/search/${encodeURIComponent(s.title)}" target="_blank" rel="noopener">posłuchaj na Spotify</a></div>
-    <p class="small"><b>Jak wybrać nuty:</b> szukaj aranżacji „easy” albo „intermediate” na fortepian solo, 1–3 strony, <b>z symbolami akordów nad nutami</b> (wtedy zrobisz z nich teorię z tego tematu). Jeśli lewa ręka jest za trudna – graj z nut prawą, a lewą shell voicings z symboli.</p>
-    <h4 style="margin:4px 0 0">Teoria na tym utworze</h4><ul class="tips small">${gen.map(x => `<li>${x}</li>`).join("")}</ul></div>`;
+    <p class="small" style="margin:0">${s.pg} ${s.pg === 1 ? "strona" : s.pg < 5 ? "strony" : "stron"} · trudność ${s.lvl}${s.chords ? " · symbole akordów nad nutami" : ""}${s.off ? " · nuty oficjalne – pełna wersja w ramach subskrypcji MuseScore" : ""}</p>
+    ${s.note ? `<p class="small" style="margin:0">${s.note}</p>` : ""}
+    ${s.folk ? `<h4 style="margin:4px 0 0">Jak zrobić z niej jazz</h4><ol class="tips small">${folk.map(x => `<li>${x}</li>`).join("")}</ol>` : `<h4 style="margin:4px 0 0">Teoria na tym utworze</h4><ul class="tips small">${gen.map(x => `<li>${x}</li>`).join("")}</ul>${s.chords ? "" : `<p class="small muted" style="margin:0">Jeśli lewa ręka z nut jest za trudna, graj prawą z nut, a lewą shell voicings.</p>`}`}</div>`;
 }
 function jzSongHtml(u) {
   const s = jzSong(u), J = jzS();
