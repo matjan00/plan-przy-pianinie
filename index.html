@@ -891,6 +891,17 @@ function techProg(g){ const it=TECH[g]||[]; return it.length? it.filter(i=>S.tec
 function srLevelLog(){ return S.sr.log.filter(x=>x.l===S.sr.level); }
 function srInLevel(){ const L=srLevelLog(); if(!L.length) return 0; const last=L.slice(-5); const avg=last.reduce((a,b)=>a+b.r,0)/last.length; return clamp(L.length/20)*clamp(avg/4); }
 function srCanLevelUp(){ const L=srLevelLog(); if(L.length<20) return false; const last=L.slice(-5); return last.reduce((a,b)=>a+b.r,0)/last.length>=4; }
+// średnia z ostatnich 5 ocenionych sesji na bieżącym poziomie (+ średni wynik z pianina, jeśli są pomiary)
+function srAvgText(){
+  const last=srLevelLog().slice(-5), lv=S.sr.level;
+  if(!last.length) return `Poziom ${lv}: brak ocenionych sesji – średnia pojawi się po pierwszej.`;
+  const avg=last.reduce((a,b)=>a+b.r,0)/last.length, n=last.length;
+  const live=((S.srLive&&S.srLive[lv]&&S.srLive[lv].log)||[]).slice(-5);
+  const q=live.length?Math.round(live.reduce((a,b)=>a+b.q,0)/live.length):null;
+  return `Średnia z ${n===5?"ostatnich 5 sesji":n===1?"1 sesji":"ostatnich "+n+" sesji"} (poziom ${lv}): ${avg.toFixed(1).replace(".",",")} / 5`+(q!==null?` · wynik z pianina ${q}%${live.length<5?` (z ${live.length})`:""}`:"");
+}
+function srAvgHtml(){ return `<p class="small sr-avg"><b>${srAvgText()}</b></p>`; }
+function srAvgRefresh(){ document.querySelectorAll(".sr-avg").forEach(el=>{ el.innerHTML=`<b>${srAvgText()}</b>`; }); }
 function thInLevel(){ const t=THEORY[S.th.level]||[]; return t.length? t.filter(x=>S.th.done[x[0]]).length/t.length : 1; }
 function earLevelLog(){ return S.ear.log.filter(x=>x.l===S.ear.level); }
 function earAcc(){ const L=earLevelLog().slice(-30); return L.length? L.filter(x=>x.ok).length/L.length : 0; }
@@ -1125,6 +1136,7 @@ function blockBody(b){
     const L=SR[b.level]||SR[8], book=L.books[b.book%L.books.length];
     const key="sr"+b.level+":"+book, cnt=(S.srCounter[key]||0)+1;
     return `<p><b>Poziom ${b.level}</b> · ${b.gen?"ćwiczenie z aplikacji":book}</p>
+    ${srAvgHtml()}
     <p class="small">${b.gen?"Nowe ćwiczenie wygenerowane dla Twojego poziomu.":`Z książki: następny utwór lub ćwiczenie w kolejności (to będzie Twoje ${cnt}. z tej książki).`} ${L.how}</p>
     ${srInlineHtml(b)}
     <ol class="tips small">

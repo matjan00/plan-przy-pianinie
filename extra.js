@@ -303,6 +303,7 @@ function srLiveAfter(src, res, info) {
   S.srLive[p.level] = rec;
   const saved = srAutoRate(src.split(":")[1], r);
   save();
+  if (typeof srAvgRefresh === "function") srAvgRefresh();
   const next = Math.max(p.mi.compound ? 30 : 40, Math.round(nom * rec.f / 2) * 2);
   const tmsg = next > info.bpm ? `Następne ćwiczenie będzie trochę szybsze: ${sym} = ${next}.`
     : next < info.bpm ? `Następne ćwiczenie będzie trochę wolniejsze: ${sym} = ${next}.` : `Następne ćwiczenie w tym samym tempie: ${sym} = ${next}.`;
@@ -378,6 +379,7 @@ function srGenCardHtml() {
     <div class="spread"><h3>Czytanie a vista – nowe ćwiczenia</h3>
       <select id="srgen-level" aria-label="Poziom">${[1, 2, 3, 4, 5, 6, 7, 8].map(l => `<option value="${l}" ${l === lv ? "selected" : ""}>Poziom ${l}</option>`).join("")}</select></div>
     <p class="small muted">Każde ćwiczenie jest nowe i dopasowane do poziomu. Oceny z Twojego bieżącego poziomu (${S.sr.level}) liczą się do postępu.${typeof MIDI !== "undefined" && MIDI.supported ? " Z pianinem przez USB aplikacja sama oceni pierwsze podejście i dobierze tempo następnego ćwiczenia." : ""}</p>
+    ${typeof srAvgHtml === "function" ? srAvgHtml() : ""}
     <div><button class="btn primary" data-act="srgen-tools">Nowe ćwiczenie</button></div>
     <div id="srgen-tools"></div>
     <div id="srgen-tools-rate" ${SRGEN["srgen-tools"] ? "" : "hidden"}><span class="small">Jak poszło? (1 = wiele przerw, 5 = płynnie)</span>
@@ -1000,7 +1002,7 @@ document.addEventListener("click", (e) => {
       const g = SRGEN["srgen-tools"]; if (!g) break; const r = +t.dataset.r;
       t.parentElement.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === t)));
       if (g.rated) break; g.rated = true;
-      if (g.level === S.sr.level) { S.sr.log.push({l: S.sr.level, r, d: todayKey(), src: "gen"}); save(); toast("Zapisano ocenę – liczy się do postępu"); }
+      if (g.level === S.sr.level) { S.sr.log.push({l: S.sr.level, r, d: todayKey(), src: "gen"}); save(); if (typeof srAvgRefresh === "function") srAvgRefresh(); toast("Zapisano ocenę – liczy się do postępu"); }
       else toast("Zapisano – inny poziom niż Twój bieżący, więc nie liczy się do postępu");
       break;
     }
