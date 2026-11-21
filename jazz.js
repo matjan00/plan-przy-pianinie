@@ -16,23 +16,32 @@ const JH = (m, q, k) => `X:1\nM:${m}\nL:1/8\nQ:1/4=${q}\nK:${k}\n%%staves {RH LH
 /* ============================== UTWORY ============================== */
 // kind "app": nuty w aplikacji; kind "ms": nuty z MuseScore (q – fraza wyszukiwania). swing: ósemki grane nierówno.
 const JZ_MS = "https://musescore.com/";
+// Jingle Bells: zwrotka i refren osobno, żeby można je było ćwiczyć fragmentami (parts), a w całości złożyć w jeden utwór
+const JB = {
+ vR: `"^Zwrotka""Fmaj7"c A G F C3 C | c A G F "Gm7"D4 | D B A G "C7"E4 | c c B G "Fmaj7"A4 | "Fmaj7"c A G F C4 | c A G F "Bbmaj7"D3 D | "Gm7"D B A G "C7"c c c c | "Gm7"d c "C7"B G "F6"F4 |`,
+ vL: `[F,,E,]8 | [F,,E,]4 [G,,F,]4 | [G,,F,]4 [C,E,]4 | [C,E,]4 [F,,E,]4 | [F,,E,]8 | [F,,E,]4 [B,,A,]4 | [G,,F,]4 [C,E,]4 | [G,,F,]2 [C,E,]2 [F,,D,]4 |`,
+ cR: `"^Refren""Fmaj7"A2 A2 A4 | "Gm7"A2 A2 "C7"A4 | "Fmaj7"A2 c2 F3 G | "Cm7"A4- "F7"A4 | "Bbmaj7"B2 B2 B3 B | "Bbmaj7"B2 "Am7"A2 A2 A A | "Gm7"A2 G2 "C7"G2 A2 | "Gm7"G4 "C7"c4 | "Fmaj7"A2 A2 A4 | "Gm7"A2 A2 "C7"A4 | "Fmaj7"A2 c2 F3 G | "Cm7"A4- "F7"A4 | "Bbmaj7"B2 B2 B3 B | "Bbmaj7"B2 "Am7"A2 A2 "D7"A A | "Gm7"c2 c2 "C7"B2 G2 | "F6"F6 z2 |]`,
+ cL: `[F,,E,]8 | [G,,F,]4 [C,E,]4 | [F,,E,]8 | [C,B,]4 [F,A,]4 | [B,,A,]8 | [B,,A,]2 [A,,G,]6 | [G,,F,]4 [C,E,]4 | [G,,F,]4 [C,E,]4 | [F,,E,]8 | [G,,F,]4 [C,E,]4 | [F,,E,]8 | [C,B,]4 [F,A,]4 | [B,,A,]8 | [B,,A,]2 [A,,G,]4 [D,^F,]2 | [G,,F,]4 [C,E,]4 | [F,,D,]6 z2 |]`};
 const JZ_SONGS = [
-{id: "jz-jingle", kind: "app", title: "Jingle Bells", by: "J. Pierpont (1857) · aranżacja jazzowa z aplikacji", key: "F-dur", feel: "swing", swing: true,
- abc: JH("4/4", 120, "F") +
- `[V:RH] "Fmaj7"A2 A2 A4 | "Gm7"A2 A2 "C7"A4 | "Fmaj7"A2 c2 F3 G | "Cm7"A4- "F7"A4 | "Bbmaj7"B2 B2 B3 B | "Bbmaj7"B2 "Am7"A2 A2 A A | "Gm7"A2 G2 "C7"G2 A2 | "Gm7"G4 "C7"c4 | "Fmaj7"A2 A2 A4 | "Gm7"A2 A2 "C7"A4 | "Fmaj7"A2 c2 F3 G | "Cm7"A4- "F7"A4 | "Bbmaj7"B2 B2 B3 B | "Bbmaj7"B2 "Am7"A2 A2 "D7"A A | "Gm7"c2 c2 "C7"B2 G2 | "F6"F6 z2 |]
-[V:LH] [F,,E,]8 | [G,,F,]4 [C,E,]4 | [F,,E,]8 | [C,B,]4 [F,A,]4 | [B,,A,]8 | [B,,A,]2 [A,,G,]6 | [G,,F,]4 [C,E,]4 | [G,,F,]4 [C,E,]4 | [F,,E,]8 | [G,,F,]4 [C,E,]4 | [F,,E,]8 | [C,B,]4 [F,A,]4 | [B,,A,]8 | [B,,A,]2 [A,,G,]4 [D,^F,]2 | [G,,F,]4 [C,E,]4 | [F,,D,]6 z2 |]`,
+{id: "jz-jingle", kind: "app", title: "Jingle Bells", by: "J. Pierpont (1857) · zwrotka i refren, aranżacja swingowa z aplikacji", key: "F-dur", feel: "swing", swing: true,
+ abc: JH("4/4", 112, "F") + `[V:RH] ${JB.vR} ${JB.cR}\n[V:LH] ${JB.vL} ${JB.cL}`,
+ parts: [{name: "Zwrotka · takty 1–8", note: "Prawie same ósemki – tu najlepiej słychać i ćwiczy się swing.", abc: JH("4/4", 112, "F") + `[V:RH] ${JB.vR.replace(/\|$/, "|]")}\n[V:LH] ${JB.vL.replace(/\|$/, "|]")}`},
+         {name: "Refren · takty 9–24", note: "Znana melodia, głównie ćwierćnuty. Ósemki swingowe tylko w taktach 14 i 22.", abc: JH("4/4", 112, "F") + `[V:RH] ${JB.cR.replace('"^Refren"', "")}\n[V:LH] ${JB.cL}`}],
  an: [
-  "<b>Te same nuty, inne akordy.</b> Melodia jest taka jak zawsze, ale zamiast F-dur jest <b>Fmaj7</b> (F–A–C–E). Septyma wielka E daje miękkie, „jazzowe” brzmienie.",
-  "<b>Takty 2 i 10: Gm7 → C7 → Fmaj7.</b> To II–V–I, najważniejsza progresja jazzu – usłyszysz ją w każdym standardzie. Na razie zapamiętaj ten dźwięk; dokładnie omawiamy ją w 2. temacie.",
-  "<b>Takty 4 i 12: Cm7 → F7 → Bbmaj7.</b> To też II–V–I, ale w B-dur (po polsku: B = nasze B, czyli B♭). Melodia trzyma A, a akordy zmieniają się pod nią – to typowo jazzowy chwyt.",
-  "<b>Lewa ręka gra dwa dźwięki:</b> podstawę i septymę (np. F + E) albo podstawę i tercję (C + E). To tzw. <i>shell voicing</i>. Zobacz, jak mało rusza się ręka między akordami.",
-  "<b>Ostatni akord F6</b> (F–A–C–D) to klasyczne zakończenie swingowe – seksta zamiast septymy brzmi „pogodnie” i stabilnie."],
+  "<b>Dwie części:</b> zwrotka (takty 1–8, „Dashing through the snow”) to prawie same ósemki – na niej uczysz się swingu. Refren (takty 9–24) znasz na pamięć, więc możesz skupić się na akordach.",
+  "<b>Te same melodie, inne akordy.</b> Zamiast F-dur jest <b>Fmaj7</b> (F–A–C–E). Septyma wielka E daje miękkie, „jazzowe” brzmienie. Na końcu zwrotki i utworu jest <b>F6</b> (F–A–C–D) – klasyczne swingowe zakończenie.",
+  "<b>Takt 8 i takty 10, 18: Gm7 → C7 → Fmaj7.</b> To II–V–I, najważniejsza progresja jazzu. Na razie zapamiętaj, jak brzmi; dokładnie omawiamy ją w 2. temacie.",
+  "<b>Takty 12 i 20: Cm7 → F7 → Bbmaj7.</b> To też II–V–I, ale w B-dur (Bb = nasze B). Melodia trzyma A, a akordy zmieniają się pod nią – typowo jazzowy chwyt.",
+  "<b>Lewa ręka gra dwa dźwięki (shell voicing):</b> podstawę i septymę (Gm7 = G + F, Fmaj7 = F + E) albo podstawę i tercję (C7 = C + E). Kwintę się pomija, bo nie mówi nic o rodzaju akordu. Septymę C7 (B) często dopowiada melodia – np. „c c B G” w takcie 4.",
+  "<b>Dlaczego raz septyma, raz tercja?</b> W Gm7 → C7 → Fmaj7 górny dźwięk lewej ręki idzie F → E → E: pół tonu w dół i zostaje. Ręka prawie się nie rusza, a głos płynie gładko. Tak gra lewa ręka w jazzie.",
+  "<b>Swing w zwrotce:</b> w parach ósemek (np. „c A G F”) pierwsza jest długa, druga krótka i lekko akcentowana. Licz „raz-i dwa-i” jak w trioli: „raz – – i”."],
  steps: [
-  "Posłuchaj w aplikacji wersji ze swingiem i prostej – usłysz różnicę.",
-  "Prawa ręka sama, licząc „raz-i dwa-i” na swing (długa–krótka). Ósemki są w taktach 6 i 14.",
-  "Lewa ręka sama: same akordy, każdy na „raz”. Nazwij głośno każdy akord.",
-  "Razem wolno (♩ = 70–80), potem z podkładem zespołu – kontrabas i perkusja trzymają puls za Ciebie.",
-  "W tempie ♩ = 110–120: lekko, z akcentem na 2 i 4."]},
+  "Posłuchaj „Prosto → swing” – to dwa pierwsze takty zwrotki, najpierw równo, potem swingowo.",
+  "Zwrotka, prawa ręka sama (Ćwicz fragmentami → Zwrotka → Prawa, „Nuty czekają”), potem z metronomem w tempie „Wolno” – pasek sprawdza swing.",
+  "Zwrotka, lewa ręka sama: same dwudźwięki, nazwij głośno każdy akord. Potem obie ręce razem wolno.",
+  "Refren tak samo: najpierw prawa, potem lewa, potem razem. Melodię znasz, więc patrz głównie na akordy.",
+  "Cały utwór z metronomem: „Wolno” (♩ = 68) → „Średnio” (♩ = 90) → „W tempie” (♩ = 112). Potem z podkładem zespołu – kontrabas i perkusja trzymają puls za Ciebie.",
+  "Lekko, z akcentem na 2 i 4."]},
 {id: "jz-santa", kind: "ms", title: "Santa Claus Is Coming to Town", by: "J. F. Coots (1934) · arr. Phillip Fullerton", url: JZ_MS + "user/7333711/scores/7280831", pg: 2, lvl: "łatwa", chords: true, feel: "swing", swing: true,
  note: "Prosta wersja w F-dur z akordami (C, C7, F, Fm) nad nutami. Twoje zadanie: zrób z niej jazz – graj swingowo, a w lewej ręce zamień F na Fmaj7, C7 zostaw, przed F wstaw Gm7–C7."},
 {id: "jz-winter", kind: "ms", title: "Winter Wonderland", by: "F. Bernard (1934) · swing arrangement, Retro Piano Guy", url: JZ_MS + "user/2891181/scores/4812699", pg: 3, lvl: "średnia", chords: true, feel: "swing", swing: true,
@@ -228,7 +237,7 @@ const JZ_SONGS = [
 /* ============================== TEMATY ============================== */
 const JZ_UNITS = [
 {id: "u1", from: "2026-11-21", to: "2026-11-30", title: "Swing i akordy septymowe", short: "Ósemki „długa–krótka”, akcent na 2 i 4, symbole akordów maj7, m7, 7.",
- songs: ["jz-winter"],
+ songs: ["jz-jingle", "jz-winter"],
  lesson: `<p>Jazz różni się od muzyki klasycznej trzema rzeczami, które usłyszysz od pierwszego taktu: <b>rytmem (swing)</b>, <b>harmonią (akordy z septymą)</b> i <b>swobodą (improwizacja)</b>. W tym temacie zaczynamy od dwóch pierwszych.</p>
 <h4>Swing</h4>
 <p>W nutach jazzowych ósemki są zapisane równo, ale nad utworem stoi „Swing” albo „Swing feel”. Wtedy każdą parę ósemek grasz <b>długa–krótka</b>, mniej więcej jak triola z ćwierćnuty i ósemki. Wolniej – wyraźniej nierówno, szybko – prawie równo.</p>
@@ -244,7 +253,16 @@ const JZ_UNITS = [
 </ul>
 <p>Jak budować? Trójdźwięk i jeszcze jedna tercja w górę. Durowy + tercja wielka = maj7, durowy + tercja mała = 7, mollowy + tercja mała = m7.</p>
 <h4>Na Twoim utworze</h4>
-<p>W nutach „Winter Wonderland” nad pięciolinią są symbole akordów (np. Cmaj7, Dm7, G7). Zanim zaczniesz grać, podpisz ołówkiem pod każdym symbolem nazwę po polsku i rodzaj akordu: maj7, m7 czy 7. Tam, gdzie po m7 przychodzi 7, a potem maj7, masz II–V–I – o nim jest 2. temat. Lewa ręka gra tam <b>walking bass</b> (ćwierćnuty po dźwiękach akordu) – szczegóły takt po takcie w zakładce <b>Utwór</b>.</p>`,
+<p>Uczysz się <b>Jingle Bells ze zwrotką</b>. <b>Zwrotka</b> („Dashing through the snow”, takty 1–8) to prawie same pary ósemek – to na niej ćwiczysz swing. <b>Refren</b> (takty 9–24) znasz na pamięć, więc tam skupiasz się na akordach.</p>
+<p>Nad nutami są symbole: Fmaj7, Gm7, C7, Cm7, F7, Bbmaj7, Am7, D7 i F6. Zanim zaczniesz grać, podpisz ołówkiem pod każdym nazwę po polsku i rodzaj: maj7, m7, 7 czy 6. Tam, gdzie po m7 przychodzi 7, a potem maj7 (np. Gm7 → C7 → Fmaj7), masz II–V–I – o nim jest 2. temat.</p>
+<h4>Dlaczego lewa ręka gra tylko dwa dźwięki?</h4>
+<p>Symbol mówi, jaka jest harmonia, a nie że trzeba zagrać wszystkie dźwięki. W jazzie lewa ręka gra <b>shell voicing</b>: podstawę i jeden „znaczący” dźwięk. Najważniejsze są <b>tercja</b> (dur czy moll) i <b>septyma</b> (7 czy maj7). <b>Kwintę się pomija</b> – nic nie mówi o rodzaju akordu.</p>
+<ul>
+<li><b>Gm7</b> = G + F (podstawa + septyma), <b>C7</b> = C + E (podstawa + tercja), <b>Fmaj7</b> = F + E (podstawa + septyma).</li>
+<li>Górny dźwięk idzie F → E → E: pół tonu w dół i zostaje. Ręka prawie się nie rusza, a głos płynie gładko – dlatego przeplata się septymę i tercję.</li>
+<li>Brakujący dźwięk często dopowiada melodia: w takcie 4 prawa ręka gra „c c B G”, więc B (septyma C7) jest w melodii.</li>
+</ul>
+<p>W 2. temacie dojdą trzydźwiękowe shelle (np. C7 = C–E–B), które brzmią jak pełny akord niezależnie od melodii.</p>`,
  abc: [{src: JH("4/4", 80, "C") + `[V:RH] "Cmaj7"[CEGB]4 "C7"[CEG_B]4 | "Cm7"[C_EG_B]4 "C6"[CEGA]4 | "Fmaj7"[FAce]4 "Gm7"[G_Bdf]4 |]\n[V:LH] C,8 | C,8 | F,4 G,4 |]`, cap: "Cztery rodzaje akordów na C oraz Fmaj7 i Gm7. Zagraj każdy i posłuchaj różnicy."},
        {src: JH("4/4", 90, "C") + `[V:RH] "^zapis"C D E F G A B c | [M:12/8]"^tak brzmi"C2D E2F G2A B2c |]\n[V:LH] z8 | [M:12/8]z12 |]`, cap: "Pierwszy takt: tak się zapisuje. Drugi: tak brzmi swing – długa–krótka, jak triola (tu zapisane w 12/8)."}],
  check: [
@@ -370,7 +388,7 @@ const JZ_UNITS = [
  listen: ["jl-ipanema", "jl-xmasbossa"]},
 
 {id: "u6", from: "2027-01-11", to: "2027-01-15", title: "Twoja aranżacja i nagranie", short: "Intro, temat, solo, zakończenie – składasz całość i nagrywasz się na koniec modułu.",
- songs: ["jz-winter", "jz-letitsnow", "jz-jbblues", "jz-lulajze", "jz-silentbossa", "jz-feliz"],
+ songs: ["jz-jingle", "jz-winter", "jz-letitsnow", "jz-jbblues", "jz-lulajze", "jz-silentbossa", "jz-feliz"],
  lesson: `<h4>Forma jazzowego wykonania</h4>
 <p>Jazzowy utwór rzadko gra się raz od początku do końca. Typowo: <b>intro → temat → solo → temat → zakończenie</b>.</p>
 <h4>Intro</h4>
@@ -440,7 +458,7 @@ const jzStage = (id) => jzS().songs[id] || 0;
 const JZ_STAGES = ["nie zaczęty", "rozczytuję", "razem wolno", "w tempie ze swingiem", "gotowe"];
 const jzStageName = (s, song) => s === 3 && song && !song.swing ? "w tempie" : JZ_STAGES[s];
 function jzAbcById(id, k) {
-  const s = jzSongById(id); if (s) return s.abc || null;
+  const s = jzSongById(id); if (s) return +k > 0 && s.parts ? (s.parts[+k - 1] || {}).abc || null : s.abc || null;   // k > 0: fragment utworu (parts)
   const m = id.match(/^jzl-(u\d)$/); if (m) { const u = JZ_UNITS.find(x => x.id === m[1]); return u && u.abc && u.abc[+k || 0] ? u.abc[+k || 0].src : null; }
   return null;
 }
@@ -859,6 +877,10 @@ function jzSongCard(s, u, head) {
       <button class="btn sm ghost" data-act="jz-stopall">■ Stop</button></div>
     <div><div class="abc" data-abc="${s.id}:0"></div><div class="row">${mpUiHtml(src)}</div>
     ${s.swing ? `<p class="small muted" style="margin:0">Ósemki graj swingowo (długa–krótka). Pasek pianina w trybie „Z metronomem” też sprawdza swing.</p>` : `<p class="small muted" style="margin:0">Ósemki równe – bez swingu.</p>`}
+    ${s.parts ? `<details><summary>Ćwicz fragmentami z pianinem</summary><div class="stack" style="margin-top:6px">
+      <p class="small muted" style="margin:0">Każdy fragment ma własny pasek pianina: „Nuty czekają” albo „Z metronomem”, prawa, lewa lub obie ręce. Pianino podłączasz kablem USB do telefonu albo laptopa (Chrome lub Edge) i łączysz w Narzędziach → Pianino przez USB.</p>
+      ${s.parts.map((p, k) => `<div><p class="small" style="margin:0 0 4px"><b>${esc(p.name)}</b>${p.note ? ` <span class="muted">· ${esc(p.note)}</span>` : ""}</p><div class="abc" data-abc="${s.id}:${k + 1}"></div><div class="row">${mpUiHtml("jazz:" + s.id + ":" + (k + 1))}</div>`).join("")}
+    </div></details>` : ""}
     <details open><summary>Teoria na tym utworze</summary><ul class="tips small" style="margin-top:6px">${s.an.map(x => `<li>${x}</li>`).join("")}</ul></details>
     <details><summary>Jak ćwiczyć</summary><ol class="tips small" style="margin-top:6px">${s.steps.map(x => `<li>${x}</li>`).join("")}</ol></details>
     <details><summary>Podkład zespołu do tego utworu</summary><div style="margin-top:6px">${jzBandHtml(jzSongChart(s), jzBandFeel(s), jzSongBpm(s), "song:" + s.id, "Zespół gra akordy tego utworu w pętli – Ty grasz melodię z lewą ręką albo samą melodię.")}</div></details>
@@ -971,6 +993,8 @@ function jzUnitView() {
   </section>`;
 }
 function jzView() { return JZV.view === "unit" ? jzUnitView() : jzHome(); }
+// nuty w zwiniętym <details> (fragmenty utworu) rysujemy dopiero po rozwinięciu – abcjs potrzebuje szerokości
+document.addEventListener("toggle", (e) => { if (TAB === "jazz" && e.target.open && e.target.querySelector && e.target.querySelector('[data-abc^="jz"]')) { jzAfter(); if (typeof mpBars === "function") mpBars(); } }, true);
 function jzAfter() {
   document.querySelectorAll('#view [data-abc^="jz"]').forEach(el => {
     if (el.offsetParent === null) return;
