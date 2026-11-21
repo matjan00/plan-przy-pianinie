@@ -984,7 +984,7 @@ function genPlan(key, minutes){
     if(b.type==="free"){ b.items=mySorted.slice(0, b.min>=12?3:2).map(m=>m.id); }
     if(b.type==="ear"){ const ms=earModes(); b.mode = ms[idx%ms.length]; }
   }
-  if(jzOn(key)) blocks.push({type:"jazz", min:20, done:false});   // moduł sezonowy: 20 min ponad wybraną długość
+  if(jzOn(key)) blocks.push({type:"jazz", min:25, done:false});   // moduł sezonowy: 25 min ponad wybraną długość
   return {minutes, blocks, counted:false};
 }
 function todayPlan(){

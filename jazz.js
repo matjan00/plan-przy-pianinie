@@ -1,6 +1,6 @@
 "use strict";
 /* Jazzy Christmas – sezonowy moduł jazzowy (21.11.2026 – 15.01.2027), tylko w trybie zaawansowanym.
-   W planie dnia dodatkowy blok 20 minut (ponad wybraną długość sesji), szczegóły w zakładce „Jazz”.
+   W planie dnia dodatkowy blok 25 minut (ponad wybraną długość sesji), szczegóły w zakładce „Jazz”.
    Po 15 stycznia blok znika, a zakładka trafia do archiwum (karta w zakładce Nauka).
 
    Sześć tematów po kolei w czasie; każdy ma lekcję teorii opartą na utworze, ćwiczenie akordów (z pianinem przez USB
@@ -458,6 +458,7 @@ const jzStage = (id) => jzS().songs[id] || 0;
 const JZ_STAGES = ["nie zaczęty", "rozczytuję", "razem wolno", "w tempie ze swingiem", "gotowe"];
 const jzStageName = (s, song) => s === 3 && song && !song.swing ? "w tempie" : JZ_STAGES[s];
 function jzAbcById(id, k) {
+  if (id === "jzsr") return jzSrAbc(+k);
   const s = jzSongById(id); if (s) return +k > 0 && s.parts ? (s.parts[+k - 1] || {}).abc || null : s.abc || null;   // k > 0: fragment utworu (parts)
   const m = id.match(/^jzl-(u\d)$/); if (m) { const u = JZ_UNITS.find(x => x.id === m[1]); return u && u.abc && u.abc[+k || 0] ? u.abc[+k || 0].src : null; }
   return null;
@@ -571,8 +572,8 @@ function jzSw(w) { const pos = w * 4, b = Math.floor(pos + 1e-6), f = pos - b; r
 // pasek pianina (midiplay.js) woła to po zbudowaniu kroków: utwory swingowe sprawdzamy ze swingiem
 function jzMpBuilt(src, built) {
   if (!src || !src.startsWith("jazz:")) return;
-  const s = jzSongById(src.split(":")[1]); if (!s || !s.swing) return;
-  for (const st of built.steps) { const w0 = st.w; st.w = jzSw(w0); for (const n of st.notes) n.d = jzSw(w0 + n.d) - st.w; }
+  const id = src.split(":")[1], s = jzSongById(id); if (id !== "jzsr" && (!s || !s.swing)) return;   // jzsr: swing a vista
+  for (const st of built.steps) { const w0 = st.w; st.w = jzSw(w0); if (st.w !== w0) st.sw = true; for (const n of st.notes) n.d = jzSw(w0 + n.d) - st.w; }
 }
 
 /* ============================== DŹWIĘK: ZESPÓŁ ============================== */
@@ -833,6 +834,7 @@ function jzTodayTasks(key) {
   if (!J.lesson[u.id]) t.push({min: 5, sec: "lesson", txt: `<b>Teoria:</b> lekcja „${esc(u.title)}”.`, btn: "Otwórz lekcję"});
   else t.push({min: 5, sec: "drill", txt: `<b>Akordy:</b> ${u.drill.seq ? "przejdź całą sekwencję" : "8 losowych akordów"} – ${esc(u.drill.hint.split(".")[0].toLowerCase())}.`, btn: "Ćwicz akordy"});
   const hint = st === 0 ? (s.kind === "app" ? "posłuchaj w aplikacji" : "posłuchaj odsłuchu na MuseScore") + " i rozczytaj pierwsze 4 takty, każdą ręką osobno." : st === 1 ? "rozczytuj dalej po 4 takty; lewa ręka z nazwami akordów na głos." : st === 2 ? "razem wolno, potem z podkładem zespołu w wolnym tempie." : st === 3 ? (s.swing ? "w tempie ze swingiem, z podkładem; dopracuj akcenty na 2 i 4." : "w tempie, z podkładem; synkopy równo.") : "zagraj z pamięci z podkładem i dodaj coś od siebie (wypełnienie, inne zakończenie).";
+  t.push({min: 5, sec: "swr", txt: `<b>Swing a vista:</b> nowe 4 takty – 30 s czytania, potem zagraj z metronomem; aplikacja oceni nuty, rytm i swing.`, btn: "Ćwicz"});
   t.push({min: 10, sec: "song", txt: `<b>${esc(s.title)}:</b> ${hint}`, btn: "Otwórz utwór"});
   const rot = d % 3;
   const back = u.all ? u.songs.map(jzSongById).find(x => x.id !== s.id && jzStage(x.id) > 0 && u.songs.indexOf(x.id) < u.songs.indexOf(s.id)) : null;
@@ -847,7 +849,7 @@ function jzBlockBody(b) {
   const key = todayKey(), {u, d, len, idx} = jzDayInfo(key), tasks = jzTodayTasks(key);
   return `<div><h3 style="font-size:1.15rem">${esc(u.title)}</h3><p class="meta">Jazzy Christmas · temat ${idx + 1} z ${JZ_UNITS.length} · dzień ${d + 1} z ${len}</p></div>
     <ol class="tips">${tasks.map(t => `<li>${t.txt} <span class="muted small">(${t.min} min)</span> <button class="btn sm ghost" data-act="jz-go" data-u="${u.id}" data-sec="${t.sec}">${t.btn} ›</button></li>`).join("")}</ol>
-    <p class="small muted">To dodatkowe 20 minut ponad Twój plan. Wszystko z tego tematu jest w zakładce Jazz.</p>`;
+    <p class="small muted">To dodatkowe 25 minut ponad Twój plan. Wszystko z tego tematu jest w zakładce Jazz.</p>`;
 }
 function jzStageHtml(s) {
   const st = jzStage(s.id), names = JZ_STAGES.slice(1).map((n, i) => jzStageName(i + 1, s));
@@ -955,7 +957,7 @@ function jzHome() {
   return `<section class="stack">
     <div class="card stack jzhead">
       <div class="spread"><h2>Jazzy Christmas</h2><span class="pill">${on ? "dzień " + done + " z " + total : jzArchived() ? "archiwum" : "od 21 listopada"}</span></div>
-      <p class="small muted" style="margin:0">21 listopada – 15 stycznia · 20 minut dziennie ponad plan · swing, akordy jazzowe, blues, ballada, bossa nova i Twoja aranżacja.</p>
+      <p class="small muted" style="margin:0">21 listopada – 15 stycznia · 25 minut dziennie ponad plan · swing, akordy jazzowe, blues, ballada, bossa nova i Twoja aranżacja.</p>
       <div class="bar t-music"><span style="width:${Math.round(done / total * 100)}%"></span></div>
       ${jzArchived() ? `<p class="small">Moduł zakończony. Wszystko zostaje tutaj – lekcje, utwory, podkłady i ćwiczenia akordów działają dalej.</p>` : ""}
     </div>
@@ -969,7 +971,127 @@ function jzHome() {
     }).join("")}
   </section>`;
 }
-const JZ_SECS = [["lesson", "Lekcja"], ["song", "Utwór"], ["drill", "Akordy"], ["band", "Podkład"], ["listen", "Słuchanie"]];
+/* ============================== SWING A VISTA ============================== */
+/* Codziennie nowe 4 takty do zagrania swingiem (prima vista). Nuty generujemy z ziarna: data + numer ćwiczenia + poziom,
+   więc to samo ćwiczenie rysuje się i sprawdza tak samo po przerysowaniu widoku.
+   src paska pianina: "jazz:jzsr:<k>", k = poziom * 100 + numer ćwiczenia dnia.
+   Ocenę daje tryb „Z metronomem”, obie ręce (poziom 1: sama prawa), tylko pierwsze podejście do danego ćwiczenia:
+   gorszy z wyników: trafione nuty, rytm, swing. Swing = ósemki na „i” zagrane w okolicy 2/3 miary (równe ósemki = 1/2).
+   Stan: S.jazz.sr = {lvl, d, n, log: [{d, k, q, r, sw, bpm}]}. */
+const JZ_SR_LVLS = [[1, "Prawa ręka"], [2, "Obie ręce"], [3, "Obie ręce i synkopy"]];
+const JZ_SR_SW = [0.57, 0.76];          // zakres „swingowo” dla ósemki na „i” (w mierze); równe ósemki = 0,50, triola = 0,67
+const JZ_SR_SEEN = new Set();
+function jzSr() {
+  const J = jzS(); if (!J.sr) J.sr = {lvl: 1, d: "", n: 0, log: []};
+  if (J.sr.d !== todayKey()) { J.sr.d = todayKey(); J.sr.n = 0; }
+  return J.sr;
+}
+const jzSrK = () => { const r = jzSr(); return r.lvl * 100 + r.n; };
+function jzSrRng(str) {
+  let h = 1779033703 ^ str.length;
+  for (let i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; }
+  let a = h >>> 0;
+  return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+// diatoniczny indeks (C4 = 0, D4 = 1 …) → zapis ABC; znaki przykluczowe robi K:
+function jzSrNote(i) { const L = "CDEFGAB"[((i % 7) + 7) % 7], o = Math.floor(i / 7); return o >= 1 ? L.toLowerCase() + "'".repeat(o - 1) : L + ",".repeat(-o); }
+// t – tonika (indeks diatoniczny), lo/hi – zakres prawej ręki; nazwy akordów stopni I–vi
+const JZ_SR_KEYS = [
+  {k: "F", t: 3, lo: 2, hi: 10, names: ["Fmaj7", "Gm7", "Am7", "Bbmaj7", "C7", "Dm7"], six: "F6"},
+  {k: "C", t: 0, lo: 0, hi: 8, names: ["Cmaj7", "Dm7", "Em7", "Fmaj7", "G7", "Am7"], six: "C6"},
+  {k: "G", t: 4, lo: 1, hi: 8, names: ["Gmaj7", "Am7", "Bm7", "Cmaj7", "D7", "Em7"], six: "G6"}];
+// progresje na 4 takty: stopnie (0 = I, 1 = ii, 3 = IV, 4 = V, 5 = vi), takt z dwoma akordami = tablica; ostatni takt zawsze I
+const JZ_SR_PROG = [[0, 5, [1, 4], 0], [[1, 4], 0, [1, 4], 0], [0, 3, [1, 4], 0], [0, 0, [1, 4], 0], [1, 4, 0, 0], [0, 5, 1, 0]];
+function jzSrGen(k) {
+  const lvl = Math.floor(k / 100), rnd = jzSrRng(todayKey() + ":" + k), pick = (a) => a[Math.floor(rnd() * a.length)];
+  const K = JZ_SR_KEYS[Math.floor(rnd() * JZ_SR_KEYS.length)], prog = pick(JZ_SR_PROG);
+  // komórki rytmiczne na pół taktu (w ósemkach) z wagami; poziom 3 dodaje synkopy
+  const cells = [[[1, 1, 1, 1], 5], [[1, 1, 2], 3], [[2, 1, 1], 3], [[2, 2], 1]].concat(lvl >= 3 ? [[[1, 2, 1], 3], [[3, 1], 2]] : []);
+  const cell = () => { let s = 0; for (const c of cells) s += c[1]; let x = rnd() * s; for (const c of cells) { x -= c[1]; if (x <= 0) return c[0]; } return cells[0][0]; };
+  const deg = (i) => (((i - K.t) % 7) + 7) % 7;               // stopień skali dźwięku i (0 = tonika)
+  const tones = (r) => [r, r + 2, r + 4, r + 6].map(x => x % 7);
+  let cur = K.t + (rnd() < 0.5 ? 4 : 2), dir = rnd() < 0.5 ? 1 : -1, tg = null;
+  if (cur > K.hi) cur -= 7;
+  const rh = [], lh = [];
+  const near = (a) => [K.t, K.t + 7, K.t - 7].filter(x => x >= K.lo && x <= K.hi).sort((x, y) => Math.abs(x - a) - Math.abs(y - a))[0];
+  // lewa ręka: shell – podstawa F2–E3 + septyma (dominanta: tercja, ostatnie I: seksta)
+  const shell = (r, six) => { let x = K.t + r - 7; while (x < -11) x += 7; while (x > -5) x -= 7; const top = six ? x + 5 : r === 4 ? x + 2 : x + 6; return `[${jzSrNote(x)}${jzSrNote(top)}]`; };
+  for (let b = 0; b < 4; b++) {
+    const ch = Array.isArray(prog[b]) ? prog[b] : [prog[b]], last = b === 3;
+    const durs = last ? cell().concat([4]) : cell().concat(cell());
+    let pos = 0, out = "";
+    if (last) { tg = near(cur); if (tg !== cur) dir = tg > cur ? 1 : -1; }   // ostatni takt: melodia idzie w stronę toniki
+    durs.forEach((d, i) => {
+      const root = ch[Math.min(pos >= 4 ? 1 : 0, ch.length - 1)];
+      if (pos === 0 || (pos === 4 && ch.length > 1)) out += `"${last && ch.length === 1 ? K.six : K.names[root]}"`;
+      if (last && i === durs.length - 1) cur = near(cur);         // ostatnia nuta: tonika najbliżej
+      else if (pos % 2 === 0) {                                  // na mierze: dźwięk akordu blisko poprzedniego, raczej w tę samą stronę
+        const ct = last ? [0, 2, 4, 5] : tones(root), c = [];
+        for (let x = cur - 2; x <= cur + 2; x++) if (x >= K.lo && x <= K.hi && ct.includes(deg(x)) && !(x === cur && rnd() < 0.7)) c.push(x);
+        const fw = c.filter(x => last ? Math.abs(x - tg) < Math.abs(cur - tg) : (x - cur) * dir > 0);
+        const from = fw.length && rnd() < (last ? 1 : 0.75) ? fw : c;
+        if (from.length) { const nx = pick(from); if (nx !== cur) dir = nx > cur ? 1 : -1; cur = nx; }
+      } else {                                                   // na „i”: krok (czasem tercja) w bieżącym kierunku
+        if (last) { if (cur === tg) dir = -dir; } else if (cur + dir > K.hi || cur + dir < K.lo || rnd() < 0.15) dir = -dir;
+        if (cur + dir > K.hi || cur + dir < K.lo) dir = -dir;
+        cur = Math.max(K.lo, Math.min(K.hi, cur + dir * (!last && rnd() < 0.15 ? 2 : 1)));
+      }
+      out += jzSrNote(cur) + (d > 1 ? d : "") + " ";
+      pos += d;
+    });
+    rh.push(out.trim());
+    lh.push(ch.length > 1 ? `${shell(ch[0])}4 ${shell(ch[1])}4` : `${shell(ch[0], last)}8`);
+  }
+  const head = `X:1\nM:4/4\nL:1/8\nQ:1/4=96\nK:${K.k}\n`;
+  return lvl === 1 ? head + rh.join(" | ") + " |]" : head + "%%staves {RH LH}\nV:RH clef=treble\nV:LH clef=bass\n" + `[V:RH] ${rh.join(" | ")} |]\n[V:LH] ${lh.join(" | ")} |]`;
+}
+const JZ_SR_ABC = {};
+function jzSrAbc(k) { const key = todayKey() + ":" + k; return JZ_SR_ABC[key] || (JZ_SR_ABC[key] = jzSrGen(+k)); }
+const jzSrRate = (q) => q >= 90 ? 5 : q >= 75 ? 4 : q >= 60 ? 3 : q >= 40 ? 2 : 1;
+// woła midiplay.js po zakończeniu ćwiczenia: ocena swingu z przesunięć ósemek na „i” (n.off – ms względem 0,64 miary)
+function jzSrAfter(src, res) {
+  if (MP.mode === "wait") return `<p class="pgoal">Swing ocenia tryb „Z metronomem” – w „Nuty czekają” tempo się nie liczy.</p>`;
+  const k = +src.split(":")[2], R = jzSr(), rs = [];
+  for (const st of MP.steps) if (st.sw) for (const n of st.notes) if (n.off !== undefined && n.p >= 60) rs.push(JZ_RATIO + n.off / MP.beatMs);
+  const good = rs.filter(x => x >= JZ_SR_SW[0] && x <= JZ_SR_SW[1]).length;
+  const sw = rs.length ? Math.round(good / rs.length * 100) : 0, avg = rs.length ? rs.reduce((a, b) => a + b, 0) / rs.length : 0;
+  const notes = res.n ? Math.round(res.hit / res.n * 100) : 0, q = Math.min(notes, res.rhythm, sw), r = jzSrRate(q);
+  const f2 = (x) => x.toFixed(2).replace(".", ",");
+  const tip = !rs.length ? "Nie usłyszałem ósemek na „i”." : avg < JZ_SR_SW[0] ? "Za równo – przytrzymaj pierwszą ósemkę z pary dłużej, licz „raz – – i”." : avg > JZ_SR_SW[1] ? "Za mocno – to już rytm z kropką. Ósemkę na „i” zagraj odrobinę wcześniej." : sw < 80 ? "Dobry kierunek, ale nierówno – trzymaj ten sam swing w każdym takcie." : "Świetny swing!";
+  const swLine = `<b>Swing: ${sw}%</b> ósemek na „i” zagranych swingowo (${good} z ${rs.length}).${rs.length ? ` Średnio grasz je w ${f2(avg)} miary – równe ósemki to 0,50, swing około 0,60–0,70.` : ""} ${tip}`;
+  if (MP.hand !== null && R.lvl > 1) return `<p class="pgoal">${swLine}<br>Ocena liczy się, gdy grasz obiema rękami.</p>`;
+  const seen = JZ_SR_SEEN.has(src) || (R.log || []).some(x => x.d === todayKey() && x.k === k);
+  if (seen) return `<p class="pgoal">${swLine}<br>To powtórka tego samego ćwiczenia – liczy się pierwsze podejście. Na nową ocenę weź „Nowe ćwiczenie”.</p>`;
+  JZ_SR_SEEN.add(src);
+  R.log = [...(R.log || []), {d: todayKey(), k, q, r, sw, bpm: MP.bpm}].slice(-60); save();
+  const lvlLog = R.log.filter(x => Math.floor(x.k / 100) === R.lvl).slice(-3);
+  const up = R.lvl < 3 && lvlLog.length === 3 && lvlLog.every(x => x.r >= 4) ? ` Trzy razy z rzędu co najmniej 4/5 – spróbuj poziomu „${JZ_SR_LVLS[R.lvl][1]}”.` : "";
+  return `<p class="pgoal ${r >= 4 ? "ok" : ""}"><b>Ocena: ${r}/5</b> (wynik ${q}% – gorszy z trzech: nuty ${notes}%, rytm ${res.rhythm}%, swing ${sw}%).<br>${swLine}${up}</p>`;
+}
+function jzSrPlay() {
+  jzPlayStop(); jzBandStop();
+  const k = jzSrK(), N = jzNotes("jzsr:" + todayKey() + ":" + k, jzSrAbc(k)); if (!N) { toast("Nuty jeszcze się nie wczytały – spróbuj za chwilę"); return; }
+  const whole = 4 * 60 / N.bpm, beat = whole / 4, pre = 4 * beat, T = (w) => pre + jzSw(w) * whole;
+  const items = [0, 1, 2, 3].map(b => ({t: b * beat, fn: (t) => click(t, b === 0)}));
+  N.notes.forEach(n => items.push({t: T(n.w), fn: (t) => tone(n.p, t, Math.max(0.2, (T(n.w + n.d) - T(n.w)) * 0.95), n.v ? 0.11 : 0.2)}));
+  Object.assign(JZ_PLAY, {on: true, id: "jzsr", mode: "swing"});
+  playQueue(items, () => { JZ_PLAY.on = false; jzPlayUi(); });
+  jzPlayUi();
+}
+function jzSrHtml() {
+  const R = jzSr(), k = jzSrK(), src = "jazz:jzsr:" + k, today = (R.log || []).filter(x => x.d === todayKey());
+  const recent = (R.log || []).slice(-10).reverse();
+  return `<div class="card stack">
+    <div class="spread"><h3>Swing a vista</h3><span class="small muted">ćwiczenie ${R.n + 1} dzisiaj</span></div>
+    <p class="small" style="margin:0">Codziennie nowe 4 takty. Najpierw <b>30 sekund czytania</b>: tonacja, akordy, gdzie są pary ósemek. Potem zagraj na pasku pianina w trybie <b>„Z metronomem”</b> – wszystkie ósemki swingowo (długa–krótka). Oceniam trafione nuty, rytm i swing. Posłuchaj dopiero po zagraniu.</p>
+    <div class="seg" role="group" aria-label="Poziom">${JZ_SR_LVLS.map(([v, n]) => `<button data-act="jz-sr-lvl" data-v="${v}" aria-pressed="${v === R.lvl}">${n}</button>`).join("")}</div>
+    <div><div class="abc" data-abc="jzsr:${k}"></div><div class="row"><button class="btn sm" data-act="jz-sr-play" data-id="jzsr" data-mode="swing">▶ Posłuchaj ze swingiem</button><button class="btn sm ghost" data-act="jz-stopall">■ Stop</button><button class="btn sm primary" data-act="jz-sr-new">Nowe ćwiczenie</button>${mpUiHtml(src)}</div>
+    <p class="small muted" style="margin:0">Pianino podłącz kablem USB do laptopa albo telefonu (Chrome lub Edge) i połącz w Narzędziach → Pianino przez USB. Bez pianina zagraj sama, a potem porównaj z odsłuchem.</p>
+    ${recent.length ? `<details ${today.length ? "open" : ""}><summary>Ostatnie oceny${today.length ? ` · dziś ${today.length}` : ""}</summary><ul class="tips small" style="margin-top:6px">${recent.map(x => `<li>${x.d === todayKey() ? "dziś" : x.d.slice(8, 10) + "." + x.d.slice(5, 7)} · ${JZ_SR_LVLS[Math.floor(x.k / 100) - 1][1].toLowerCase()} · ♩ = ${x.bpm}: <b>${x.r}/5</b> (swing ${x.sw}%)</li>`).join("")}</ul></details>` : ""}
+  </div>`;
+}
+
+const JZ_SECS = [["lesson", "Lekcja"], ["song", "Utwór"], ["swr", "Swing a vista"], ["drill", "Akordy"], ["band", "Podkład"], ["listen", "Słuchanie"]];
 function jzUnitView() {
   const u = JZ_UNITS.find(x => x.id === JZV.u) || JZ_UNITS[0], i = JZ_UNITS.indexOf(u);
   const secs = u.id === "u6" ? JZ_SECS.concat([["arr", "Aranżacja"]]) : JZ_SECS;
@@ -982,6 +1104,7 @@ function jzUnitView() {
     body = `<div class="card stack"><h3>Improwizacja</h3><p class="small">${u.improv}</p>${jzBandHtml(u.band.chart, u.band.feel, u.band.bpm, "unit:" + u.id, "Ćwiczenie tematu – krótka pętla akordów.")}</div>
     ${ch ? `<div class="card stack"><h3>Podkład: ${esc(s.title)}</h3>${jzBandHtml(ch, jzBandFeel(s), jzSongBpm(s), "song:" + s.id, "")}</div>` : ""}`; }
   if (sec === "listen") body = jzListenHtml(u);
+  if (sec === "swr") body = jzSrHtml();
   if (sec === "arr") body = jzArrHtml();
   const prev = JZ_UNITS[i - 1], next = JZ_UNITS[i + 1];
   return `<section class="stack">
@@ -1020,6 +1143,9 @@ document.addEventListener("click", (e) => {
     case "jz-go": JZV.view = "unit"; JZV.u = t.dataset.u; JZV.sec = t.dataset.sec; JZV.swap = false; TAB = "jazz"; render(); window.scrollTo(0, 0); break;
     case "jz-home": JZV.view = "home"; jzBandStop(); jzPlayStop(); render(); window.scrollTo(0, 0); break;
     case "jz-unit": JZV.view = "unit"; JZV.u = t.dataset.u; JZV.swap = false; if (!JZV.sec) JZV.sec = "song"; render(); window.scrollTo(0, 0); break;
+    case "jz-sr-new": { mpStop(); jzPlayStop(); jzSr().n++; save(); render(); break; }
+    case "jz-sr-lvl": { mpStop(); jzPlayStop(); jzSr().lvl = +t.dataset.v; save(); render(); break; }
+    case "jz-sr-play": ac(); if (JZ_PLAY.on && JZ_PLAY.id === "jzsr") jzPlayStop(); else jzSrPlay(); break;
     case "jz-sec": JZV.sec = t.dataset.sec; JZV.swap = false; jzBandStop(); jzPlayStop(); render(); window.scrollTo(0, 0); break;
     case "jz-swap": JZV.swap = !JZV.swap; render(); break;
     case "jz-pick": { const u = t.dataset.u, id = t.dataset.id, prev = jzS().pick[u]; JZV.swap = false; jzBandStop(); jzPlayStop();

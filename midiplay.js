@@ -304,7 +304,7 @@ function mpWaitNote(ev) {
 function mpWaitFinish() {
   const n = MP.steps.length, first = MP.steps.filter(s => !s.err).length, p = Math.round(first / n * 100);
   MP.stage = "done"; MP.res = {n, first, p};
-  if (MP.hand === null && !MP.src.startsWith("sight:")) {            // wynik zapisujemy tylko dla całości (obie ręce); czytanie a vista jest za każdym razem nowe
+  if (MP.hand === null && !MP.src.startsWith("sight:") && !MP.src.startsWith("jazz:jzsr:")) {   // swing a vista: ocena w jazz.js            // wynik zapisujemy tylko dla całości (obie ręce); czytanie a vista jest za każdym razem nowe
     const B = mpStoreRoot(MP.src); if (!B.play) B.play = {};
     const r = B.play[MP.src] || {};
     r.best = Math.max(r.best || 0, p); r.n = (r.n || 0) + 1; r.d = todayKey(); B.play[MP.src] = r; save();
@@ -531,7 +531,7 @@ function mpTempoFinish() {
   }
   res.text = tips.join(" ");
   MP.stage = "done"; MP.res = res; MP.msg = "";
-  if (MP.hand === null && !MP.src.startsWith("sight:")) {
+  if (MP.hand === null && !MP.src.startsWith("sight:") && !MP.src.startsWith("jazz:jzsr:")) {   // swing a vista: ocena w jazz.js
     const B = mpStoreRoot(MP.src); if (!B.play) B.play = {};
     const r = B.play[MP.src] || {};
     if (r.tb === undefined || res.all > r.tb || (res.all === r.tb && MP.bpm > r.tbpm)) { r.tb = res.all; r.tbpm = MP.bpm; }
@@ -643,6 +643,7 @@ function mpTechGoal(res) {
 }
 function mpGoalAfter(res) {
   if (mpSight(MP.src)) return typeof srLiveAfter === "function" ? srLiveAfter(MP.src, res, {mode: MP.mode, hand: MP.hand, bpm: MP.bpm}) : "";
+  if (MP.src && MP.src.startsWith("jazz:jzsr:") && typeof jzSrAfter === "function") return jzSrAfter(MP.src, res);   // swing a vista (jazz.js)
   if (MP.src && MP.src.startsWith("tech:") && typeof grTechMark === "function") return mpGoalOn() ? mpTechGoal(res) : "";
   const p = mpPieceOf(MP.src); if (!p || !mpGoalOn()) return "";
   if (MP.hand !== null) return `<p class="pgoal">Wynik jednej ręki nie liczy się do zaliczenia utworu – zagraj obiema rękami.</p>`;
