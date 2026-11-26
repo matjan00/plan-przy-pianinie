@@ -359,19 +359,6 @@ body.playing .pbar.plivebar{bottom:calc(148px + env(safe-area-inset-bottom,0px))
 .plegend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
 .plegend i.ok{background:var(--ok)} .plegend i.warn{background:var(--c-tech)} .plegend i.fix{background:var(--danger)}
 @media (max-width:380px){.pmodes{grid-template-columns:1fr}.pmode{min-height:0}}
-/* Jazzy Christmas */
-.jzsecs{display:flex;flex-wrap:wrap;width:100%}
-.jzsecs button{flex:1 1 auto;padding:7px 8px}
-.jzunit{display:flex;flex-direction:column;gap:4px;text-align:left;width:100%;cursor:pointer;color:inherit;font:inherit}
-.jzunit.cur{border-color:var(--c-music);box-shadow:inset 4px 0 0 var(--c-music)}
-.jzchart{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
-.jzchart span{border:1px solid var(--line);border-radius:6px;padding:6px 4px;text-align:center;font-size:.85rem;font-weight:600;min-height:34px}
-.jzchart span.on{background:var(--c-music);color:#fff;border-color:var(--c-music)}
-.jzchord{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0}
-.jzchord b{font-size:2.4rem;line-height:1.1}
-.jzmsg{min-height:1.3em;margin:0;text-align:center}
-.jzlisten{border-top:1px solid var(--line);padding-top:10px}
-.jzswap button[aria-pressed="true"]{font-weight:600}
 textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--surface);color:var(--ink)}
 </style>
 </head>
@@ -396,7 +383,6 @@ textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:8px;
   <button data-tab="progress"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Postęp</button>
   <button data-tab="rep"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Utwory</button>
   <button data-tab="learn"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h6a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H3z"/><path d="M21 5h-6a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h7z"/></svg>Nauka</button>
-  <button data-tab="jazz" hidden><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.2 6.5H21l-5.5 4 2.1 6.5L12 15l-5.6 4 2.1-6.5L3 8.5h6.8z"/></svg>Jazz</button>
   <button data-tab="tools"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 21h8l-2-17h-4z"/><path d="M12 14l5-8"/></svg>Narzędzia</button>
 </nav>
 
@@ -413,7 +399,6 @@ textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:8px;
 <script src="grade.js"></script>
 <script src="midi.js"></script>
 <script src="midiplay.js"></script>
-<script src="jazz.js"></script>
 <script>
 "use strict";
 /* ============================== DANE ============================== */
@@ -725,7 +710,6 @@ const BLOCKS = {
  free:{name:"Wolny czas: Twoje utwory",grp:"music"}
 };
 Object.assign(BLOCKS, BEG_BLOCKS);
-BLOCKS.jazz={name:"Jazzy Christmas",grp:"music"};
 const STATUS = ["nie zaczęty","rozczytywanie","razem wolno","w tempie","opanowany"];
 const STEP_HINT = [
  "Wybierz ten utwór i zacznij: przejrzyj nuty, zaznacz frazy i trudne miejsca.",
@@ -984,14 +968,12 @@ function genPlan(key, minutes){
     if(b.type==="free"){ b.items=mySorted.slice(0, b.min>=12?3:2).map(m=>m.id); }
     if(b.type==="ear"){ const ms=earModes(); b.mode = ms[idx%ms.length]; }
   }
-  if(jzOn(key)) blocks.push({type:"jazz", min:25, done:false});   // moduł sezonowy: 25 min ponad wybraną długość
   return {minutes, blocks, counted:false};
 }
 function todayPlan(){
   const k=todayKey();
   if(!S.plans[k] || !!S.plans[k].beg!==isBeg()){ S.plans[k]=genPlan(k,S.minutes); saveLocal(); }
-  else if(jzOn(k) && !S.plans[k].blocks.some(b=>b.type==="jazz")){ S.plans[k].blocks.push({type:"jazz", min:20, done:false}); saveLocal(); }
-  else if(!jzOn(k) && S.plans[k].blocks.some(b=>b.type==="jazz" && !b.done)){ S.plans[k].blocks=S.plans[k].blocks.filter(b=>b.type!=="jazz" || b.done); saveLocal(); }   // poza terminem modułu (np. po zmianie startu)
+  else if(S.plans[k].blocks.some(b=>b.type==="jazz")){ S.plans[k].blocks=S.plans[k].blocks.filter(b=>b.type!=="jazz"); saveLocal(); }   // usunięty moduł Jazzy Christmas
   return S.plans[k];
 }
 function markBlock(b, done){
@@ -1050,7 +1032,6 @@ let lastTab=null;
 function render(){
   header();
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current",String(b.dataset.tab===TAB)));
-  { const jb=document.querySelector('nav.tabs [data-tab="jazz"]'); if(jb) jb.hidden=!jzTabVisible(); }
   const v=$view();
   // keep open <details> and keyboard focus across the rebuild of the same tab
   const ae=document.activeElement, fk=(ae && ae!==document.body && (v.contains(ae)||ae.closest("#nowbar")))? ctlKey(ae) : null;
@@ -1063,8 +1044,6 @@ function render(){
   if(TAB==="rep") v.innerHTML=isBeg()?begViewRep():viewRep();
   if(TAB==="tools") { v.innerHTML=viewTools(); afterTools(); afterToolsExtra(); if(typeof midiPaint==="function") midiPaint(); }
   if(TAB==="learn") { v.innerHTML=viewLearn(); afterLearn(); }
-  if(TAB==="jazz") { v.innerHTML=jzView(); jzAfter(); }
-  if(TAB!=="jazz"){ jzBandStop(); jzPlayStop(); }
   if(TAB==="today") afterToday();
   if(openD.size){ const seen2={}; v.querySelectorAll("details > summary").forEach(sm=>{ const t=sm.dataset.k||sm.textContent.trim(); seen2[t]=(seen2[t]||0)+1; if(openD.has(t+"#"+seen2[t])) sm.parentElement.open=true; }); }
   if(isBeg()) begAfter(); else if(typeof mpAfter==="function") mpAfter();
@@ -1191,7 +1170,6 @@ function blockBody(b){
     <div id="ear-inline" data-mode="${b.mode}"></div>`;
   }
   if(b.type==="pedal") return pedalBlockBody(b);
-  if(b.type==="jazz") return jzBlockBody(b);
   if(b.type==="free"){
     const items=(b.items||[]).map(id=>S.my.find(m=>m.id===id)).filter(Boolean);
     return `<p class="small">Graj dla przyjemności, ale z jednym celem na każdy utwór: czysty pedał, śpiewna melodia albo zagranie z pamięci.</p>
@@ -1223,7 +1201,7 @@ function streakDays(){
   return n;
 }
 // short names printed on the keys; the full name is in the aria-label and the block header
-const KEY_ABBR={warm:"Ga",hanon:"Ha",etude:"Et",sr:"AV",theory:"Te",ear:"Sł",piece:"Ut",pedal:"Pe",free:"Wo",jazz:"Jz"};
+const KEY_ABBR={warm:"Ga",hanon:"Ha",etude:"Et",sr:"AV",theory:"Te",ear:"Sł",piece:"Ut",pedal:"Pe",free:"Wo"};
 for(const k in BEG_BLOCKS) KEY_ABBR[k]=BEG_BLOCKS[k].ab;
 function keyRow(plan, nav){
   const cur=curIndex(plan), open=openIndex(plan);

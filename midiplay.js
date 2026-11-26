@@ -28,13 +28,11 @@ function mpSetHidden(on) { try { if (on) localStorage.setItem(MP_HIDE, "1"); els
 function mpLat() { try { const v = parseFloat(localStorage.getItem(MP_LAT)); return isFinite(v) ? Math.max(-150, Math.min(400, v)) : 0; } catch (e) { return 0; } }
 function mpSetLat(v) { try { localStorage.setItem(MP_LAT, String(Math.round(Math.max(-150, Math.min(400, v))))); } catch (e) {} }
 const mpReady = () => MIDI.status === "on" && MIDI.inputs.length > 0;
-const mpJazz = (src) => !!src && src.startsWith("jazz:");
-// wyniki z modułu Jazzy Christmas trzymamy w S.jazz, reszty – w kursie od zera
-const mpStoreRoot = (src) => mpJazz(src) && typeof jzS === "function" ? jzS() : begS();
-const mpRec = (src) => { const B = mpJazz(src) ? S.jazz : S.beg; return (B && B.play && B.play[src]) || null; };
+const mpStoreRoot = (src) => begS();
+const mpRec = (src) => { const B = S.beg; return (B && B.play && B.play[src]) || null; };
 const mpSight = (src) => !!src && src.startsWith("sight:");
 // czytanie a vista z generatora działa w obu trybach aplikacji; reszta tylko w kursie od zera
-const mpAllowed = (src) => isBeg() || mpSight(src) || mpJazz(src);
+const mpAllowed = (src) => isBeg() || mpSight(src);
 // symbol miary metronomu: w 6/8 klika ćwierćnuta z kropką (tylko a vista), w pozostałych ćwierćnuta
 const mpSym = () => MP.den === 8 / 3 ? "♩." : MP.den === 8 ? "♪" : "♩";
 
@@ -164,7 +162,6 @@ function mpStart(src, mode, hand) {
   if (abc && el && window.ABCJS) {
     try { const vo = begRender(el, abc); vo.setUpAudio(); built = mpBuild(vo, hand); } catch (e) { built = null; }
   }
-  if (built && typeof jzMpBuilt === "function") jzMpBuilt(src, built);   // utwory jazzowe: ósemki swingowe
   if (!built || !built.steps.length) {
     MP.src = null;
     toast(abc && el && window.ABCJS ? "Tego ćwiczenia nie da się sprawdzić z pianinem" : "Nuty jeszcze się nie wczytały – spróbuj za chwilę");
@@ -304,7 +301,7 @@ function mpWaitNote(ev) {
 function mpWaitFinish() {
   const n = MP.steps.length, first = MP.steps.filter(s => !s.err).length, p = Math.round(first / n * 100);
   MP.stage = "done"; MP.res = {n, first, p};
-  if (MP.hand === null && !MP.src.startsWith("sight:") && !MP.src.startsWith("jazz:jzsr:")) {   // swing a vista: ocena w jazz.js            // wynik zapisujemy tylko dla całości (obie ręce); czytanie a vista jest za każdym razem nowe
+  if (MP.hand === null && !MP.src.startsWith("sight:")) {            // wynik zapisujemy tylko dla całości (obie ręce); czytanie a vista jest za każdym razem nowe
     const B = mpStoreRoot(MP.src); if (!B.play) B.play = {};
     const r = B.play[MP.src] || {};
     r.best = Math.max(r.best || 0, p); r.n = (r.n || 0) + 1; r.d = todayKey(); B.play[MP.src] = r; save();
@@ -531,7 +528,7 @@ function mpTempoFinish() {
   }
   res.text = tips.join(" ");
   MP.stage = "done"; MP.res = res; MP.msg = "";
-  if (MP.hand === null && !MP.src.startsWith("sight:") && !MP.src.startsWith("jazz:jzsr:")) {   // swing a vista: ocena w jazz.js
+  if (MP.hand === null && !MP.src.startsWith("sight:")) {
     const B = mpStoreRoot(MP.src); if (!B.play) B.play = {};
     const r = B.play[MP.src] || {};
     if (r.tb === undefined || res.all > r.tb || (res.all === r.tb && MP.bpm > r.tbpm)) { r.tb = res.all; r.tbpm = MP.bpm; }
@@ -643,7 +640,6 @@ function mpTechGoal(res) {
 }
 function mpGoalAfter(res) {
   if (mpSight(MP.src)) return typeof srLiveAfter === "function" ? srLiveAfter(MP.src, res, {mode: MP.mode, hand: MP.hand, bpm: MP.bpm}) : "";
-  if (MP.src && MP.src.startsWith("jazz:jzsr:") && typeof jzSrAfter === "function") return jzSrAfter(MP.src, res);   // swing a vista (jazz.js)
   if (MP.src && MP.src.startsWith("tech:") && typeof grTechMark === "function") return mpGoalOn() ? mpTechGoal(res) : "";
   const p = mpPieceOf(MP.src); if (!p || !mpGoalOn()) return "";
   if (MP.hand !== null) return `<p class="pgoal">Wynik jednej ręki nie liczy się do zaliczenia utworu – zagraj obiema rękami.</p>`;
