@@ -587,7 +587,7 @@ function begViewRep() {
     </div>
     <div class="listhead"><span class="lt">♪</span><h3>Moje utwory</h3><span class="small muted">do powtórek</span></div>
     <div class="card stack">
-      ${S.my.map(m => `<div class="spread"><span>${esc(m.name)}</span><button class="btn sm ghost" data-act="mydel" data-id="${m.id}" aria-label="Usuń: ${esc(m.name)}">Usuń</button></div>`).join("") || `<p class="small muted" style="margin:0">Dodaj tu utwory z książek i MuseScore, których się uczysz.</p>`}
+      ${S.my.length ? `<div class="pieces">${myListHtml("")}</div>` : `<p class="small muted" style="margin:0">Dodaj tu utwory z książek i MuseScore, których się uczysz. Każdy dostanie dziennik i trenera tempa.</p>`}
       <form class="row" id="myform"><input type="text" id="myname" placeholder="Štefánik – Ach, mój rozmarynie" style="flex:1"><button class="btn primary sm" type="submit">Dodaj</button></form>
     </div>
   </section>`;

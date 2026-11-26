@@ -1177,7 +1177,7 @@ function blockBody(b){
   if(b.type==="free"){
     const items=(b.items||[]).map(id=>S.my.find(m=>m.id===id)).filter(Boolean);
     return `<p class="small">Graj dla przyjemności, ale z jednym celem na każdy utwór: czysty pedał, śpiewna melodia albo zagranie z pamięci.</p>
-    <ul class="tips">${items.map(m=>`<li>${esc(m.name)} <span class="small">${ytLink(myQuery(m))}</span> <span class="muted small">${m.last?"(ostatnio "+m.last+")":"(dawno nie grane)"}</span></li>`).join("") || "<li>Nie masz jeszcze swoich utworów.</li>"}</ul>
+    <ul class="tips">${items.map(m=>`<li>${esc(m.name)} <span class="small">${ytLink(myQuery(m))}</span> <span class="muted small">${m.last?"(ostatnio "+m.last+")":"(dawno nie grane)"}</span> <button class="btn sm ghost" data-act="trainer-open" data-id="${myTempoPiece(m).id}">Trener tempa</button></li>`).join("") || "<li>Nie masz jeszcze swoich utworów.</li>"}</ul>
     ${items.length?"":`<div><button class="btn sm" data-act="goto" data-tab="rep">Dodaj swoje utwory</button></div>`}`;
   }
   return "";
@@ -1229,7 +1229,7 @@ function blockHtml(b, i, isOpen, last){
 }
 function finaleHtml(plan, p){
   const k=todayKey(), mins=plan.blocks.reduce((a,b)=>a+b.min,0), streak=streakDays();
-  const tempos=Object.entries(S.tempo||{}).flatMap(([id,log])=>log.filter(x=>x.d===k).slice(-1).map(x=>({p:PIECES.find(q=>q.id===id),bpm:x.bpm}))).filter(x=>x.p);
+  const tempos=Object.entries(S.tempo||{}).flatMap(([id,log])=>log.filter(x=>x.d===k).slice(-1).map(x=>({p:tempoPiece(id),bpm:x.bpm}))).filter(x=>x.p);
   const sr=plan.blocks.find(b=>b.type==="sr");
   const rows=[["Przy pianinie",mins+" min"],["Bloki",plan.blocks.length+" z "+plan.blocks.length]];
   if(streak>1) rows.push(["Dni z rzędu",String(streak)]);
@@ -1369,9 +1369,9 @@ function viewRep(){
     ${["A","B","C","E"].map(sec).join("")}
     <div class="listhead"><span class="lt">♪</span><h3>Twoje utwory</h3><span class="small muted">do wolnego czasu</span></div>
     <div class="card stack">
-      ${S.my.map(m=>`<div class="spread"><span>${esc(m.name)}</span><button class="btn sm ghost" data-act="mydel" data-id="${m.id}" aria-label="Usuń: ${esc(m.name)}">Usuń</button></div>`).join("")}
+      ${S.my.length?`<div class="pieces">${myListHtml("")}</div>`:""}
       <form class="row" id="myform"><input type="text" id="myname" placeholder="Einaudi – Nuvole bianche" style="flex:1"><button class="btn primary sm" type="submit">Dodaj</button></form>
-      <p class="small muted">Utwory, które opanujesz z list RCM, trafiają tu same.</p>
+      <p class="small muted">Utwory, które opanujesz z list RCM, trafiają tu same. Stuknij utwór, żeby ustawić tempo docelowe, zapisywać tempo i włączyć trenera tempa.</p>
     </div>
   </section>`;
 }

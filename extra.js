@@ -388,7 +388,56 @@ function srGenCardHtml() {
 }
 
 /* ============================== DZIENNIK I TRENER TEMPA ============================== */
-function tempoTargets(p) { const m = (p.tempo || "").match(/(\d+)\D+(\d+)/); return m ? [+m[1], +m[2]] : null; }
+function tempoTargets(p) {
+  const m = (p.tempo || "").match(/(\d+)\D+(\d+)/); if (m) return [+m[1], +m[2]];
+  const one = (p.tempo || "").match(/\d+/); return one ? [+one[0], +one[0]] : null;
+}
+const tgTxt = (tg) => tg[0] === tg[1] ? String(tg[0]) : tg[0] + "–" + tg[1];
+/* Twoje utwory spoza list RCM (S.my): własne tempo docelowe m.tempo, dziennik i trener tempa.
+   Utwór opanowany z listy RCM (id "r-<id>") dzieli dziennik z oryginałem. */
+function myTempoPiece(m) {
+  const orig = m.id.startsWith("r-") && PIECES.find(p => p.id === m.id.slice(2));
+  return {id: orig ? orig.id : m.id, name: m.name, tempo: m.tempo || (orig ? orig.tempo : ""), my: m.id};
+}
+function tempoPiece(id) {
+  const p = PIECES.find(x => x.id === id); if (p) return p;
+  const m = S.my.find(x => x.id === id || x.id === "r-" + id); return m ? myTempoPiece(m) : null;
+}
+// "96", "88-96", "88–96" -> "96" / "88–96"; "" clears; null when invalid.
+function parseTempoGoal(v) {
+  v = (v || "").trim(); if (!v) return "";
+  const n = (v.match(/\d+/g) || []).map(Number).slice(0, 2);
+  if (!n.length || n.some(x => x < 20 || x > 240)) return null;
+  n.sort((a, b) => a - b); return n.length === 2 && n[0] !== n[1] ? n[0] + "–" + n[1] : String(n[0]);
+}
+let OPEN_MY = null;
+function myListHtml(empty) {
+  return S.my.map(m => {
+    const p = myTempoPiece(m), log = (S.tempo && S.tempo[p.id]) || [], last = log[log.length - 1];
+    return `<details class="piece" data-my="${m.id}"${OPEN_MY === m.id ? " open" : ""}><summary><span class="pn">${esc(m.name)}</span>
+        ${last ? `<span class="pill mono">♩ ${last.bpm}</span>` : ""}</summary>
+      <div class="stack" style="gap:10px;padding:2px 0 8px">
+        <div class="row"><label class="small" for="mytg-${m.id}">Tempo docelowe</label>
+          <input type="text" id="mytg-${m.id}" inputmode="numeric" placeholder="np. 96 albo 88–96" value="${esc(m.tempo || "")}" style="width:9em">
+          <button class="btn sm" data-act="my-tempo" data-id="${m.id}">Ustaw</button></div>
+        ${tempoLogHtml(p)}
+        <div><button class="btn sm ghost" data-act="mydel" data-id="${m.id}" aria-label="Usuń: ${esc(m.name)}">Usuń utwór</button></div>
+      </div></details>`;
+  }).join("") || empty;
+}
+function logTempo(id, v) {
+  S.tempo = S.tempo || {};
+  const log = (S.tempo[id] || []).filter(x => x.d !== todayKey()); log.push({d: todayKey(), bpm: v}); S.tempo[id] = log.slice(-40);
+  const p = tempoPiece(id), tg = p && tempoTargets(p);
+  save(); render(); toast(tg && v >= tg[0] ? "Tempo docelowe osiągnięte!" : "Zapisano tempo " + v);
+}
+function trainerFor(p) {
+  const tg = tempoTargets(p), log = (S.tempo && S.tempo[p.id]) || [], last = log.length ? log[log.length - 1].bpm : null;
+  TRAINER.id = p.id; TRAINER.label = p.name; TRAINER.stopped = null;
+  TRAINER.start = last || (tg ? Math.round(tg[0] * 0.7) : 60); TRAINER.target = tg ? tg[0] : TRAINER.start + 16;
+  if (TRAINER.target <= TRAINER.start) TRAINER.target = tg && tg[1] > TRAINER.start ? tg[1] : TRAINER.start + 8;
+  TRAINER.target = Math.min(240, TRAINER.target);
+}
 // Last 10 entries, each point labelled with its tempo above and its day (dd.mm) below; older ones in a list.
 const dayLbl = (d) => d.slice(8) + "." + d.slice(5, 7);
 function spark(log, tg) {
@@ -411,7 +460,7 @@ function tempoLogHtml(p) {
   const log = (S.tempo && S.tempo[p.id]) || [], tg = tempoTargets(p), last = log[log.length - 1];
   const val = last ? last.bpm : (tg ? Math.round(tg[0] * 0.6) : 60);
   return `<div class="box stack" style="gap:6px">
-    <div class="spread"><b class="small">Dziennik tempa</b><span class="small muted">${last ? `ostatnio ${last.bpm} (${last.d.slice(5)})` : "brak wpisów"}${tg ? ` · cel ${tg[0]}–${tg[1]}` : ""}</span></div>
+    <div class="spread"><b class="small">Dziennik tempa</b><span class="small muted">${last ? `ostatnio ${last.bpm} (${last.d.slice(5)})` : "brak wpisów"}${tg ? ` · cel ${tgTxt(tg)}` : ""}</span></div>
     ${log.length > 1 ? spark(log, tg) : ""}
     <div class="row"><label class="small" for="tin-${p.id}">Dziś czysto w tempie</label>
       <input type="number" id="tin-${p.id}" min="20" max="240" step="1" value="${val}">
@@ -419,16 +468,34 @@ function tempoLogHtml(p) {
       <button class="btn sm" data-act="trainer-open" data-id="${p.id}">Trener tempa</button></div>
   </div>`;
 }
-const TRAINER = {on: false, start: 60, target: 80, step: 2, every: 4, label: ""};
+const TRAINER = {on: false, start: 60, target: 80, step: 2, every: 4, label: "", id: null, adding: false, stopped: null};
+function trainerPieceHtml() {
+  const opts = S.my.map(m => myTempoPiece(m)), known = !TRAINER.id || opts.some(p => p.id === TRAINER.id);
+  const sel = TRAINER.adding ? "__new" : (TRAINER.id || "");
+  return `<label class="small">Utwór <select id="tr-piece" style="max-width:100%">
+      <option value="">bez utworu</option>
+      ${known ? "" : `<option value="${TRAINER.id}" selected>${esc(TRAINER.label)}</option>`}
+      ${opts.length ? `<optgroup label="Twoje utwory">${opts.map(p => `<option value="${p.id}" ${p.id === sel ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</optgroup>` : ""}
+      <option value="__new" ${sel === "__new" ? "selected" : ""}>+ nowy utwór spoza listy…</option></select></label>
+    ${TRAINER.adding ? `<form class="row" id="tr-addform">
+      <input type="text" id="tr-newname" placeholder="Tytuł utworu" style="flex:1;min-width:10em" aria-label="Tytuł nowego utworu">
+      <input type="text" id="tr-newtempo" inputmode="numeric" placeholder="cel, np. 96" style="width:7em" aria-label="Tempo docelowe">
+      <button class="btn primary sm" type="submit">Dodaj</button></form>
+      <p class="small muted" style="margin:0">Utwór trafi do „Twoich utworów” w Repertuarze, z własnym dziennikiem tempa.</p>` : ""}`;
+}
 function trainerHtml() {
-  return `<details id="trainer" style="width:100%" ${TRAINER.label || TRAINER.on ? "open" : ""}><summary>Trener tempa</summary>
+  const logRow = TRAINER.id && TRAINER.stopped && !TRAINER.on ? `<div class="row"><span class="small">Trener zatrzymany na ♩ = ${TRAINER.stopped}.</span>
+      <button class="btn sm" data-act="trainer-log">Zapisz w dzienniku tempa</button></div>` : "";
+  return `<details id="trainer" style="width:100%" ${TRAINER.label || TRAINER.on || TRAINER.adding ? "open" : ""}><summary>Trener tempa</summary>
     <div class="stack" style="gap:8px;margin-top:8px">
-      <p class="small muted">${TRAINER.label ? `Utwór: ${esc(TRAINER.label)}. ` : ""}Metronom zaczyna od tempa startowego i co kilka taktów przyspiesza, aż dojdzie do docelowego.</p>
+      ${trainerPieceHtml()}
+      <p class="small muted">Metronom zaczyna od tempa startowego i co kilka taktów przyspiesza, aż dojdzie do docelowego.${TRAINER.id ? " Start i cel są wzięte z dziennika i tempa docelowego utworu." : ""}</p>
       <div class="row"><label class="small">Start <input type="number" id="tr-start" min="30" max="220" value="${TRAINER.start}"></label>
         <label class="small">Cel <input type="number" id="tr-target" min="30" max="240" value="${TRAINER.target}"></label></div>
       <div class="row"><label class="small">co <select id="tr-every">${[2, 4, 8].map(n => `<option ${n === TRAINER.every ? "selected" : ""}>${n}</option>`).join("")}</select> takty</label>
         <label class="small">o <select id="tr-step">${[1, 2, 4].map(n => `<option ${n === TRAINER.step ? "selected" : ""}>${n}</option>`).join("")}</select> uderzeń na minutę</label></div>
       <div><button class="btn primary" data-act="trainer-run">${TRAINER.on && metro.on ? "Zatrzymaj trenera" : "Start trenera"}</button></div>
+      ${logRow}
     </div></details>`;
 }
 function updateBpmUI() {
@@ -1013,23 +1080,26 @@ document.addEventListener("click", (e) => {
     case "tempo-save": {
       const id = t.dataset.id, inp = document.getElementById("tin-" + id), v = Math.round(+inp.value);
       if (!v || v < 20 || v > 240) { toast("Wpisz tempo od 20 do 240"); inp.focus(); break; }
-      S.tempo = S.tempo || {};
-      const log = (S.tempo[id] || []).filter(x => x.d !== todayKey()); log.push({d: todayKey(), bpm: v}); S.tempo[id] = log.slice(-40);
-      const p = PIECES.find(x => x.id === id), tg = p && tempoTargets(p);
-      save(); render(); toast(tg && v >= tg[0] ? "Tempo docelowe osiągnięte!" : "Zapisano tempo " + v); break;
+      const d = t.closest("[data-my]"); if (d) OPEN_MY = d.dataset.my;
+      logTempo(id, v); break;
+    }
+    case "my-tempo": {
+      const m = S.my.find(x => x.id === t.dataset.id), inp = document.getElementById("mytg-" + t.dataset.id);
+      if (!m || !inp) break;
+      const v = parseTempoGoal(inp.value);
+      if (v === null) { toast("Wpisz tempo od 20 do 240, np. 96 albo 88–96"); inp.focus(); break; }
+      m.tempo = v; OPEN_MY = m.id; save(); render(); toast(v ? "Tempo docelowe: " + v : "Usunięto tempo docelowe"); break;
     }
     case "trainer-open": {
-      const p = PIECES.find(x => x.id === t.dataset.id), tg = tempoTargets(p), log = (S.tempo && S.tempo[p.id]) || [];
-      const last = log.length ? log[log.length - 1].bpm : null;
-      TRAINER.label = p.name; TRAINER.start = last || (tg ? Math.round(tg[0] * 0.7) : 60); TRAINER.target = tg ? tg[0] : TRAINER.start + 16;
-      if (TRAINER.target <= TRAINER.start) TRAINER.target = tg ? tg[1] : TRAINER.start + 8;
-      TRAINER.on = false; TAB = "tools"; render(); break;
+      const p = tempoPiece(t.dataset.id); if (!p) break;
+      trainerFor(p); TRAINER.on = false; TRAINER.adding = false; TAB = "tools"; render(); break;
     }
+    case "trainer-log": if (TRAINER.id && TRAINER.stopped) { const v = TRAINER.stopped; TRAINER.stopped = null; logTempo(TRAINER.id, v); } break;
     case "trainer-run": {
-      if (TRAINER.on && metro.on) { metroStop(); TRAINER.on = false; render(); break; }
+      if (TRAINER.on && metro.on) { TRAINER.stopped = metro.bpm; metroStop(); TRAINER.on = false; render(); break; }
       const s = +document.getElementById("tr-start").value, g = +document.getElementById("tr-target").value;
       if (!(s >= 30 && g > s && g <= 240)) { toast("Tempo docelowe musi być wyższe niż startowe"); break; }
-      Object.assign(TRAINER, {start: s, target: g, every: +document.getElementById("tr-every").value, step: +document.getElementById("tr-step").value, on: true});
+      Object.assign(TRAINER, {stopped: null, start: s, target: g, every: +document.getElementById("tr-every").value, step: +document.getElementById("tr-step").value, on: true});
       if (metro.on) metroStop(); metro.bpm = s; metroStart(); updateBpmUI();
       t.textContent = "Zatrzymaj trenera"; const mb = document.querySelector('[data-act="metro"]'); if (mb) mb.textContent = "Stop"; break;
     }
@@ -1069,6 +1139,23 @@ document.addEventListener("click", (e) => {
 document.addEventListener("pointerdown", (e) => { if (e.target.closest && e.target.closest("#tapbtn")) { e.preventDefault(); clapTap(); } });
 document.addEventListener("keydown", (e) => { if (e.code === "Space" && Q.cur && Q.cur.open) { e.preventDefault(); clapTap(); } });
 document.addEventListener("change", (e) => {
+  if (e.target.id === "tr-piece") {
+    const v = e.target.value; TRAINER.adding = v === "__new"; TRAINER.stopped = null;
+    if (TRAINER.on && metro.on) { metroStop(); TRAINER.on = false; }
+    if (v && v !== "__new") { const p = tempoPiece(v); if (p) trainerFor(p); }
+    else { TRAINER.id = null; TRAINER.label = ""; }
+    render(); if (TRAINER.adding) { const n = document.getElementById("tr-newname"); n && n.focus(); }
+    return;
+  }
   if (e.target.dataset && e.target.dataset.examSel) examCollect();
   if (e.target.dataset && e.target.dataset.exam) examCollect();
+});
+
+document.addEventListener("submit", (e) => {
+  if (e.target.id !== "tr-addform") return; e.preventDefault();
+  const n = document.getElementById("tr-newname"), tt = document.getElementById("tr-newtempo"), name = n.value.trim(), goal = parseTempoGoal(tt.value);
+  if (!name) { n.focus(); return; }
+  if (goal === null) { toast("Wpisz tempo od 20 do 240, np. 96 albo 88–96"); tt.focus(); return; }
+  const m = {id: "m" + Date.now(), name, last: "", tempo: goal}; S.my.push(m);
+  TRAINER.adding = false; trainerFor(myTempoPiece(m)); save(); render(); toast("Dodano: " + name);
 });
