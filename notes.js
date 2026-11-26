@@ -163,6 +163,14 @@ const NOTES = {
   t: ["Figury trójkowe: kciuk lekki, żeby „raz” nie był przypadkowym akcentem kciuka, tylko świadomym."],
   i: ["Kontrast faktur (figuracje – akordy) pokaż barwą, nie głośnością."]
 },
+"hwv437": {
+  m: ["Brak tempa i dynamiki w oryginale – zwykle grana spokojnie i z powagą (<i>Largo</i> / <i>Grave</i>).",
+      "3/4 z ciężarem na drugiej mierze – typowy rytm sarabandy (ćwierćnuta, półnuta).",
+      "Ozdobniki (tryle) od górnej nuty, na miarę; przy repetycjach możesz dodać własne, w stylu barokowym.",
+      "Ostatni akord D-dur lub d-moll – zgodnie z wydaniem; nie zwalniaj przesadnie przed końcem."],
+  t: ["Akordy: ułóż rękę przed graniem i graj z ciężaru ramienia, nie z uderzenia – dźwięk pełny, ale miękki."],
+  i: ["Myśl o dostojnym, wolnym kroku tanecznym – każdy takt to jeden krok, druga miara to lekkie przyklęknięcie."]
+},
 "clem36-4": {
   m: ["<b>Con spirito</b> – z duchem, ochoczo.",
       "Dynamika blokowa: <i>f</i> i <i>p</i> zmieniaj nagle; <i>cresc.</i> tylko tam, gdzie jest napisane.",
