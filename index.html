@@ -444,6 +444,23 @@ const ytLink = (q, label) => `<a href="${ytUrl(q)}" target="_blank" rel="noopene
 const LISTS = {A:"Barok", B:"Klasycyzm", C:"Romantyzm i XX w.", E:"Etiudy"};
 
 function P(id,g,list,name,src,tempo,t,i,c,q){return {id,g,list,name,src,tempo,tips:{t,i,c},q:q||name};}
+/* Czego uczy każda etiuda (pokazywane w planie i w repertuarze) */
+const ET_TECH={
+ "burg15":"krótkich akordów staccato z nadgarstka w prawej ręce i prowadzenia melodii w lewej",
+ "burg18":"szybkich figur szesnastkowych dzielonych między ręce – niesłyszalnego przejęcia",
+ "burg20":"szybkich, lekkich ósemek w 6/8, staccato i przeskoków ręki",
+ "burg24":"krzyżowania rąk – lewa gra melodię nad prawą, a prawa równe szesnastki pp",
+ "burg25":"ostrego rytmu punktowanego i staccato akordowego z nadgarstka",
+ "burg109-2":"perlistej techniki palcowej – wyraźnych, równych dźwięków przy spokojnej ręce",
+ "heller47-1":"akordów łamanych z ukrytą melodią – wydobywania głównych dźwięków z figuracji",
+ "heller47-3":"akordów łamanych dzielonych między ręce i płynnego przejmowania figury",
+ "heller47-15":"melodii i akompaniamentu w jednej ręce – rozdzielania planów dźwiękowych i pedału legato",
+ "czerny636-1":"biegłości palcowej – równych szesnastek przy spokojnej ręce",
+ "czerny299-1":"biegłości w gamach – podkładania kciuka bez ruchu łokcia",
+ "czerny299-2":"szybkich przebiegów w prawej ręce przy lekkim akompaniamencie lewej",
+ "czerny299-3":"akordów łamanych (arpeggiów) – płynnego przejścia kciuka i rozluźnienia"
+};
+const techHtml=(p)=>ET_TECH[p.id]?`<p class="note"><b>Czego uczy:</b> ${ET_TECH[p.id]}.</p>`:"";
 const PIECES = [
 /* ---------- GRADE 5 ---------- */
 P("bwv939",5,"A","Bach – Małe preludium C-dur BWV 939","imslp","♩ = 72–84",
@@ -1132,6 +1149,7 @@ function blockBody(b){
     const s=st(p.id);
     return `<div class="stack" style="gap:8px"><div><h3 style="font-size:1.15rem">${p.name}</h3>
     <p class="meta">${p.list==="E"?"Etiuda":"Lista "+p.list+" – "+LISTS[p.list]} · Grade ${p.g} · tempo docelowe <span class="mono">${p.tempo}</span></p></div>${links(p)}</div>
+    ${techHtml(p)}
     <p class="note"><b>Dziś:</b> ${STEP_HINT[s]}</p>
     ${stageHtml(p)}
     ${tempoLogHtml(p)}
@@ -1359,7 +1377,7 @@ function viewRep(){
         <span class="minikeys t-music" aria-hidden="true">${[1,2,3,4].map(i=>`<i class="${i<=s?"on":""}"></i>`).join("")}</span>
         <span class="sr-only">, etap: ${STATUS[s]}</span>${isAct?`<span class="pill own">w planie</span>`:""}</summary>
       <div class="stack" style="gap:10px;padding:2px 0 6px">
-      <p class="meta" style="margin:0">Tempo docelowe <span class="mono">${p.tempo}</span></p>${links(p)}
+      <p class="meta" style="margin:0">Tempo docelowe <span class="mono">${p.tempo}</span></p>${techHtml(p)}${links(p)}
       ${stageHtml(p)}
       ${g===S.grade && s<4 && !isAct?`<div><button class="btn sm" data-act="activate" data-id="${p.id}">Ucz się teraz – ustaw w planie</button></div>`:""}
       <details><summary>Wskazówki</summary><div class="stack" style="margin-top:8px">${tipsHtml(p)}</div></details></div></details>`;}).join("")}</div>`;

@@ -532,13 +532,13 @@ const L8 = (m, q, k) => `X:1\nM:${m}\nL:1/8\nQ:1/4=${q}\nK:${k}\n%%staves {RH LH
 const L4 = (m, q, k) => `X:1\nM:${m}\nL:1/4\nQ:1/4=${q}\nK:${k}\n%%staves {RH LH}\nV:RH clef=treble\nV:LH clef=bass\n`;
 const GR_PIECES = [
 /* ---------- GRADE 1 ---------- */
- {id: "gp-gama", lvl: "g1", need: "g1-2", list: "etiuda", name: "Etiuda: gama w melodii", by: "etiuda z aplikacji", hands: "obie ręce", pos: "C-dur, ósemki, kciuk pod dłonią",
+ {id: "gp-gama", lvl: "g1", need: "g1-2", list: "etiuda", name: "Etiuda: gama w melodii", by: "etiuda z aplikacji", hands: "obie ręce", pos: "C-dur, ósemki, kciuk pod dłonią", uczy: "podkładania kciuka pod dłoń i przekładania 3. palca nad kciukiem – płynnej gamy w melodii",
   abc: L8("4/4", 72, "C") + "[V:RH] !mp! !1!C !2!D !3!E !1!F !2!G !3!A !4!B !1!c | !2!d !1!c !3!B !2!A !1!G4 | !1!A B c d e d c B | c8 | e8 | d4 B4 | c4 B4 | c8 |]\n[V:LH] !5!C,4 !3!E,4 | !1!G,4 G,,4 | F,,4 G,,4 | C,8 | !1!C, !2!B,, !3!A,, !1!G,, !2!F,, !3!E,, !4!D,, !5!C,, | G,,8 | C,4 G,,4 | C,,8 |]",
   tips: ["Takt 1: kciuk przechodzi pod dłonią na F. Takt 2: 3. palec nad kciukiem na H.", "W 5. takcie gamę przejmuje lewa ręka, a prawa trzyma długie E.", "Równe ósemki są ważniejsze niż tempo."]},
  {id: "gp-wiecz", lvl: "g1", need: "g1-4", list: "lista B", name: "Wieczorna piosenka", by: "utwór z aplikacji · w stylu listy B", hands: "obie ręce", pos: "a-moll, legato",
   abc: L4("4/4", 72, "Am") + "[V:RH] !p! !1!A B c d | !5!e4 | (d c B c) | A4 | !mf! c d e d | (c B A B) | !p! c B A B | A4 |]\n[V:LH] !5!A,,2 !1!E,2 | !3!C,2 E,2 | !4!B,,2 !2!D,2 | A,,2 C,2 | A,,2 E,2 | D,2 C,2 | B,,2 E,2 | A,,4 |]",
   tips: ["Obie ręce w pozycji A: prawa od A, lewa od A dwie oktawy niżej. Nie przesuwasz dłoni.", "Legato: palec puszcza klawisz dopiero, gdy następny gra.", "Takty 5–6 mf, potem znów p – na koniec jeszcze ciszej."]},
- {id: "gp-etg", lvl: "g1", need: "g1-5", list: "etiuda", name: "Etiuda: rozłożone akordy", by: "etiuda z aplikacji", hands: "obie ręce", pos: "G-dur, ósemki",
+ {id: "gp-etg", lvl: "g1", need: "g1-5", list: "etiuda", name: "Etiuda: rozłożone akordy", by: "etiuda z aplikacji", hands: "obie ręce", pos: "G-dur, ósemki", uczy: "rozłożonych akordów w stałej pozycji ręki – luźny nadgarstek i równe ósemki",
   abc: L8("4/4", 80, "G") + "[V:RH] !mf! !1!G B d B G B d B | !2!A c d c A c d c | G B d B G B d B | A c B A G4 | B d B d c d c d | B d B G A4 | B d c A B G A A | G8 |]\n[V:LH] !5!G,,8 | !1!D,8 | G,,8 | D,4 G,,4 | G,,8 | G,,4 D,4 | G,,4 D,4 | G,,8 |]",
   tips: ["Prawa ręka w pozycji G (kciuk na G), bez przesuwania. Nadgarstek luźny, palce blisko klawiszy.", "Wszystkie ósemki równo – jak tykanie zegara.", "Lewa ręka cicho, tylko podłoga dla prawej."]},
  {id: "gp-menc", lvl: "g1", need: "g1-7", list: "lista A", name: "Menuet C-dur", by: "utwór z aplikacji · w stylu listy A", hands: "obie ręce", pos: "C-dur, 3/4",
@@ -551,7 +551,7 @@ const GR_PIECES = [
   abc: L8("2/4", 92, "F") + "[V:RH] !f! !1!.F .A .c2 | .B .G .A2 | .F .A .c .A | G4 | !p! (A B c A) | (B G A2) | !f! .G .A .B .G | F4 |]\n[V:LH] !5!F,2 !1!C2 | G,2 C2 | F,2 A,2 | C4 | F,4 | G,4 | C4 | F,4 |]",
   tips: ["Staccato krótko i lekko, z nadgarstka – ale nie głośniej.", "Takty 5–6 legato i cicho, jak spokojna środkowa część marszu.", "Pamiętaj o B (bemol przy kluczu) w 2., 6. i 7. takcie."]},
 /* ---------- GRADE 2 ---------- */
- {id: "gp-etb", lvl: "g2", need: "g2-2", list: "etiuda", name: "Etiuda B-dur", by: "etiuda z aplikacji", hands: "obie ręce", pos: "B-dur, ósemki, zmiana pozycji",
+ {id: "gp-etb", lvl: "g2", need: "g2-2", list: "etiuda", name: "Etiuda B-dur", by: "etiuda z aplikacji", hands: "obie ręce", pos: "B-dur, ósemki, zmiana pozycji", uczy: "zmiany pozycji ręki w biegu – przygotowania przeniesienia ręki przed początkiem taktu",
   abc: L8("4/4", 84, "Bb") + "[V:RH] !mf! !1!F G A B c B A G | F A c A F A c A | !1!B c d e f e d c | B d f d B4 | !p! e f e d c d c B | c e d c B d c B | !f! !5!c B A G F G A c | B8 |]\n[V:LH] !5!B,,4 D,4 | F,,4 A,,4 | B,,4 D,4 | B,,4 F,4 | E,4 G,4 | F,4 E,4 | F,,4 C,4 | B,,8 |]",
   tips: ["Dwie pozycje prawej ręki: od F (takty 1–2 i 7) i od B (takty 3–6). Zmiana zawsze na początku taktu – przygotuj ją wcześniej.", "Pamiętaj o Es w taktach 3, 5 i 6.", "Dynamika: mf, p w środku, f na koniec."]},
  {id: "gp-kanon", lvl: "g2", need: "g2-3", list: "lista C", name: "Kanon d-moll", by: "inwencja z aplikacji · lista C", hands: "obie ręce", pos: "d-moll i F-dur, lewa ręka naśladuje prawą",
@@ -581,9 +581,9 @@ const GR_FREE = {
     ["A", "D.G. Türk – Arioso F-dur (12 Handstücke)", "Türk Handstücke"],
     ["A", "J.W. Hässler – Menuet C-dur op. 38 nr 4", "Hässler 50 pièces op.38"],
     ["B", "C. Gurlitt – Kołysanie i Polowanie (op. 117 nr 6 i 15)", "Gurlitt op.117"],
-    ["etiuda", "C. Gurlitt – Poranne powitanie op. 117 nr 13", "Gurlitt op.117"],
-    ["etiuda", "A. Diabelli – Etiuda C-dur op. 125 nr 3", "Diabelli op.125"],
-    ["etiuda", "L. Köhler – Melodia F-dur op. 218 nr 36", "Köhler op.218"]
+    ["etiuda", "C. Gurlitt – Poranne powitanie op. 117 nr 13", "Gurlitt op.117", "legata i frazowania melodii nad prostym akompaniamentem"],
+    ["etiuda", "A. Diabelli – Etiuda C-dur op. 125 nr 3", "Diabelli op.125", "równości i niezależności palców w pozycji pięciopalcowej"],
+    ["etiuda", "L. Köhler – Melodia F-dur op. 218 nr 36", "Köhler op.218", "śpiewnego legata melodii przy cichym akompaniamencie drugiej ręki"]
   ],
   g2: [
     ["A", "L. van Beethoven – Ecossaise G-dur WoO 23", "Beethoven Ecossaise WoO 23"],
@@ -594,8 +594,8 @@ const GR_FREE = {
     ["B", "R. Schumann – Marsz żołnierski op. 68 nr 2", "Schumann Album für die Jugend"],
     ["B", "P. Czajkowski – Chora lalka op. 39 nr 7", "Tchaikovsky Album for the Young op.39"],
     ["C", "C. Gurlitt – Kanon a-moll", "Gurlitt canon"],
-    ["etiuda", "C. Czerny – Etiuda D-dur op. 139 nr 33", "Czerny op.139"],
-    ["etiuda", "H. Bertini – Etiuda G-dur op. 166 nr 6", "Bertini op.166"]
+    ["etiuda", "C. Czerny – Etiuda D-dur op. 139 nr 33", "Czerny op.139", "biegłości palcowej – równych, wyraźnych przebiegów"],
+    ["etiuda", "H. Bertini – Etiuda G-dur op. 166 nr 6", "Bertini op.166", "lekkości i równości palców w figuracjach"]
   ]
 };
 const GR_BOOKS = {
@@ -617,7 +617,7 @@ function grRepHtml(lvl) {
   const has = (n) => S.my.some(m => m.name === n);
   return `<details class="card"><summary><b>${begLvlObj(lvl).name}: utwory z programu RCM i z książek</b></summary><div class="stack" style="margin-top:10px">
     <p class="small muted" style="margin:0">Utwory z oficjalnej listy RCM ${lvl === "g1" ? "Level 1" : "Level 2"}, które są w domenie publicznej – nuty za darmo w IMSLP. Takich utworów aplikacja nie sprawdzi przez pianino (nie ma ich nut), ale możesz dodać je do Moich utworów, żeby plan je podsuwał.</p>
-    <div class="stack" style="gap:6px">${GR_FREE[lvl].map(([list, name, q]) => `<div class="spread" style="gap:8px"><span class="small"><span class="pill">${list === "etiuda" ? "etiuda" : "lista " + list}</span> ${name}</span>
+    <div class="stack" style="gap:6px">${GR_FREE[lvl].map(([list, name, q, uczy]) => `<div class="spread" style="gap:8px"><span class="small"><span class="pill">${list === "etiuda" ? "etiuda" : "lista " + list}</span> ${name}${uczy ? `<br><span class="muted">Uczy: ${uczy}</span>` : ""}</span>
       <span class="row" style="gap:6px;flex:none"><a class="pill" href="${IMSLP(q)}" target="_blank" rel="noopener">IMSLP</a>${has(name) ? `<span class="small muted">dodane</span>` : `<button class="btn sm ghost" data-act="g-addmy" data-name="${esc(name)}">+ Moje</button>`}</span></div>`).join("")}</div>
     <h4 class="lvlhead">Z książek w domu</h4>
     ${GR_BOOKS[lvl].map(([b, how]) => `<div class="stack" style="gap:2px"><b class="small">${b}</b><span class="small">${how}</span></div>`).join("")}

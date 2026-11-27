@@ -479,6 +479,7 @@ function begPieceHtml(p, inPlan) {
   const s = st(p.id);
   return `<div class="stack" style="gap:8px"><div><h3 style="font-size:1.15rem">${p.name}</h3>
     <p class="meta">${p.by} · ${p.hands} · ${p.pos}</p></div>
+    ${p.uczy ? `<p class="note"><b>Czego uczy:</b> ${p.uczy}.</p>` : ""}
     <div class="abc" data-babc="${p.id}"></div>
     <div class="row"><button class="btn sm" data-act="b-play" data-src="piece:${p.id}">▶ Posłuchaj</button><button class="btn sm ghost" data-act="b-stop">Stop</button>
       ${ytLink(p.name.replace(/\s*\(.*\)/, "") + " easy piano tutorial", "YouTube")}${mpUi("piece:" + p.id)}
